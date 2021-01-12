@@ -35,12 +35,12 @@ class HashStore(object):  # pylint: disable=useless-object-inheritance
         utils.log(msg, name=cls.__name__, level=level)
 
     @classmethod
-    def int_to_hash(cls, val):
-        return tuple([int(bit_val) for bit_val in format(val, 'b')])
-
-    @classmethod
     def hash_to_int(cls, image_hash):
         return int(''.join(str(bit_val) for bit_val in image_hash), 2)
+
+    @classmethod
+    def int_to_hash(cls, val):
+        return tuple([int(bit_val) for bit_val in format(val, 'b')])
 
     def load(self, identifier):
         filename = file_utils.make_legal_filename(identifier, suffix='.json')
@@ -190,6 +190,10 @@ class Detector(object):  # pylint: disable=useless-object-inheritance
         return [sum(vals[pivot - 1:pivot + 1]) // 2 for pivot in pivots]
 
     @classmethod
+    def calc_significance(cls, vals):
+        return 100 * sum(vals) / len(vals)
+
+    @classmethod
     def calc_similarity(
             cls, hash1, hash2,
             function=operator.eq,
@@ -223,10 +227,6 @@ class Detector(object):  # pylint: disable=useless-object-inheritance
             similarity = bit_compare
 
         return similarity
-
-    @classmethod
-    def calc_significance(cls, vals):
-        return 100 * sum(vals) / len(vals)
 
     @classmethod
     def capture_resolution(cls, scale_down=1):
@@ -372,6 +372,13 @@ class Detector(object):  # pylint: disable=useless-object-inheritance
             del self.state
             self.state = None
 
+    def store_hashes(self):
+        if not self.state.season_identifier:
+            return
+        self.past_hashes.hash_size = self.hashes.hash_size
+        self.past_hashes.data.update(self.hashes.data)
+        self.past_hashes.save(self.state.season_identifier)
+
     def test(self):
         """Detection test loop captures Kodi render buffer every 1s to create
            an image hash. Hash is compared to the previous hash to determine
@@ -507,10 +514,3 @@ class Detector(object):  # pylint: disable=useless-object-inheritance
         self.running = False
         self.sigstop = False
         self.sigterm = False
-
-    def store_hashes(self):
-        if not self.state.season_identifier:
-            return
-        self.past_hashes.hash_size = self.hashes.hash_size
-        self.past_hashes.data.update(self.hashes.data)
-        self.past_hashes.save(self.state.season_identifier)

@@ -9,6 +9,23 @@ import player
 import state
 
 
+def open_settings():
+    xbmcaddon.Addon().openSettings()
+
+
+def run(argv):
+    """Route to API method"""
+    if len(argv) > 2 and argv[1] == 'test_window':
+        # Fancy style popup
+        if len(argv) == 3:
+            test_popup(argv[2])
+        # Simple style popup
+        elif len(argv) == 4:
+            test_popup(argv[2], argv[3])
+    else:
+        open_settings()
+
+
 def test_popup(popup_type, simple_style=False):
     # Create dummy episode to show in popup
     test_episode = dict(
@@ -83,20 +100,3 @@ def test_popup(popup_type, simple_style=False):
         episode=test_episode,
         source='library'
     )
-
-
-def open_settings():
-    xbmcaddon.Addon().openSettings()
-
-
-def run(argv):
-    """Route to API method"""
-    if len(argv) > 2 and argv[1] == 'test_window':
-        # Fancy style popup
-        if len(argv) == 3:
-            test_popup(argv[2])
-        # Simple style popup
-        elif len(argv) == 4:
-            test_popup(argv[2], argv[3])
-    else:
-        open_settings()

@@ -71,41 +71,13 @@ class UpNextState(object):  # pylint: disable=useless-object-inheritance
     def log(cls, msg, level=2):
         utils.log(msg, name=cls.__name__, level=level)
 
-    def reset(self):
-        self.__init__(reset=True)
-
-    def update_settings(self):
-        self.disabled = utils.get_setting_bool('disableNextUp')
-        self.auto_play = utils.get_setting_int('autoPlayMode') == 0
-        self.auto_play_delay = utils.get_setting_int('autoPlayCountdown')
-        self.detect_enabled = utils.get_setting_bool('detectPlayTime')
-        self.detect_always = utils.get_setting_bool('detectAlways')
-        self.unwatched_only = not utils.get_setting_bool('includeWatched')
-        self.enable_playlist = utils.get_setting_bool('enablePlaylist')
-        self.played_limit = utils.get_setting_int('playedInARow')
-        self.simple_mode = utils.get_setting_int('simpleMode') == 0
-
-    def get_tracked_file(self):
-        return self.filename
-
-    def is_disabled(self):
-        return self.disabled
-
-    def is_tracking(self):
-        return self.track
-
-    def set_tracking(self, filename):
-        if filename:
-            msg = 'Tracking enabled: {0}'.format(filename)
-        else:
-            msg = 'Tracking disabled'
-        self.log(msg, 2)
-        self.track = bool(filename)
-        self.filename = filename if filename else None
-
-    def reset_queue(self):
-        if self.queued:
-            self.queued = api.reset_queue()
+    def get_detect_time(self):
+        # Dont use detection time period if an addon cue point was provided,
+        # or end credits detection is disabled, or AML HW decoder is in use
+        if (self.popup_cue or not self.detect_enabled
+                or (utils.is_amlogic() and not self.detect_always)):
+            return None
+        return self.detect_time
 
     def get_next(self):
         """Get next episode to play, based on current video source"""
@@ -140,86 +112,11 @@ class UpNextState(object):  # pylint: disable=useless-object-inheritance
 
         return episode, source
 
-    def get_detect_time(self):
-        # Dont use detection time period if an addon cue point was provided,
-        # or end credits detection is disabled, or AML HW decoder is in use
-        if (self.popup_cue or not self.detect_enabled
-                or (utils.is_amlogic() and not self.detect_always)):
-            return None
-        return self.detect_time
-
-    def set_detect_time(self):
-        # Detection time period starts before normal popup time
-        self.detect_time = max(
-            0,
-            self.popup_time - utils.get_setting_int('detectPeriod')
-        )
-
     def get_popup_time(self):
         return self.popup_time
 
-    def set_popup_time(self, total_time):
-        # Alway use addon data, when available
-        if self.has_addon_data():
-            # Some addons send the time from video end
-            popup_duration = utils.get_int(self.data, 'notification_time')
-            if 0 < popup_duration < total_time:
-                self.popup_cue = True
-                self.popup_time = total_time - popup_duration
-                return
-
-            # Some addons send the time from video start (e.g. Netflix)
-            popup_time = utils.get_int(self.data, 'notification_offset')
-            if 0 < popup_time < total_time:
-                self.popup_cue = True
-                self.popup_time = popup_time
-                return
-
-        # Use a customized notification time, when configured
-        if utils.get_setting_bool('customAutoPlayTime'):
-            if total_time > 60 * 60:
-                duration_setting = 'autoPlayTimeXL'
-            elif total_time > 40 * 60:
-                duration_setting = 'autoPlayTimeL'
-            elif total_time > 20 * 60:
-                duration_setting = 'autoPlayTimeM'
-            elif total_time > 10 * 60:
-                duration_setting = 'autoPlayTimeS'
-            else:
-                duration_setting = 'autoPlayTimeXS'
-
-        # Use one global default, regardless of episode length
-        else:
-            duration_setting = 'autoPlaySeasonTime'
-
-        # Use addon settings, no cue point provided
-        popup_duration = utils.get_setting_int(duration_setting)
-        self.popup_cue = False
-        if 0 < popup_duration < total_time:
-            self.popup_time = total_time - popup_duration
-        else:
-            self.popup_time = 0
-
-    def set_detected_popup_time(self, time):
-        # Force popup time to specified time and use as a cue point
-        self.popup_cue = True
-        self.popup_time = time
-
-    def process_now_playing(self, has_addon_data=False):
-        item = (
-            self.handle_addon_now_playing() if has_addon_data
-            else self.handle_library_now_playing()
-        )
-        if not item:
-            return None
-
-        self.season_identifier = '_'.join((
-            str(item.get('showtitle')),
-            str(item.get('tvshowid')),
-            str(item.get('season'))
-        ))
-
-        return item
+    def get_tracked_file(self):
+        return self.filename
 
     def handle_addon_now_playing(self):
         item = self.data.get('current_episode') if self.data else None
@@ -298,8 +195,111 @@ class UpNextState(object):  # pylint: disable=useless-object-inheritance
             return 1
         return 0
 
+    def is_disabled(self):
+        return self.disabled
+
+    def is_tracking(self):
+        return self.track
+
+    def process_now_playing(self, has_addon_data=False):
+        item = (
+            self.handle_addon_now_playing() if has_addon_data
+            else self.handle_library_now_playing()
+        )
+        if not item:
+            return None
+
+        self.season_identifier = '_'.join((
+            str(item.get('showtitle')),
+            str(item.get('tvshowid')),
+            str(item.get('season'))
+        ))
+
+        return item
+
+    def reset(self):
+        self.__init__(reset=True)
+
+    def reset_queue(self):
+        if self.queued:
+            self.queued = api.reset_queue()
+
     def set_addon_data(self, data, encoding='base64'):
         if data:
             self.log('Addon data: %s' % data, 2)
         self.data = data
         self.encoding = encoding
+
+    def set_detect_time(self):
+        # Detection time period starts before normal popup time
+        self.detect_time = max(
+            0,
+            self.popup_time - utils.get_setting_int('detectPeriod')
+        )
+
+    def set_detected_popup_time(self, time):
+        # Force popup time to specified time and use as a cue point
+        self.popup_cue = True
+        self.popup_time = time
+
+    def set_popup_time(self, total_time):
+        # Alway use addon data, when available
+        if self.has_addon_data():
+            # Some addons send the time from video end
+            popup_duration = utils.get_int(self.data, 'notification_time')
+            if 0 < popup_duration < total_time:
+                self.popup_cue = True
+                self.popup_time = total_time - popup_duration
+                return
+
+            # Some addons send the time from video start (e.g. Netflix)
+            popup_time = utils.get_int(self.data, 'notification_offset')
+            if 0 < popup_time < total_time:
+                self.popup_cue = True
+                self.popup_time = popup_time
+                return
+
+        # Use a customized notification time, when configured
+        if utils.get_setting_bool('customAutoPlayTime'):
+            if total_time > 60 * 60:
+                duration_setting = 'autoPlayTimeXL'
+            elif total_time > 40 * 60:
+                duration_setting = 'autoPlayTimeL'
+            elif total_time > 20 * 60:
+                duration_setting = 'autoPlayTimeM'
+            elif total_time > 10 * 60:
+                duration_setting = 'autoPlayTimeS'
+            else:
+                duration_setting = 'autoPlayTimeXS'
+
+        # Use one global default, regardless of episode length
+        else:
+            duration_setting = 'autoPlaySeasonTime'
+
+        # Use addon settings, no cue point provided
+        popup_duration = utils.get_setting_int(duration_setting)
+        self.popup_cue = False
+        if 0 < popup_duration < total_time:
+            self.popup_time = total_time - popup_duration
+        else:
+            self.popup_time = 0
+
+    def set_tracking(self, filename):
+        if filename:
+            msg = 'Tracking enabled: {0}'.format(filename)
+        else:
+            msg = 'Tracking disabled'
+        self.log(msg, 2)
+        self.track = bool(filename)
+        self.filename = filename if filename else None
+
+    def update_settings(self):
+        self.disabled = utils.get_setting_bool('disableNextUp')
+        self.auto_play = utils.get_setting_int('autoPlayMode') == 0
+        self.auto_play_delay = utils.get_setting_int('autoPlayCountdown')
+        self.detect_enabled = utils.get_setting_bool('detectPlayTime')
+        self.detect_always = utils.get_setting_bool('detectAlways')
+        self.unwatched_only = not utils.get_setting_bool('includeWatched')
+        self.enable_playlist = utils.get_setting_bool('enablePlaylist')
+        self.played_limit = utils.get_setting_int('playedInARow')
+        self.simple_mode = utils.get_setting_int('simpleMode') == 0

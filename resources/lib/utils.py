@@ -17,11 +17,6 @@ ADDON = xbmcaddon.Addon()
 KODI_VERSION = float(xbmc.getInfoLabel('System.BuildVersion')[:4])
 
 
-def get_addon_info(key):
-    """Return addon information"""
-    return statichelper.to_unicode(ADDON.getAddonInfo(key))
-
-
 def addon_id():
     """Return addon ID"""
     return get_addon_info('id')
@@ -32,25 +27,98 @@ def addon_path():
     return get_addon_info('path')
 
 
-def supports_python_api(version):
-    """Return True if Kodi supports target Python API version"""
-    return KODI_VERSION >= version
+def clear_property(key, window_id=10000):
+    """Clear a Window property"""
+    return xbmcgui.Window(window_id).clearProperty(key)
+
+
+def decode_data(encoded):
+    """Decode data coming from a notification event"""
+    try:
+        json_data = binascii.unhexlify(encoded)
+        encoding = 'hex'
+    except (TypeError, binascii.Error):
+        json_data = base64.b64decode(encoded)
+        encoding = 'base64'
+
+    # NOTE: With Python 3.5 and older json.loads() does not support bytes
+    # or bytearray, so we convert to unicode
+    return json.loads(statichelper.to_unicode(json_data)), encoding
+
+
+def decode_json(data):
+    """Decode JSON data coming from a notification event"""
+    encoded = json.loads(data)
+    if not encoded:
+        return None, None
+    return decode_data(encoded[0])
+
+
+def encode_data(data, encoding='base64'):
+    """Encode data for a notification event"""
+    json_data = json.dumps(data).encode()
+    if encoding == 'base64':
+        encoded_data = base64.b64encode(json_data)
+    elif encoding == 'hex':
+        encoded_data = binascii.hexlify(json_data)
+    else:
+        log("Unknown payload encoding type '%s'" % encoding, level=0)
+        return None
+    if sys.version_info[0] > 2:
+        encoded_data = encoded_data.decode('ascii')
+    return encoded_data
+
+
+def event(message, data=None, sender=None, encoding='base64'):
+    """Send internal notification event"""
+    data = data or {}
+    sender = sender or addon_id()
+
+    encoded = encode_data(data, encoding=encoding)
+    if not encoded:
+        return
+
+    jsonrpc(
+        method='JSONRPC.NotifyAll',
+        params=dict(
+            sender='%s.SIGNAL' % sender,
+            message=message,
+            data=[encoded],
+        )
+    )
+
+
+def get_addon_info(key):
+    """Return addon information"""
+    return statichelper.to_unicode(ADDON.getAddonInfo(key))
+
+
+def get_global_setting(setting):
+    """Get a Kodi setting"""
+    result = jsonrpc(
+        method='Settings.GetSettingValue',
+        params=dict(setting=setting)
+    )
+    return result.get('result', {}).get('value')
+
+
+def get_int(obj, key, default=-1):
+    """Returns a value for the given key, as integer.
+       Returns default value if key is not available.
+       Returns value if value cannot be converted to integer."""
+    try:
+        val = obj.get(key, default)
+    except (AttributeError, TypeError):
+        return default
+    try:
+        return int(val)
+    except (ValueError, TypeError):
+        return val if val else default
 
 
 def get_property(key, window_id=10000):
     """Get a Window property"""
     return statichelper.to_unicode(xbmcgui.Window(window_id).getProperty(key))
-
-
-def set_property(key, value, window_id=10000):
-    """Set a Window property"""
-    value = statichelper.from_unicode(str(value))
-    return xbmcgui.Window(window_id).setProperty(key, value)
-
-
-def clear_property(key, window_id=10000):
-    """Clear a Window property"""
-    return xbmcgui.Window(window_id).clearProperty(key)
 
 
 def get_setting(key, default=None):
@@ -97,74 +165,39 @@ def get_setting_int(key, default=None):
         return default
 
 
-def get_int(obj, key, default=-1):
-    """Returns a value for the given key, as integer.
-       Returns default value if key is not available.
-       Returns value if value cannot be converted to integer."""
-    try:
-        val = obj.get(key, default)
-    except (AttributeError, TypeError):
-        return default
-    try:
-        return int(val)
-    except (ValueError, TypeError):
-        return val if val else default
+def is_amlogic():
+    """Check whether AMLogic hardware video decoder is being used"""
+    return xbmc.getInfoLabel('Player.Process(VideoDecoder)')[:3] == 'am-'
 
 
-def encode_data(data, encoding='base64'):
-    """Encode data for a notification event"""
-    json_data = json.dumps(data).encode()
-    if encoding == 'base64':
-        encoded_data = base64.b64encode(json_data)
-    elif encoding == 'hex':
-        encoded_data = binascii.hexlify(json_data)
-    else:
-        log("Unknown payload encoding type '%s'" % encoding, level=0)
-        return None
-    if sys.version_info[0] > 2:
-        encoded_data = encoded_data.decode('ascii')
-    return encoded_data
+def jsonrpc(**kwargs):
+    """Perform JSONRPC calls"""
+    response = not kwargs.pop('no_response', False)
+    if response and 'id' not in kwargs:
+        kwargs.update(id=0)
+    if 'jsonrpc' not in kwargs:
+        kwargs.update(jsonrpc='2.0')
+    result = xbmc.executeJSONRPC(json.dumps(kwargs))
+    return json.loads(result) if response else result
 
 
-def decode_data(encoded):
-    """Decode data coming from a notification event"""
-    try:
-        json_data = binascii.unhexlify(encoded)
-        encoding = 'hex'
-    except (TypeError, binascii.Error):
-        json_data = base64.b64decode(encoded)
-        encoding = 'base64'
-
-    # NOTE: With Python 3.5 and older json.loads() does not support bytes
-    # or bytearray, so we convert to unicode
-    return json.loads(statichelper.to_unicode(json_data)), encoding
+def localize(string_id):
+    """Return the translated string from the .po language files"""
+    return ADDON.getLocalizedString(string_id)
 
 
-def decode_json(data):
-    """Decode JSON data coming from a notification event"""
-    encoded = json.loads(data)
-    if not encoded:
-        return None, None
-    return decode_data(encoded[0])
+def localize_time(time):
+    """Localize time format"""
+    time_format = xbmc.getRegion('time')
 
+    # Fix a bug in Kodi v18.5 and older causing double hours
+    # https://github.com/xbmc/xbmc/pull/17380
+    time_format = time_format.replace('%H%H:', '%H:')
 
-def event(message, data=None, sender=None, encoding='base64'):
-    """Send internal notification event"""
-    data = data or {}
-    sender = sender or addon_id()
+    # Strip off seconds
+    time_format = time_format.replace(':%S', '')
 
-    encoded = encode_data(data, encoding=encoding)
-    if not encoded:
-        return
-
-    jsonrpc(
-        method='JSONRPC.NotifyAll',
-        params=dict(
-            sender='%s.SIGNAL' % sender,
-            message=message,
-            data=[encoded],
-        )
-    )
+    return time.strftime(time_format)
 
 
 def log(msg, name=None, level=1):
@@ -190,45 +223,12 @@ def log(msg, name=None, level=1):
     xbmc.log(statichelper.from_unicode(msg), level=level)
 
 
-def jsonrpc(**kwargs):
-    """Perform JSONRPC calls"""
-    response = not kwargs.pop('no_response', False)
-    if response and 'id' not in kwargs:
-        kwargs.update(id=0)
-    if 'jsonrpc' not in kwargs:
-        kwargs.update(jsonrpc='2.0')
-    result = xbmc.executeJSONRPC(json.dumps(kwargs))
-    return json.loads(result) if response else result
+def set_property(key, value, window_id=10000):
+    """Set a Window property"""
+    value = statichelper.from_unicode(str(value))
+    return xbmcgui.Window(window_id).setProperty(key, value)
 
 
-def get_global_setting(setting):
-    """Get a Kodi setting"""
-    result = jsonrpc(
-        method='Settings.GetSettingValue',
-        params=dict(setting=setting)
-    )
-    return result.get('result', {}).get('value')
-
-
-def localize(string_id):
-    """Return the translated string from the .po language files"""
-    return ADDON.getLocalizedString(string_id)
-
-
-def localize_time(time):
-    """Localize time format"""
-    time_format = xbmc.getRegion('time')
-
-    # Fix a bug in Kodi v18.5 and older causing double hours
-    # https://github.com/xbmc/xbmc/pull/17380
-    time_format = time_format.replace('%H%H:', '%H:')
-
-    # Strip off seconds
-    time_format = time_format.replace(':%S', '')
-
-    return time.strftime(time_format)
-
-
-def is_amlogic():
-    """Check whether AMLogic hardware video decoder is being used"""
-    return xbmc.getInfoLabel('Player.Process(VideoDecoder)')[:3] == 'am-'
+def supports_python_api(version):
+    """Return True if Kodi supports target Python API version"""
+    return KODI_VERSION >= version

@@ -8,6 +8,17 @@ import xbmc
 import xbmcvfs
 
 
+def create_directory(path):
+    """Create a directory from a path string"""
+    try:
+        if not xbmcvfs.exists(path) and not xbmcvfs.mkdirs(path):
+            raise IOError
+    except (IOError, OSError) as error:
+        if error.errno != errno.EEXIST:
+            raise
+    return True
+
+
 def make_legal_filename(filename, prefix='', suffix=''):
     """Returns a legal filename, from an arbitrary string input, as a string"""
     filename = ''.join((
@@ -33,14 +44,3 @@ def translate_path(path):
     except AttributeError:
         xbmcvfs.translatePath = xbmc.translatePath
         return xbmcvfs.translatePath(path)
-
-
-def create_directory(path):
-    """Create a directory from a path string"""
-    try:
-        if not xbmcvfs.exists(path) and not xbmcvfs.mkdirs(path):
-            raise IOError
-    except (IOError, OSError) as error:
-        if error.errno != errno.EEXIST:
-            raise
-    return True

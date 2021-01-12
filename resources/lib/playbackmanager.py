@@ -23,32 +23,6 @@ class PlaybackManager(object):  # pylint: disable=useless-object-inheritance
     def log(cls, msg, level=2):
         utils.log(msg, name=cls.__name__, level=level)
 
-    def launch_upnext(self):
-        episode, source = self.state.get_next()
-
-        # No episode get out of here
-        if not episode:
-            self.log('Exiting: no next episode', 2)
-            return False
-
-        # Show popup and get new playback state
-        play_next, keep_playing = self.launch_popup(episode, source)
-        self.state.playing_next = play_next
-
-        # Dequeue and stop playback if not playing next file
-        if not play_next and self.state.queued:
-            self.state.queued = api.dequeue_next_item()
-        if not keep_playing:
-            self.log('Stopping playback', 2)
-            self.player.stop()
-        # Relauch popup if shuffle enabled to get new random episode
-        elif self.state.shuffle and not play_next:
-            return self.launch_upnext()
-
-        self.sigterm = False
-        self.log('Exit', 2)
-        return True
-
     def launch_popup(self, episode, source=None):
         episodeid = utils.get_int(episode, 'episodeid')
 
@@ -195,6 +169,53 @@ class PlaybackManager(object):  # pylint: disable=useless-object-inheritance
         keep_playing = True
         return play_next, keep_playing
 
+    def launch_upnext(self):
+        episode, source = self.state.get_next()
+
+        # No episode get out of here
+        if not episode:
+            self.log('Exiting: no next episode', 2)
+            return False
+
+        # Show popup and get new playback state
+        play_next, keep_playing = self.launch_popup(episode, source)
+        self.state.playing_next = play_next
+
+        # Dequeue and stop playback if not playing next file
+        if not play_next and self.state.queued:
+            self.state.queued = api.dequeue_next_item()
+        if not keep_playing:
+            self.log('Stopping playback', 2)
+            self.player.stop()
+        # Relauch popup if shuffle enabled to get new random episode
+        elif self.state.shuffle and not play_next:
+            return self.launch_upnext()
+
+        self.sigterm = False
+        self.log('Exit', 2)
+        return True
+
+    def remove_popup(self, terminate=False):
+        if not self.popup:
+            return
+
+        if terminate or self.sigterm:
+            self.sigterm = True
+            return
+
+        with self.popup:
+            self.popup.close()
+            utils.clear_property('service.upnext.dialog')
+
+    def show_popup(self):
+        if not self.popup:
+            return False
+
+        with self.popup:
+            self.popup.show()
+            utils.set_property('service.upnext.dialog', 'true')
+            return True
+
     def show_popup_and_wait(self, auto_play):
         # Get video details, exit if no video playing
         with self.player as check_fail:
@@ -247,24 +268,3 @@ class PlaybackManager(object):  # pylint: disable=useless-object-inheritance
 
         popup_done = True
         return popup_done
-
-    def show_popup(self):
-        if not self.popup:
-            return False
-
-        with self.popup:
-            self.popup.show()
-            utils.set_property('service.upnext.dialog', 'true')
-            return True
-
-    def remove_popup(self, terminate=False):
-        if not self.popup:
-            return
-
-        if terminate or self.sigterm:
-            self.sigterm = True
-            return
-
-        with self.popup:
-            self.popup.close()
-            utils.clear_property('service.upnext.dialog')
