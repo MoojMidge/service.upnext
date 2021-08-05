@@ -182,11 +182,14 @@ def calculate_progress_steps(period):
 
 def jsonrpc(**kwargs):
     """Perform JSONRPC calls"""
-    if kwargs.get('id') is None:
+
+    response = not kwargs.pop('no_response', False)
+    if response and 'id' not in kwargs:
         kwargs.update(id=0)
-    if kwargs.get('jsonrpc') is None:
+    if 'jsonrpc' not in kwargs:
         kwargs.update(jsonrpc='2.0')
-    return json.loads(executeJSONRPC(json.dumps(kwargs)))
+    result = xbmc.executeJSONRPC(json.dumps(kwargs))
+    return json.loads(result) if response else result
 
 
 def get_global_setting(setting):
