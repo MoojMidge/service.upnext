@@ -142,6 +142,7 @@ class PlayList:
 
     def size(self):
         ''' A stub implementation for the xbmc PlayList class size() method '''
+        return 1
 
 
 class VideoInfoTag:
