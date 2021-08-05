@@ -284,7 +284,7 @@ class Api:
         sleep(100)
 
         # Find the next unwatched and the newest added episodes
-        return self.find_next_episode(result, current_file, include_watched, current_episode_id)
+        return self._find_next_episode(result, current_file, include_watched, current_episode_id)
 
     def handle_kodi_lookup_of_current_episode(self, tvshowid, current_episode_id):
         result = jsonrpc(method='VideoLibrary.GetEpisodes', params=dict(
@@ -338,7 +338,7 @@ class Api:
 
         return episodeid
 
-    def find_next_episode(self, result, current_file, include_watched, current_episode_id):
+    def _find_next_episode(self, result, current_file, include_watched, current_episode_id):
         found_match = False
         episodes = result.get('result', {}).get('episodes', [])
         for episode in episodes:
