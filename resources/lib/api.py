@@ -2,7 +2,7 @@
 # GNU General Public License v2.0 (see COPYING or https://www.gnu.org/licenses/gpl-2.0.txt)
 
 from __future__ import absolute_import, division, unicode_literals
-from xbmc import sleep, PLAYLIST_VIDEO, PLAYLIST_MUSIC
+from xbmc import sleep, PlayList, PLAYLIST_VIDEO, PLAYLIST_MUSIC
 from utils import event, get_int, get_setting_bool, get_setting_int, jsonrpc, log as ulog
 
 
@@ -65,7 +65,7 @@ class Api:
         return playerid
 
     @staticmethod
-    def get_playlistid(playlistid_cache=[None]):  # pylint: disable=dangerous-default-value
+    def _get_playlistid(playlistid_cache=[None]):  # pylint: disable=dangerous-default-value
         """Function to get playlistid of active player"""
 
         # We don't need to actually get playlistid everytime, cache and reuse instead
@@ -97,7 +97,7 @@ class Api:
                 method='Playlist.Add',
                 id=0,
                 params=dict(
-                    playlistid=Api.get_playlistid(),
+                    playlistid=Api._get_playlistid(),
                     item=next_item
                 )
             )
@@ -111,7 +111,7 @@ class Api:
             method='Playlist.Remove',
             id=0,
             params=dict(
-                playlistid=Api.get_playlistid(),
+                playlistid=Api._get_playlistid(),
                 position=1
             )
         )
@@ -124,14 +124,36 @@ class Api:
             method='Playlist.Remove',
             id=0,
             params=dict(
-                playlistid=Api.get_playlistid(),
+                playlistid=Api._get_playlistid(),
                 position=0
             )
         )
 
+    @staticmethod
+    def get_playlist_position():
+        """Function to get current playlist playback position, where the first item
+           in the playlist is position 1"""
+
+        # Use actual playlistid rather than xbmc.PLAYLIST_VIDEO as Kodi sometimes
+        # plays video content in a music playlist
+        playlistid = Api._get_playlistid(playlistid_cache=[None])
+        if playlistid is None:
+            return None
+
+        playlist = PlayList(playlistid)
+        playlist_size = playlist.size()
+        # Use 1 based index value for playlist position
+        position = playlist.getposition() + 1
+
+        # A playlist with only one element has no next item
+        # PlayList().getposition() starts counting from zero
+        if playlist_size > 1 and position < playlist_size:
+            return position
+        return None
+
     def get_next_in_playlist(self, position):
         result = jsonrpc(method='Playlist.GetItems', params=dict(
-            playlistid=Api.get_playlistid(),
+            playlistid=Api._get_playlistid(),
             # limits are zero indexed, position is one indexed
             limits=dict(start=position, end=position + 1),
             properties=['art', 'dateadded', 'episode', 'file', 'firstaired', 'lastplayed',

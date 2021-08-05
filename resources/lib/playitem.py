@@ -2,7 +2,6 @@
 # GNU General Public License v2.0 (see COPYING or https://www.gnu.org/licenses/gpl-2.0.txt)
 
 from __future__ import absolute_import, division, unicode_literals
-from xbmc import PlayList
 from api import Api
 from player import Player
 from state import State
@@ -21,23 +20,12 @@ class PlayItem:
     def log(self, msg, level=2):
         ulog(msg, name=self.__class__.__name__, level=level)
 
-    def get_playlist_position(self):
-        """Function to get current playlist playback position"""
-
-        playlist = PlayList(self.api.get_playlistid(playlistid_cache=[None]))
-        position = playlist.getposition()
-        # A playlist with only one element has no next item and PlayList().getposition() starts counting from zero
-        if playlist.size() > 1 and position < (playlist.size() - 1):
-            # Return 1 based index value
-            return position + 1
-        return False
-
     def get_next(self):
         """Get next episode to play, based on current video source"""
 
         episode = None
         source = None
-        position = self.get_playlist_position()
+        position = self.api.get_playlist_position()
         has_addon_data = self.api.has_addon_data()
 
         # Next video from addon data
