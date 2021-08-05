@@ -141,7 +141,7 @@ class Api:
         jsonrpc(
             method='Player.Open',
             params={
-                'item': {'playlistid': Api_get_playlistid(), 'position': position}
+                'item': {'playlistid': Api._get_playlistid(), 'position': position}
             },
             options={'resume': resume},
             no_response=True
