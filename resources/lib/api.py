@@ -130,6 +130,24 @@ class Api:
         )
 
     @staticmethod
+    def play_playlist_item(position=0, resume=False):
+        """Function to play episode in playlist"""
+
+        if position == 'next':
+            position = Api.get_playlist_position()
+
+        # JSON Player.Open can be too slow but is needed if resuming is enabled
+        # Unfortunately resuming from a playlist item does not seem to work...
+        jsonrpc(
+            method='Player.Open',
+            params={
+                'item': {'playlistid': Api_get_playlistid(), 'position': position}
+            },
+            options={'resume': resume},
+            no_response=True
+        )
+
+    @staticmethod
     def get_playlist_position():
         """Function to get current playlist playback position, where the first item
            in the playlist is position 1"""

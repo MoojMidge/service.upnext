@@ -122,7 +122,7 @@ class PlaybackManager:
             # Play playlist media
             if should_play_non_default:
                 # Only start the next episode if the user asked for it specifically
-                self.player.playnext()
+                self.api.play_playlist_item(position='next')
         elif self.api.has_addon_data():
             # Play add-on media
             self.api.play_addon_item()
