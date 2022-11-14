@@ -34,13 +34,20 @@ The add-on has various settings to fine-tune the experience, however the default
 For [Addon Integration](https://github.com/im85288/service.upnext/wiki/Addon-Integration) and [Skinners](https://github.com/im85288/service.upnext/wiki/Skinners) see the [wiki](https://github.com/im85288/service.upnext/wiki)
 
 ## Releases
-### 2.0.1+dev.0
+### 2.0.2+dev.0 (2022-11-14)
+- Minor fixes to release workflow
+- Add tests for non-ASCII titles and filenames
+- Fix potential unicode string errors
+- Re-organise UpNextPopup class
+- Add settings to customise plugin listing labels
+
+### 2.0.1+dev.0 (2022-10-12)
 - Fix release workflow and makefile
 - Improve speed and reliability of detector
 - Fix tvshow artwork of episodes in plugin listing
 - Add PL translation (@notoco)
 
-### 2.0.0+dev.0
+### 2.0.0+dev.0 (2022-09-01)
 - Initial release
 
 ### v1.1.2 (2020-06-22)
