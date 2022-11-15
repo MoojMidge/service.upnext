@@ -54,7 +54,75 @@ def _copy_episode_details(upnext_data):
     return upnext_data
 
 
-def _create_listitem(item, kwargs=None, infolabels=None):
+# pylint: disable=no-member
+if utils.supports_python_api(20):
+    def _set_info(infolabel):
+        info_tag = _set_info.info_tag
+        if not info_tag or not infolabel:
+            return None
+
+        name = infolabel[0].lower()
+        value = infolabel[1]
+        setter = _set_info.mapping.get(name)
+        if callable(setter):
+            setter(info_tag, value)
+            return (name, value)
+        return None
+
+    _InfoTagVideo = xbmc.InfoTagVideo
+    _set_info.mapping = {
+        'sortepisode': _InfoTagVideo.setSortEpisode,
+        'dbid': _InfoTagVideo.setDbId,
+        'year': _InfoTagVideo.setYear,
+        'episode': _InfoTagVideo.setEpisode,
+        'season': _InfoTagVideo.setSeason,
+        'sortseason': _InfoTagVideo.setSortSeason,
+        'episodeguide': _InfoTagVideo.setEpisodeGuide,
+        'top250': _InfoTagVideo.setTop250,
+        'setid': _InfoTagVideo.setSetId,
+        'tracknumber': _InfoTagVideo.setTrackNumber,
+        'rating': _InfoTagVideo.setRating,
+        # 'rating': _InfoTagVideo.setRatings,
+        'userrating': _InfoTagVideo.setUserRating,
+        'playcount': _InfoTagVideo.setPlaycount,
+        'mpaa': _InfoTagVideo.setMpaa,
+        'plot': _InfoTagVideo.setPlot,
+        'plotoutline': _InfoTagVideo.setPlotOutline,
+        'title': _InfoTagVideo.setTitle,
+        'originaltitle': _InfoTagVideo.setOriginalTitle,
+        'sorttitle': _InfoTagVideo.setSortTitle,
+        'tagline': _InfoTagVideo.setTagLine,
+        'tvshowtitle': _InfoTagVideo.setTvShowTitle,
+        'status': _InfoTagVideo.setTvShowStatus,
+        'genre': _InfoTagVideo.setGenres,
+        'country': _InfoTagVideo.setCountries,
+        'director': _InfoTagVideo.setDirectors,
+        'studio': _InfoTagVideo.setStudios,
+        'writer': _InfoTagVideo.setWriters,
+        'duration': _InfoTagVideo.setDuration,
+        'premiered': _InfoTagVideo.setPremiered,
+        'set': _InfoTagVideo.setSet,
+        'setoverview': _InfoTagVideo.setSetOverview,
+        'tag': _InfoTagVideo.setTags,
+        'code': _InfoTagVideo.setProductionCode,
+        'aired': _InfoTagVideo.setFirstAired,
+        'lastplayed': _InfoTagVideo.setLastPlayed,
+        'album': _InfoTagVideo.setAlbum,
+        'votes': _InfoTagVideo.setVotes,
+        'trailer': _InfoTagVideo.setTrailer,
+        'path': _InfoTagVideo.setPath,
+        # 'path': _InfoTagVideo.setFilenameAndPath,
+        'imdbnumber': _InfoTagVideo.setIMDBNumber,
+        'dateadded': _InfoTagVideo.setDateAdded,
+        'mediatype': _InfoTagVideo.setMediaType,
+        'showlink': _InfoTagVideo.setShowLinks,
+        'artist': _InfoTagVideo.setArtists,
+        'cast': _InfoTagVideo.setCast,
+        'castandrole': _InfoTagVideo.setCast,
+    }
+
+
+def _create_listitem(item, kwargs=None, infolabels=None, properties=None):
     """Create a xbmcgui.ListItem from provided item details"""
 
     title = item.get('title', '')
@@ -86,15 +154,36 @@ def _create_listitem(item, kwargs=None, infolabels=None):
     if infolabels:
         default_infolabels.update(infolabels)
 
+    default_properties = {
+        'isPlayable': 'true'
+    }
+    if not utils.supports_python_api(20):
+        default_properties.update({
+            'resumetime': str(resume.get('position')),
+            'totaltime': str(resume.get('total')),
+        })
+    if properties:
+        default_properties.update(properties)
+
     listitem = xbmcgui.ListItem(**default_kwargs)
-    listitem.setInfo(type='Video', infoLabels=default_infolabels)
-    listitem.setProperty('resumetime', str(resume.get('position')))
-    listitem.setProperty('totaltime', str(resume.get('total')))
-    listitem.setProperty('isPlayable', 'true')
+    if utils.supports_python_api(20):
+        info_tag = listitem.getVideoInfoTag()
+        _set_info.info_tag = info_tag
+        info_tag.setResumePoint(
+            time=resume.get('position'), totalTime=resume.get('total')
+        )
+        infolabels = dict(map(_set_info, default_infolabels.items()))
+    else:
+        listitem.setInfo(type='Video', infoLabels=default_infolabels)
+
+    if utils.supports_python_api(18):
+        listitem.setProperties(default_properties)
+        listitem.setIsFolder(False)
+    else:
+        for key, val in default_properties.items():
+            listitem.setProperty(key, val)
     listitem.setArt(art)
     listitem.setPath(file_path)
-    if utils.supports_python_api(18):
-        listitem.setIsFolder(False)
 
     return listitem
 
@@ -138,10 +227,11 @@ def create_episode_listitem(item):
         'mediatype': 'episode'
     }
 
-    listitem = _create_listitem(item, kwargs, infolabels)
-    listitem.setProperty(
-        'tvshowid', str(item.get('tvshowid', constants.UNDEFINED))
-    )
+    properties = {
+        'tvshowid': str(item.get('tvshowid', constants.UNDEFINED))
+    }
+
+    listitem = _create_listitem(item, kwargs, infolabels, properties)
     return listitem
 
 
