@@ -28,8 +28,8 @@ def generate_library_plugin_data(current_episode, addon_id, state=None):
         return None
 
     next_dbid = next_episode.get('episodeid')
-    current_episode = upnext.create_listitem(current_episode)
-    next_episode = upnext.create_listitem(next_episode)
+    current_episode = upnext.create_episode_listitem(current_episode)
+    next_episode = upnext.create_episode_listitem(next_episode)
 
     upnext_info = {
         'current_episode': current_episode,
@@ -61,10 +61,10 @@ def generate_listing(addon_handle, addon_id, items):  # pylint: disable=unused-a
 
 def generate_next_episodes_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     listing = []
-    next_episodes = api.get_upnext_from_library()
-    for episode in next_episodes:
+    episodes = api.get_upnext_from_library()
+    for episode in episodes:
         url = episode['file']
-        listitem = upnext.create_listitem(episode)
+        listitem = upnext.create_episode_listitem(episode)
         listing += ((url, listitem, False),)
 
     return listing
@@ -114,7 +114,7 @@ def play_media(addon_handle, addon_id, **kwargs):
         upnext.send_signal(addon_id, upnext_info)
     else:
         resolved = False
-        upnext_info = {'current_episode': upnext.create_listitem({})}
+        upnext_info = {'current_episode': upnext.create_episode_listitem({})}
 
     xbmcplugin.setResolvedUrl(
         addon_handle, resolved, upnext_info['current_episode']
