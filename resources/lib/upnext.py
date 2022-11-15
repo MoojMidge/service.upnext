@@ -75,7 +75,7 @@ def _create_listitem(item, kwargs=None, infolabels=None):
         'path': file_path,
         'title': title,
         'plot': item.get('plot', ''),
-        'rating': str(float(item.get('rating', 0.0))),
+        'rating': float(item.get('rating', 0.0)),
         'premiered': item.get('premiered', ''),
         'year': item.get('year', ''),
         'mpaa': item.get('mpaa', ''),
