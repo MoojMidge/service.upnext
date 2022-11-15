@@ -261,6 +261,10 @@ class ListItem(object):
         ''' A stub implementation for the xbmcgui ListItem class setProperty() method '''
         self._info['properties'][key] = value
 
+    def setProperties(self, values):
+        ''' A stub implementation for the xbmcgui ListItem class setProperties() method '''
+        self._info['properties'].update(values)
+
     @staticmethod
     def setSubtitles(subtitleFiles):
         ''' A stub implementation for the xbmcgui ListItem class setSubtitles() method '''
