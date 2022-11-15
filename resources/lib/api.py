@@ -5,6 +5,7 @@
 
 from __future__ import absolute_import, division, unicode_literals
 import os.path
+from operator import itemgetter
 import xbmc
 import constants
 import utils
@@ -224,6 +225,30 @@ _FILTER_UNWATCHED_UPNEXT_EPISODE_SEASON = {
     'and': [
         _FILTER_UNWATCHED,
         _FILTER_UPNEXT_EPISODE_SEASON
+    ]
+}
+
+_FILTER_IN_SET = {
+    'field': 'set',
+    'operator': 'isnot',
+    'value': ''
+}
+_FILTER_SEARCH_SET = {
+    'field': 'set',
+    'operator': 'is',
+    'value': constants.VALUE_TO_STR[constants.UNDEFINED]
+}
+_FILTER_NEXT_MOVIE = {
+    'field': 'year',
+    'operator': 'greaterthan',
+    'value': constants.VALUE_TO_STR[constants.UNDEFINED]
+}
+_FILTER_UNWATCHED_UPNEXT_MOVIE = {
+    'and': [
+        _FILTER_IN_SET,
+        _FILTER_SEARCH_SET,
+        _FILTER_UNWATCHED,
+        _FILTER_NEXT_MOVIE
     ]
 }
 
@@ -863,39 +888,43 @@ def get_upnext_movies_from_library(limit=25):
             'properties': MOVIE_PROPERTIES,
             'sort': _SORT_LASTPLAYED,
             'limits': _QUERY_LIMITS,
-            'filter': _FILTER_INPROGRESS_OR_WATCHED
+            'filter': _FILTER_INPROGRESS
         }
     )
     inprogress = inprogress.get('result', {}).get('movies', [])
 
+    watched = utils.jsonrpc(
+        method='VideoLibrary.GetMovies',
+        params={
+            'properties': MOVIE_PROPERTIES,
+            'sort': _SORT_LASTPLAYED,
+            'limits': _QUERY_LIMITS,
+            'filter': _FILTER_WATCHED
+        }
+    )
+    watched = watched.get('result', {}).get('movies', [])
+
+    inprogress_or_watched = inprogress + watched
+    inprogress_or_watched.sort(key=itemgetter('lastplayed'), reverse=True)
+
     upnext_movies = []
-    for movie in inprogress:
+    for movie in inprogress_or_watched:
         if movie['resume']['position']:
             upnext_movie = [movie]
         else:
-            movies = utils.jsonrpc(
-                method='VideoLibrary.GetMovieSetDetails',
+            _FILTER_SEARCH_SET['value'] = movie['set']
+            _FILTER_NEXT_MOVIE['value'] = str(movie['year'])
+
+            upnext_movie = utils.jsonrpc(
+                method='VideoLibrary.GetMovies',
                 params={
-                    'setid': movie['setid'],
-                    'properties': [],
-                    'movies': {
-                        'properties': MOVIE_PROPERTIES,
-                        'sort': _SORT_YEAR,
-                    }
+                    'properties': MOVIE_PROPERTIES,
+                    'sort': _SORT_YEAR,
+                    'limits': _QUERY_LIMIT_ONE,
+                    'filter': _FILTER_UNWATCHED_UPNEXT_MOVIE
                 }
             )
-            movies = movies.get('result', {}).get('setdetails', {})
-            movies = movies.get('movies')
-
-            movies = (
-                movies[movies.index(movie) + 1:]
-                if movies
-                and movie in movies
-                and movie != movies[-1]
-                else []
-            )
-            movies = [movie for movie in movies if movie['playcount'] < 1]
-            upnext_movie = [movies[0]] if movies else None
+            upnext_movie = upnext_movie.get('result', {}).get('movies', [])
 
         if not upnext_movie:
             continue
