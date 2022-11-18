@@ -34,6 +34,10 @@ The add-on has various settings to fine-tune the experience, however the default
 For [Addon Integration](https://github.com/im85288/service.upnext/wiki/Addon-Integration) and [Skinners](https://github.com/im85288/service.upnext/wiki/Skinners) see the [wiki](https://github.com/im85288/service.upnext/wiki)
 
 ## Releases
+### v2.0.3+dev.0 (2022-11-18)
+- Add UpNext movie widget source
+- Updates for Kodi v20
+
 ### v2.0.2b+dev.0 (2022-11-14)
 - Add tests for non-ASCII titles and filenames
 - Fix potential unicode string errors
