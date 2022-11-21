@@ -1,5 +1,6 @@
 name: Release
 on:
+  workflow_dispatch:
   push:
     tags:
     - 'v*'
@@ -26,41 +27,26 @@ jobs:
         id: get-details
         run: |
           readarray -t details < <(sed -En '/^## Releases.*$/,/^[[:space:]]*$/!d;s/\r//g;s/^### (v[[:digit:]][^[:space:]]*.*)$/\1/p;s/^(- .*)$/\1/p' README.md)
+          tag=`echo ${details[0]} | sed -En 's/v([[:digit:]][^[:space:]]*).*/\1/p;'`
+          echo "tag=${tag}" >> $GITHUB_OUTPUT
           echo "release_name=${details[0]}" >> $GITHUB_OUTPUT
+          echo "body<<${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
           for detail in "${details[@]:1}"; do
-              echo "body=${detail}" >> $GITHUB_OUTPUT
+              echo "${detail}" >> $GITHUB_OUTPUT
           done
+          echo "${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ steps.get-details.outputs.release_name }}
-          body: ${{ steps.get-details.outputs.body }}
-          draft: false
-          prerelease: false
-      - name: Upload Leia zip
-        id: upload-leia-zip
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_name: ${{ steps.get-leia-filename.outputs.filename }}
-          asset_path: ../${{ steps.get-leia-filename.outputs.filename }}
-          asset_content_type: application/zip
-      - name: Upload Matrix zip
-        id: upload-matrix-zip 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_name: ${{ steps.get-matrix-filename.outputs.filename }}
-          asset_path: ../${{ steps.get-matrix-filename.outputs.filename }}
-          asset_content_type: application/zip
+        run: |
+          gh release create ${{ steps.get-details.outputs.tag }} \
+            ../${{ steps.get-matrix-filename.outputs.filename }} \
+            ../${{ steps.get-leia-filename.outputs.filename }} \
+            --title "${{ steps.get-details.outputs.release_name }}" \
+            --notes "${{ steps.get-details.outputs.body }}" \
+            --generate-notes \
+            --draft
       # - name: Generate distribution zip and submit to official kodi repository
         # id: kodi-addon-submitter
         # uses: xbmc/action-kodi-addon-submitter@v1.2
