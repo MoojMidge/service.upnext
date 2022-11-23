@@ -117,6 +117,30 @@ PLAYER_PLAYLIST = {
     'audio': xbmc.PLAYLIST_MUSIC   # 0
 }
 
+JSON_DETAILS_MAP = {
+    'episode': {
+        'get_method': 'VideoLibrary.GetEpisodeDetails',
+        'set_method': 'VideoLibrary.SetEpisodeDetails',
+        'db_id': 'episodeid',
+        'properties': EPISODE_PROPERTIES,
+        'result': 'episodedetails'
+    },
+    'movie': {
+        'get_method': 'VideoLibrary.GetMovieDetails',
+        'set_method': 'VideoLibrary.SetMovieDetails',
+        'db_id': 'movieid',
+        'properties': MOVIE_PROPERTIES,
+        'result': 'moviedetails'
+    },
+    'tvshow': {
+        'get_method': 'VideoLibrary.GetTVShowDetails',
+        'set_method': 'VideoLibrary.SetTVShowDetails',
+        'db_id': 'tvshowid',
+        'properties': TVSHOW_PROPERTIES,
+        'result': 'tvshowdetails'
+    },
+}
+
 _QUERY_LIMITS = {
     'start': 0,
     'end': constants.UNDEFINED
