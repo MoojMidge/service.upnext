@@ -122,8 +122,8 @@ if utils.supports_python_api(20):
     }
 
 
-def _create_listitem(item, kwargs=None, infolabels=None, properties=None):
-    """Create a xbmcgui.ListItem from provided item details"""
+def _create_video_listitem(item, kwargs=None, infolabels=None, properties=None):
+    """Create a xbmcgui.ListItem from provided video details"""
 
     title = item.get('title', '')
     file_path = item.get('file', '')
@@ -231,7 +231,7 @@ def create_episode_listitem(item):
         'tvshowid': str(item.get('tvshowid', constants.UNDEFINED))
     }
 
-    listitem = _create_listitem(item, kwargs, infolabels, properties)
+    listitem = _create_video_listitem(item, kwargs, infolabels, properties)
     return listitem
 
 
@@ -243,7 +243,7 @@ def create_movie_listitem(item):
         'mediatype': 'movie'
     }
 
-    listitem = _create_listitem(item, None, infolabels)
+    listitem = _create_video_listitem(item, None, infolabels)
     return listitem
 
 

@@ -807,7 +807,7 @@ def handle_just_watched(episodeid, playcount,
     ), utils.LOGDEBUG)
 
 
-def get_upnext_from_library(limit=25):
+def get_upnext_episodes_from_library(limit=25):
     """Function to get in-progress and next episode details from Kodi library"""
 
     _QUERY_LIMITS['end'] = limit

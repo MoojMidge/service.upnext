@@ -61,7 +61,7 @@ def generate_listing(addon_handle, addon_id, items):  # pylint: disable=unused-a
 
 def generate_next_episodes_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     listing = []
-    episodes = api.get_upnext_from_library()
+    episodes = api.get_upnext_episodes_from_library()
     for episode in episodes:
         url = episode['file']
         listitem = upnext.create_episode_listitem(episode)
