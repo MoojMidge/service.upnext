@@ -120,8 +120,9 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         # Next item from non-plugin playlist
         elif playlist_position and not self.shuffle_on:
             next_item = api.get_from_playlist(
-                playlist_position,
-                SETTINGS.unwatched_only
+                position=playlist_position,
+                properties=(api.EPISODE_PROPERTIES | api.MOVIE_PROPERTIES),
+                unwatched_only=SETTINGS.unwatched_only
             )
             source = 'playlist'
 
@@ -244,7 +245,13 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             source = constants.PLUGIN_TYPES[plugin_type]
 
         elif playlist_position:
-            current_item = api.get_from_playlist(playlist_position - 1)
+            current_item = api.get_from_playlist(
+                position=(playlist_position - 1),
+                properties=(
+                    api.MOVIE_PROPERTIES if media_type == 'movie' else
+                    api.EPISODE_PROPERTIES
+                )
+            )
             source = 'playlist'
 
             if current_item:

@@ -178,7 +178,7 @@ def jsonrpc(**kwargs):
         kwargs.update(id=0)
     if 'jsonrpc' not in kwargs:
         kwargs.update(jsonrpc='2.0')
-    result = xbmc.executeJSONRPC(json.dumps(kwargs))
+    result = xbmc.executeJSONRPC(json.dumps(kwargs, default=tuple))
     return json.loads(result) if response else result
 
 

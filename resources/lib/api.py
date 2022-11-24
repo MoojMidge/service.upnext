@@ -11,7 +11,7 @@ import constants
 import utils
 
 
-EPISODE_PROPERTIES = [
+EPISODE_PROPERTIES = {
     'title',
     'playcount',
     'season',
@@ -35,7 +35,7 @@ EPISODE_PROPERTIES = [
     # 'cast',  # Not used, slow
     'dateadded',
     'lastplayed',
-]
+}
 EPISODE_ART_SUBSTITUTES = {
     'poster': ('season.poster', 'tvshow.poster'),
     'fanart': ('season.fanart', 'tvshow.fanart'),
@@ -45,7 +45,7 @@ EPISODE_ART_SUBSTITUTES = {
     'clearlogo': ('season.clearlogo', 'tvshow.clearlogo'),
 }
 
-TVSHOW_PROPERTIES = [
+TVSHOW_PROPERTIES = {
     'title',
     'studio',
     'year',
@@ -70,9 +70,9 @@ TVSHOW_PROPERTIES = [
     'dateadded',
     'watchedepisodes',
     # 'imdbnumber',  # Not used
-]
+}
 
-MOVIE_PROPERTIES = [
+MOVIE_PROPERTIES = {
     'title',
     'genre',
     'year',
@@ -110,7 +110,7 @@ MOVIE_PROPERTIES = [
     # 'ratings',  # Not used, slow
     'premiered',
     # 'uniqueid',  # Not used, slow
-]
+}
 
 PLAYER_PLAYLIST = {
     'video': xbmc.PLAYLIST_VIDEO,  # 1
@@ -420,7 +420,7 @@ def get_playlist_position():
     return None
 
 
-def get_from_playlist(position, unwatched_only=False):
+def get_from_playlist(position, properties, unwatched_only=False):
     """Function to get details of item in playlist"""
 
     result = utils.jsonrpc(
@@ -432,7 +432,7 @@ def get_from_playlist(position, unwatched_only=False):
                 'start': position,
                 'end': -1 if unwatched_only else position + 1
             },
-            'properties': EPISODE_PROPERTIES
+            'properties': properties
         }
     )
     items = result.get('result', {}).get('items')
