@@ -592,7 +592,7 @@ def get_player_speed():
     return result
 
 
-def get_now_playing(properties=None, retry=3):
+def get_now_playing(properties, retry=3):
     """Function to get detail of currently playing item"""
 
     # Retry in case of delay in getting response.
@@ -602,9 +602,7 @@ def get_now_playing(properties=None, retry=3):
             method='Player.GetItem',
             params={
                 'playerid': get_playerid(retry=retry),
-                'properties': (
-                    EPISODE_PROPERTIES if properties is None else properties
-                ),
+                'properties': properties,
             }
         )
         result = result.get('result', {}).get('item')

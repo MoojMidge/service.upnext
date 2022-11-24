@@ -255,8 +255,8 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
                 if not current_item['episode']:
                     current_item['episode'] = playlist_position
 
-        elif media_type == 'episode':
-            current_item = self._get_library_now_playing()
+        elif media_type in ('episode', 'movie'):
+            current_item = self._get_library_now_playing(media_type)
             source = 'library'
 
         else:
@@ -304,10 +304,19 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
         return current_item
 
-    def _get_library_now_playing(self):
-        current_item = api.get_now_playing(retry=SETTINGS.api_retry_attempts)
+    def _get_library_now_playing(self, media_type):
+        current_item = api.get_now_playing(
+            properties=(
+                api.MOVIE_PROPERTIES if media_type == 'movie' else
+                api.EPISODE_PROPERTIES
+            ),
+            retry=SETTINGS.api_retry_attempts
+        )
         if not current_item:
             return None
+
+        if media_type == 'movie':
+            return current_item
 
         # Get current tvshowid or search in library if detail missing
         tvshowid = self.get_tvshowid(current_item)
