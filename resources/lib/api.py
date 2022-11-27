@@ -308,6 +308,25 @@ def log(msg, level=utils.LOGDEBUG):
     utils.log(msg, name=__name__, level=level)
 
 
+def get_item_id(item):
+    """Helper function to construct item dict with library dbid reference for
+    use with params arguments of JSONRPC requests"""
+
+    if not item:
+        return {}
+
+    db_id = item['db_id']
+    media_type = item['media_type']
+
+    db_type = JSON_DETAILS_MAP.get(media_type)
+    if not db_type or not db_id:
+        return {}
+
+    return {
+        db_type['db_id']: item['db_id']
+    }
+
+
 def play_kodi_item(episode, resume=False):
     """Function to directly play a file from the Kodi library"""
 
@@ -693,6 +712,60 @@ def get_next_from_library(episode=constants.UNDEFINED,
     return episode, new_season
 
 
+def get_next_movie_from_library(movie=constants.UNDEFINED,
+                                unwatched_only=False,
+                                random=False):
+    """Function to get details of next movie in set from Kodi library"""
+
+    if not movie or movie == constants.UNDEFINED:
+        log('No next movie found, current movie not in library',
+            utils.LOGWARNING)
+        return None
+
+    if not movie['setid'] or movie['setid'] != constants.UNDEFINED:
+        log('No next movie found, invalid movie setid', utils.LOGWARNING)
+        return None
+
+    (path, filename) = os.path.split(movie['file'])
+    _FILTER_NOT_FILE['value'] = filename
+    _FILTER_NOT_PATH['value'] = path
+    filters = [_FILTER_NOT_FILEPATH]
+
+    _FILTER_SEARCH_SET['value'] = movie['set']
+    filters.append(_FILTER_SEARCH_SET)
+
+    if unwatched_only:
+        filters.append(_FILTER_UNWATCHED)
+
+    if random:
+        sort = _SORT_RANDOM
+    else:
+        sort = _SORT_YEAR
+        _FILTER_NEXT_MOVIE['value'] = str(movie['year'])
+        filters.append(_FILTER_NEXT_MOVIE)
+
+    filters = {'and': filters}
+
+    result = utils.jsonrpc(
+        method='VideoLibrary.GetMovies',
+        params={
+            'properties': MOVIE_PROPERTIES,
+            'sort': sort,
+            'limits': _QUERY_LIMIT_ONE,
+            'filter': filters
+        }
+    )
+    result = result.get('result', {}).get('movies', [])
+
+    if not result:
+        log('No next movie found in library')
+        return None
+
+    movie = result[0]
+    log('Next movie from library: {0}'.format(movie))
+    return movie
+
+
 def get_from_library(episodeid, tvshowid=None):
     """Function to get show and episode details from Kodi library"""
 
@@ -775,6 +848,36 @@ def get_episodeid(tvshowid, season, episode):
         return constants.UNDEFINED
 
     return utils.get_int(result[0], 'episodeid')
+
+
+def get_details_from_library(media_type=None,
+                             db_id=constants.UNDEFINED,
+                             item=None,
+                             properties=None):
+    """Function to retrieve video info details from Kodi library"""
+
+    if item:
+        media_type = item['media_type']
+        db_id = item['db_id']
+
+    if not media_type or db_id == constants.UNDEFINED:
+        return None, None
+
+    detail_type = JSON_DETAILS_MAP.get(media_type)
+    if not detail_type:
+        return None, None
+
+    result = utils.jsonrpc(
+        method=detail_type['get_method'],
+        params={
+            detail_type['db_id']: db_id,
+            'properties': (
+                properties if properties else detail_type['properties']
+            ),
+        }
+    )
+    result = result.get('result', {}).get(detail_type['result'])
+    return result, detail_type
 
 
 def handle_just_watched(episodeid, playcount,
