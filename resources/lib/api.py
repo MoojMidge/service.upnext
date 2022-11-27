@@ -252,11 +252,6 @@ _FILTER_UNWATCHED_UPNEXT_EPISODE_SEASON = {
     ]
 }
 
-_FILTER_IN_SET = {
-    'field': 'set',
-    'operator': 'isnot',
-    'value': ''
-}
 _FILTER_SEARCH_SET = {
     'field': 'set',
     'operator': 'is',
@@ -264,15 +259,19 @@ _FILTER_SEARCH_SET = {
 }
 _FILTER_NEXT_MOVIE = {
     'field': 'year',
-    'operator': 'greaterthan',
+    'operator': 'after',
     'value': constants.VALUE_TO_STR[constants.UNDEFINED]
+}
+_FILTER_UPNEXT_MOVIE = {
+    'and': [
+        _FILTER_SEARCH_SET,
+        _FILTER_NEXT_MOVIE
+    ]
 }
 _FILTER_UNWATCHED_UPNEXT_MOVIE = {
     'and': [
-        _FILTER_IN_SET,
-        _FILTER_SEARCH_SET,
         _FILTER_UNWATCHED,
-        _FILTER_NEXT_MOVIE
+        _FILTER_UPNEXT_MOVIE
     ]
 }
 
@@ -933,7 +932,7 @@ def get_upnext_movies_from_library(limit=25):
     for movie in inprogress_or_watched:
         if movie['resume']['position']:
             upnext_movie = [movie]
-        else:
+        elif movie['setid'] and movie['setid'] != constants.UNDEFINED:
             _FILTER_SEARCH_SET['value'] = movie['set']
             _FILTER_NEXT_MOVIE['value'] = str(movie['year'])
 
@@ -947,10 +946,10 @@ def get_upnext_movies_from_library(limit=25):
                 }
             )
             upnext_movie = upnext_movie.get('result', {}).get('movies', [])
-
-        if not upnext_movie:
+        else:
             continue
 
-        upnext_movies += upnext_movie
+        if upnext_movie:
+            upnext_movies += upnext_movie
 
     return upnext_movies
