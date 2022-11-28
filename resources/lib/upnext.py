@@ -122,13 +122,14 @@ if utils.supports_python_api(20):
     }
 
 
-def _create_video_listitem(item, kwargs=None, infolabels=None, properties=None):
+def _create_video_listitem(video,
+                           kwargs=None, infolabels=None, properties=None):
     """Create a xbmcgui.ListItem from provided video details"""
 
-    title = item.get('title', '')
-    file_path = item.get('file', '')
-    resume = item.get('resume', {})
-    art = item.get('art', {})
+    title = video.get('title', '')
+    file_path = video.get('file', '')
+    resume = video.get('resume', {})
+    art = video.get('art', {})
 
     default_kwargs = {
         'label': title,
@@ -142,14 +143,14 @@ def _create_video_listitem(item, kwargs=None, infolabels=None, properties=None):
     default_infolabels = {
         'path': file_path,
         'title': title,
-        'plot': item.get('plot', ''),
-        'rating': float(item.get('rating', 0.0)),
-        'premiered': item.get('premiered', ''),
-        'year': item.get('year', ''),
-        'mpaa': item.get('mpaa', ''),
-        'dateadded': item.get('dateadded', ''),
-        'lastplayed': item.get('lastplayed', ''),
-        'playcount': item.get('playcount', 0),
+        'plot': video.get('plot', ''),
+        'rating': float(video.get('rating', 0.0)),
+        'premiered': video.get('premiered', ''),
+        'year': video.get('year', ''),
+        'mpaa': video.get('mpaa', ''),
+        'dateadded': video.get('dateadded', ''),
+        'lastplayed': video.get('lastplayed', ''),
+        'playcount': video.get('playcount', 0),
     }
     if infolabels:
         default_infolabels.update(infolabels)
@@ -188,14 +189,14 @@ def _create_video_listitem(item, kwargs=None, infolabels=None, properties=None):
     return listitem
 
 
-def create_episode_listitem(item):
+def create_episode_listitem(episode):
     """Create a xbmcgui.ListItem from provided episode details"""
 
-    show_title = item.get('showtitle', '')
-    episode_title = item.get('title', '')
-    season = item.get('season', '')
-    episode_number = item.get('episode', '')
-    first_aired = item.get('firstaired', '')
+    show_title = episode.get('showtitle', '')
+    episode_title = episode.get('title', '')
+    season = episode.get('season', '')
+    episode_number = episode.get('episode', '')
+    first_aired = episode.get('firstaired', '')
 
     season_episode = (
         '{0}x{1}'.format(season, episode_number) if season and episode_number
@@ -217,7 +218,7 @@ def create_episode_listitem(item):
     }
 
     infolabels = {
-        'dbid': item.get('episodeid', constants.UNDEFINED),
+        'dbid': episode.get('episodeid', constants.UNDEFINED),
         'tvshowtitle': show_title,
         'season': season or constants.UNDEFINED,
         'episode': episode_number or constants.UNDEFINED,
@@ -228,23 +229,39 @@ def create_episode_listitem(item):
     }
 
     properties = {
-        'tvshowid': str(item.get('tvshowid', constants.UNDEFINED))
+        'tvshowid': str(episode.get('tvshowid', constants.UNDEFINED))
     }
 
-    listitem = _create_video_listitem(item, kwargs, infolabels, properties)
+    listitem = _create_video_listitem(episode, kwargs, infolabels, properties)
     return listitem
 
 
-def create_movie_listitem(item):
+def create_movie_listitem(movie):
     """Create a xbmcgui.ListItem from provided movie details"""
 
     infolabels = {
-        'dbid': item.get('movieid', constants.UNDEFINED),
+        'dbid': movie.get('movieid', constants.UNDEFINED),
         'mediatype': 'movie'
     }
 
-    listitem = _create_video_listitem(item, None, infolabels)
+    listitem = _create_video_listitem(movie, None, infolabels)
     return listitem
+
+
+def create_listitem(item):
+    """Create a xbmcgui.ListItem from provided item_details dict"""
+
+    media_type = item.get('media_type')
+    if 'details' in item:
+        item = item['details']
+
+    if media_type == 'episode' or 'tvshowid' in item:
+        return create_episode_listitem(item)
+
+    if media_type == 'movie' or 'setid' in item:
+        return create_movie_listitem(item)
+
+    return None
 
 
 def send_signal(sender, upnext_info):
