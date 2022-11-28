@@ -5,7 +5,6 @@
 
 from __future__ import absolute_import, division, unicode_literals
 import os.path
-from operator import itemgetter
 import xbmc
 import constants
 import utils
@@ -1021,8 +1020,9 @@ def get_upnext_movies_from_library(limit=25):
     )
     watched = watched.get('result', {}).get('movies', [])
 
-    inprogress_or_watched = inprogress + watched
-    inprogress_or_watched.sort(key=itemgetter('lastplayed'), reverse=True)
+    inprogress_or_watched = utils.merge_and_sort(
+        inprogress, watched, key='lastplayed', reverse=True
+    )
 
     upnext_movies = []
     for movie in inprogress_or_watched:

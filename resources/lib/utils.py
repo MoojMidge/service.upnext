@@ -5,7 +5,9 @@
 from __future__ import absolute_import, division, unicode_literals
 import base64
 import binascii
+from itertools import chain
 import json
+from operator import itemgetter
 import sys
 import threading
 import dateutil.parser
@@ -611,3 +613,12 @@ def create_item_details(item, source,
         ),
     }
     return item_details
+
+
+def merge_and_sort(*iterables, **kwargs):
+    key = kwargs.get('key')
+    key = itemgetter(key) if key else None
+
+    merged = chain.from_iterable(iterables)
+    merged = sorted(merged, key=key, reverse=kwargs.get('reverse', True))
+    return merged
