@@ -578,3 +578,36 @@ def calc_wait_time(end_time=None, start_time=0, rate=None):
         return None
 
     return max(0, (end_time - start_time) // rate)
+
+
+def create_item_details(item, source,
+                        media_type=None, playlist_position=None):
+    """Create item_details dict used by state, api and plugin modules"""
+
+    if not item or not source:
+        return None
+
+    is_episode = (media_type == 'episode') or ('tvshowid' in item)
+
+    item_details = {
+        'details': item,
+        'source': source,
+        'media_type': 'episode' if is_episode else media_type,
+        'db_id': (
+            get_int(item, 'id', None)
+            or get_int(item, 'episodeid' if is_episode else 'movieid')
+        ),
+        'group_id': get_int(item, 'tvshowid' if is_episode else 'setid'),
+        'group_name': (
+            constants.MIXED_PLAYLIST if playlist_position
+            else '-'.join((
+                item.get('showtitle', constants.UNTITLED_SHOW),
+                str(get_int(item, 'season', 0))
+            )) if is_episode
+            else item.get('set')
+        ),
+        'group_idx': (
+            get_int(item, 'episode') if is_episode else playlist_position
+        ),
+    }
+    return item_details

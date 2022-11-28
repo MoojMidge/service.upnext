@@ -22,8 +22,8 @@ class UpNextHashStore(object):
     __slots__ = (
         'version',
         'hash_size',
-        'seasonid',
-        'episode_number',
+        'group_name',
+        'group_idx',
         'data',
         'timestamps'
     )
@@ -31,12 +31,11 @@ class UpNextHashStore(object):
     def __init__(self, **kwargs):
         self.version = kwargs.get('version', 0.2)
         self.hash_size = kwargs.get('hash_size', (8, 8))
-        self.seasonid = kwargs.get('seasonid', '')
-        self.episode_number = kwargs.get(
-            'episode_number', constants.UNDEFINED
-        )
+        item = kwargs.get('item', {})
+        self.group_name = item.get('group_name', '')
+        self.group_idx = item.get('group_idx', constants.UNDEFINED)
         self.data = kwargs.get('data', {})
-        self.timestamps = kwargs.get('timestamps', {self.episode_number: None})
+        self.timestamps = kwargs.get('timestamps', {self.group_idx: None})
 
     @staticmethod
     def int_to_hash(val, hash_size):
@@ -56,29 +55,37 @@ class UpNextHashStore(object):
     def log(cls, msg, level=utils.LOGDEBUG):
         utils.log(msg, name=cls.__name__, level=level)
 
-    def is_valid(self, seasonid=None, episode_number=None, for_saving=False):
+    def is_valid(self, item=None, for_saving=False):
+
+        if item:
+            group_name = item.get('group_name')
+            group_idx = item.get('group_idx')
+        else:
+            group_name = None
+            group_idx = None
+
         # Non-episodic video is being played
-        if not self.seasonid or self.episode_number == constants.UNDEFINED:
+        if not self.group_name or self.group_idx == constants.UNDEFINED:
             return False
 
         # Playlist with no episode details
-        if for_saving and self.seasonid.startswith(constants.MIXED_PLAYLIST):
+        if for_saving and self.group_name.startswith(constants.MIXED_PLAYLIST):
             return False
 
         # No new episode details, assume current hashes are still valid
-        if seasonid is None and episode_number is None:
+        if group_name is None and group_idx is None:
             return True
 
         # Current episode matches, current hashes are still valid
-        if self.seasonid == seasonid and self.episode_number == episode_number:
+        if self.group_name == group_name and self.group_idx == group_idx:
             return True
 
         # New video is being played, invalidate old hashes
         return False
 
     def invalidate(self):
-        self.seasonid = ''
-        self.episode_number = constants.UNDEFINED
+        self.group_name = ''
+        self.group_idx = constants.UNDEFINED
 
     def load(self, identifier):
         target = file_utils.get_legal_filename(
@@ -105,9 +112,9 @@ class UpNextHashStore(object):
             }
         if 'timestamps' in hashes:
             self.timestamps = {
-                utils.get_int(episode_number):
-                    hashes['timestamps'][episode_number]
-                for episode_number in hashes['timestamps']
+                utils.get_int(group_idx):
+                    hashes['timestamps'][group_idx]
+                for group_idx in hashes['timestamps']
             }
 
         self.log('Hashes loaded from {0}'.format(target))
@@ -570,7 +577,7 @@ class UpNextDetector(object):
 
         self.hash_index = {
             # Hash indexes are tuples containing the following data:
-            # (time_to_end, time_from_start, episode_number)
+            # (time_to_end, time_from_start, group_idx)
             # Current hash
             'current': (0, 0, 0),
             # Previous hash
@@ -590,11 +597,10 @@ class UpNextDetector(object):
         # Round down width to multiple of 2
         hash_size[0] = int(hash_size[0] - hash_size[0] % 2)
 
-        # Hashes for currently playing episode
+        # Hashes for currently playing item
         self.hashes = UpNextHashStore(
             hash_size=hash_size,
-            seasonid=self.state.get_season_identifier(),
-            episode_number=self.state.get_episode_number(),
+            item=self.state.current_item,
             # Representative hash of centred end credits text on a dark
             # background stored as first hash. Masked significance weights
             # stored as second hash.
@@ -616,7 +622,7 @@ class UpNextDetector(object):
         # Hashes from previously played episodes
         self.past_hashes = UpNextHashStore(hash_size=hash_size)
         if SETTINGS.detector_save_path and self.hashes.is_valid():
-            self.past_hashes.load(self.hashes.seasonid)
+            self.past_hashes.load(self.hashes.group_name)
 
         # Number of consecutive frame matches required for a positive detection
         # Set to 5s of captured frames as default
@@ -729,7 +735,7 @@ class UpNextDetector(object):
                 self.hash_index['current'] = (
                     int(self.player.getTotalTime() - play_time),
                     int(play_time),
-                    self.hashes.episode_number
+                    self.hashes.group_idx
                 )
                 # Only capture if playing at normal speed
                 check_fail = self.player.get_speed() < 1
@@ -847,7 +853,7 @@ class UpNextDetector(object):
 
     def reset(self):
         self._hash_match_reset()
-        self.hashes.timestamps[self.hashes.episode_number] = None
+        self.hashes.timestamps[self.hashes.group_idx] = None
         self.hash_index['detected_at'] = None
 
     def start(self, restart=False):
@@ -857,15 +863,12 @@ class UpNextDetector(object):
             self.stop()
 
         # Reset detector data if episode has changed
-        if not self.hashes.is_valid(
-                self.state.get_season_identifier(),
-                self.state.get_episode_number()
-        ):
+        if not self.hashes.is_valid(item=self.state.current_item):
             self._init_hashes()
 
         # If a previously detected timestamp exists then use it
         stored_timestamp = self.past_hashes.timestamps.get(
-            self.hashes.episode_number
+            self.hashes.group_idx
         )
         if stored_timestamp and not SETTINGS.detector_debug:
             self.log('Stored credits timestamp found')
@@ -943,7 +946,7 @@ class UpNextDetector(object):
         ) if self.match_counts['detected'] else self.hashes.data)
 
         if SETTINGS.detector_save_path:
-            self.past_hashes.save(self.hashes.seasonid)
+            self.past_hashes.save(self.hashes.group_name)
 
     def update_timestamp(self, play_time):
         # Timestamp already stored or credits not detected
@@ -953,6 +956,6 @@ class UpNextDetector(object):
         with self._lock:
             self.log('Credits detected')
             self.hash_index['detected_at'] = self.hash_index['current']
-            self.hashes.timestamps[self.hashes.episode_number] = play_time
+            self.hashes.timestamps[self.hashes.group_idx] = play_time
             self.state.set_detected_popup_time(play_time)
             utils.event('upnext_credits_detected')

@@ -16,25 +16,24 @@ except ImportError:
     from urlparse import parse_qs, urlparse
 
 
-def generate_library_plugin_data(current_episode, addon_id, state=None):
+def generate_library_plugin_data(current_item, addon_id, state=None):
+    media_type = current_item['media_type']
     if state:
-        next_episode, source = state.get_next()
-        if source != 'library':
-            return None
+        next_item = state.get_next()
     else:
-        next_episode, _ = api.get_next_from_library(current_episode)
+        next_item = utils.create_item_details(
+            api.get_next_from_library(current_item), 'library', media_type
+        )
 
-    if not next_episode:
+    if not next_item['details'] or next_item['source'] != 'library':
         return None
 
-    next_dbid = next_episode.get('episodeid')
-    current_episode = upnext.create_episode_listitem(current_episode)
-    next_episode = upnext.create_episode_listitem(next_episode)
-
     upnext_info = {
-        'current_episode': current_episode,
-        'next_episode': next_episode,
-        'play_url': 'plugin://{0}/play/?dbid={1}'.format(addon_id, next_dbid)
+        'current_episode': upnext.create_listitem(current_item),
+        'next_episode': upnext.create_listitem(next_item),
+        'play_url': 'plugin://{0}/play/?dbtype={1}&dbid={2}'.format(
+            addon_id, media_type, next_item['db_id']
+        )
     }
     return upnext_info
 
@@ -106,15 +105,18 @@ def parse_plugin_url(url):
 
 
 def play_media(addon_handle, addon_id, **kwargs):
+    dbtype = kwargs.get('dbtype', [''])[0]
     dbid = int(kwargs.get('dbid', [constants.UNDEFINED])[0])
-    if dbid == constants.UNDEFINED:
+    if not dbtype or dbid == constants.UNDEFINED:
         return False
 
-    current_episode = api.get_from_library(dbid)
+    current_video = api.get_from_library(media_type=dbtype, db_id=dbid)
+    current_item = utils.create_item_details(current_video, 'library', dbtype)
+
     upnext_info = generate_library_plugin_data(
-        current_episode=current_episode,
+        current_item=current_item,
         addon_id=addon_id
-    ) if current_episode else None
+    ) if current_item['details'] else None
 
     if upnext_info:
         resolved = True

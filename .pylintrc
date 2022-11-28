@@ -11,5 +11,6 @@ disable=
     useless-object-inheritance,
     super-on-old-class,
     super-with-arguments,
-    too-many-instance-attributes
+    too-many-instance-attributes,
+    too-many-lines
     

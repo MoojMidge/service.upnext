@@ -36,7 +36,7 @@ class UpNextPopupHandler(object):
     def log(cls, msg, level=utils.LOGDEBUG):
         utils.log(msg, name=cls.__name__, level=level)
 
-    def _create_popup(self, next_item, source=None):
+    def _create_popup(self, next_item):
         # Only use Still Watching? popup if played limit has been reached
         if SETTINGS.played_limit:
             show_upnext = SETTINGS.played_limit > self.state.played_in_a_row
@@ -61,8 +61,11 @@ class UpNextPopupHandler(object):
             utils.get_addon_path(),
             'default',
             '1080i',
-            item=next_item,
-            shuffle_on=self.state.shuffle_on if source == 'library' else None,
+            item=next_item['details'],
+            shuffle_on=(
+                self.state.shuffle_on if next_item['source'] == 'library'
+                else None
+            ),
             stop_button=SETTINGS.show_stop_button,
             popup_position=SETTINGS.popup_position,
             accent_colour=SETTINGS.popup_accent_colour
@@ -137,8 +140,9 @@ class UpNextPopupHandler(object):
     def _has_popup(self):
         return getattr(self, 'popup', False)
 
-    def _play_next_video(self, next_item, source, popup_state):
+    def _play_next_video(self, next_item, popup_state):
         forced = self.player.player_state.forced('playing')
+        source = next_item['source']
         # Primary method is to play next playlist item
         if source.endswith('playlist') or self.state.queued:
             # Can't just seek to end of file as this triggers inconsistent Kodi
@@ -187,7 +191,7 @@ class UpNextPopupHandler(object):
         self.popup = None
 
     def _run(self):
-        next_item, source = self.state.get_next()
+        next_item = self.state.get_next()
         # No next item to play, get out of here
         if not next_item:
             self.log('Exiting: no next item to play')
@@ -198,11 +202,12 @@ class UpNextPopupHandler(object):
             return has_next_item, play_next, keep_playing, restart
 
         # Add next file to playlist if existing playlist is not being used
-        if SETTINGS.enable_queue and not source.endswith('playlist'):
+        if (SETTINGS.enable_queue
+                and not next_item['source'].endswith('playlist')):
             self.state.queued = api.queue_next_item(self.state.data, next_item)
 
         # Create Kodi dialog to show UpNext or Still Watching? popup
-        popup_state = self._create_popup(next_item, source)
+        popup_state = self._create_popup(next_item)
         # Show popup and update state of controls
         popup_state = self._update_popup(popup_state)
         # Close dialog once we are done with it
@@ -214,7 +219,7 @@ class UpNextPopupHandler(object):
         # Signal to Trakt that current item has been watched
         utils.event(
             message='NEXTUPWATCHEDSIGNAL',
-            data={'episodeid': self.state.get_episodeid()},
+            data=api.get_item_id(self.state.current_item),
             encoding='base64'
         )
 
@@ -244,7 +249,7 @@ class UpNextPopupHandler(object):
 
         else:
             # Request playback of next file based on source and type
-            self._play_next_video(next_item, source, popup_state)
+            self._play_next_video(next_item, popup_state)
             play_next = True
             keep_playing = True
             has_next_item = True
