@@ -81,7 +81,21 @@ def generate_next_movies_list(addon_handle, addon_id, **kwargs):  # pylint: disa
 
 
 def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
-    pass
+    listing = []
+
+    episodes = api.get_upnext_episodes_from_library()
+    movies = api.get_upnext_movies_from_library()
+
+    media = utils.merge_and_sort(
+        episodes, movies, key='lastplayed', reverse=True
+    )
+
+    for video in media:
+        url = video['file']
+        listitem = upnext.create_listitem(video)
+        listing += ((url, listitem, False),)
+
+    return listing
 
 
 def open_settings(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
@@ -171,7 +185,7 @@ PLUGIN_CONTENT = {
         'items': [
             '/next_episodes',
             '/next_movies',
-            # '/next_media',
+            '/next_media',
             '/settings',
         ],
     },

@@ -983,6 +983,9 @@ def get_upnext_episodes_from_library(limit=25):
         if not upnext_episode:
             continue
 
+        # Restore current episode lastplayed for sorting of next-up episode
+        upnext_episode[0]['lastplayed'] = current_episode[0]['lastplayed']
+
         art = upnext_episode[0].get('art')
         if art:
             art_types = frozenset(art.keys())
@@ -1052,6 +1055,8 @@ def get_upnext_movies_from_library(limit=25):
             continue
 
         if upnext_movie:
+            # Restore current movie lastplayed for sorting of next-up movie
+            upnext_movie[0]['lastplayed'] = movie['lastplayed']
             upnext_movies += upnext_movie
 
     return upnext_movies
