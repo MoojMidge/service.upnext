@@ -708,7 +708,11 @@ def get_next_from_library(episode=constants.UNDEFINED,
 
     log('Next episode from library: {0}'.format(result[0]))
     new_season = not random and episode['season'] != result[0]['season']
-    episode.update(result[0])
+    # Update current episode details dict, containing tvshow details, with next
+    # episode details. Surprisingly difficult to retain backwards compatibility
+    # episode = episode | result[0]       # Python > v3.9
+    # episode = {**episode, **result[0]}  # Python > v3.5
+    episode = dict(episode, **result[0])  # Python > v2.7
     return episode, new_season
 
 

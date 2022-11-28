@@ -22,7 +22,7 @@ def generate_library_plugin_data(current_episode, addon_id, state=None):
         if source != 'library':
             return None
     else:
-        next_episode, _ = api.get_next_from_library(current_episode.copy())
+        next_episode, _ = api.get_next_from_library(current_episode)
 
     if not next_episode:
         return None
