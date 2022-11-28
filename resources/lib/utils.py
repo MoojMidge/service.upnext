@@ -596,8 +596,8 @@ def create_item_details(item, source,
         'source': source,
         'media_type': 'episode' if is_episode else media_type,
         'db_id': (
-            get_int(item, 'id', None)
-            or get_int(item, 'episodeid' if is_episode else 'movieid')
+            get_int(item, 'episodeid' if is_episode else 'movieid', None)
+            or get_int(item, 'id')
         ),
         'group_id': get_int(item, 'tvshowid' if is_episode else 'setid'),
         'group_name': (

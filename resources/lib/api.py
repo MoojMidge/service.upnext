@@ -706,12 +706,12 @@ def get_next_episode_from_library(episode=constants.UNDEFINED,
         log('No next episode found in library')
         return None
 
-    log('Next episode from library: {0}'.format(result[0]))
     # Update current episode details dict, containing tvshow details, with next
     # episode details. Surprisingly difficult to retain backwards compatibility
     # episode = episode | result[0]       # Python > v3.9
     # episode = {**episode, **result[0]}  # Python > v3.5
     episode = dict(episode, **result[0])  # Python > v2.7
+    log('Next episode from library: {0}'.format(episode))
     return episode
 
 
