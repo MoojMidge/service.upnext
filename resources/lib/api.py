@@ -820,7 +820,9 @@ def get_tvshowid(title):
         log('tvshowid not found in library', utils.LOGWARNING)
         return constants.UNDEFINED
 
-    return utils.get_int(result[0], 'tvshowid')
+    tvshowid = utils.get_int(result[0], 'tvshowid')
+    log('Fetched show "{0}" tvshowid: {1}'.format(title, tvshowid))
+    return tvshowid
 
 
 def get_episodeid(tvshowid, season, episode):
@@ -845,7 +847,11 @@ def get_episodeid(tvshowid, season, episode):
         log('episodeid not found in library', utils.LOGWARNING)
         return constants.UNDEFINED
 
-    return utils.get_int(result[0], 'episodeid')
+    episodeid = utils.get_int(result[0], 'episodeid')
+    log('Fetched show {0} s{1}e{2} episodeid: {3}'.format(
+        tvshowid, season, episode, episodeid
+    ))
+    return episodeid
 
 
 def get_details_from_library(media_type=None,

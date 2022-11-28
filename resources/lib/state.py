@@ -303,7 +303,8 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
         return current_item
 
-    def _get_library_now_playing(self, media_type):
+    @staticmethod
+    def _get_library_now_playing(media_type):
         current_item = api.get_now_playing(
             properties=(
                 api.MOVIE_PROPERTIES if media_type == 'movie' else
@@ -321,7 +322,6 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         tvshowid = current_item.get('tvshowid', constants.UNDEFINED)
         if tvshowid == constants.UNDEFINED:
             tvshowid = api.get_tvshowid(current_item.get('showtitle'))
-            self.log('Fetched tvshowid: {0}'.format(tvshowid))
         # Now playing show not found in library
         if tvshowid == constants.UNDEFINED:
             return None
@@ -338,7 +338,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
                 current_item.get('season'),
                 current_item.get('episode')
             )
-            self.log('Fetched episodeid: {0}'.format(episodeid))
+
         # Now playing episode not found in library
         if episodeid == constants.UNDEFINED:
             return None
