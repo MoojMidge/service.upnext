@@ -154,8 +154,7 @@ class UpNextPopupHandler(object):
             # video threads when the current file finishes
             if popup_state['play_now'] or popup_state['play_on_cue'] or forced:
                 api.play_playlist_item(
-                    # Use previously stored next playlist position if available
-                    position=next_item.get('playlist_position', 'next'),
+                    position='next',
                     resume=SETTINGS.enable_resume
                 )
 
