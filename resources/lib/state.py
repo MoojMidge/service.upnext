@@ -284,7 +284,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         if self.data:
             # Fallback to now playing info if plugin does not provide current
             # episode details
-            current_item = (
+            current_video = (
                 self.data.get('current_episode')
                 or api.get_now_playing(
                     properties=(
@@ -295,56 +295,56 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
                 )
             )
         else:
-            current_item = None
+            current_video = None
 
-        self.log('Plugin current_episode: {0}'.format(current_item))
-        if not current_item:
+        self.log('Plugin current_episode: {0}'.format(current_video))
+        if not current_video:
             return None
 
-        return current_item
+        return current_video
 
     @staticmethod
     def _get_library_now_playing(media_type):
-        current_item = api.get_now_playing(
+        current_video = api.get_now_playing(
             properties=(
                 api.MOVIE_PROPERTIES if media_type == 'movie' else
                 api.EPISODE_PROPERTIES
             ),
             retry=SETTINGS.api_retry_attempts
         )
-        if not current_item:
+        if not current_video:
             return None
 
         if media_type == 'movie':
-            return current_item
+            return current_video
 
         # Get current tvshowid or search in library if detail missing
-        tvshowid = current_item.get('tvshowid', constants.UNDEFINED)
+        tvshowid = current_video.get('tvshowid', constants.UNDEFINED)
         if tvshowid == constants.UNDEFINED:
-            tvshowid = api.get_tvshowid(current_item.get('showtitle'))
+            tvshowid = api.get_tvshowid(current_video.get('showtitle'))
+
         # Now playing show not found in library
         if tvshowid == constants.UNDEFINED:
             return None
-        current_item['tvshowid'] = tvshowid
+        current_video['tvshowid'] = tvshowid
 
         # Get current episode id or search in library if detail missing
         episodeid = (
-            utils.get_int(current_item, 'episodeid', None)
-            or utils.get_int(current_item, 'id')
+            utils.get_int(current_video, 'episodeid', None)
+            or utils.get_int(current_video, 'id')
         )
         if episodeid == constants.UNDEFINED:
             episodeid = api.get_episodeid(
                 tvshowid,
-                current_item.get('season'),
-                current_item.get('episode')
+                current_video.get('season'),
+                current_video.get('episode')
             )
-
         # Now playing episode not found in library
         if episodeid == constants.UNDEFINED:
             return None
-        current_item['episodeid'] = episodeid
+        current_video['episodeid'] = episodeid
 
-        return current_item
+        return current_video
 
     def get_plugin_type(self, playlist_position=None):
         if self.data:
