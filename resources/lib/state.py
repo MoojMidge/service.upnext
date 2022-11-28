@@ -316,7 +316,10 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             return None
 
         if media_type == 'movie':
-            return current_video
+            return (
+                current_video if utils.get_int(current_video, 'setid') > 0
+                else None
+            )
 
         # Get current tvshowid or search in library if detail missing
         tvshowid = current_video.get('tvshowid', constants.UNDEFINED)
