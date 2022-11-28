@@ -6,10 +6,11 @@
 
 Personal fork (commits are often untested and cause addon to break) that implements:
 - Automatic end credits detection
-- Provides UpNext video listing to act as a skin widget source
+- Provides UpNext video listings to act as source for in-progress and next-up episodes and movies skin widgets
 - Multi-threaded event driven code
 - More skin, popup, and addon settings
 - Shuffle (random, non-sequential) playback mode
+- Added support for movie sets
 - Improved compatibility with playlists, plugins, and other non-library media (plugins still require modification to integrate with UpNext, alternatively can just use playlists)
 - Built-in methods to simplify plugin integration
 
@@ -34,6 +35,10 @@ The add-on has various settings to fine-tune the experience, however the default
 For [Addon Integration](https://github.com/im85288/service.upnext/wiki/Addon-Integration) and [Skinners](https://github.com/im85288/service.upnext/wiki/Skinners) see the [wiki](https://github.com/im85288/service.upnext/wiki)
 
 ## Releases
+### v2.0.4+dev.0 (2022-11-28)
+- Add support for movie sets
+- Add UpNext combined episode + movie widget source
+
 ### v2.0.3+dev.0 (2022-11-18)
 - Add UpNext movie widget source
 - Updates for Kodi v20
