@@ -33,6 +33,7 @@ class UpNextSettings(object):
         'detector_save_path',
         'detector_threads',
         'disabled',
+        'enable_movieset',
         'enable_playlist',
         'enable_queue',
         'enable_resume',
@@ -114,13 +115,13 @@ class UpNextSettings(object):
             if self.auto_play and utils.get_setting_bool('enableStillWatching')
             else 0
         )
-
-        self.enable_resume = utils.get_setting_bool('enableResume')
-        self.enable_playlist = utils.get_setting_bool('enablePlaylist')
-
         self.mark_watched = utils.get_setting_int('markWatched')
+        self.enable_resume = utils.get_setting_bool('enableResume')
+
         self.unwatched_only = not utils.get_setting_bool('includeWatched')
         self.next_season = utils.get_setting_bool('nextSeason')
+        self.enable_playlist = utils.get_setting_bool('enablePlaylist')
+        self.enable_movieset = utils.get_setting_bool('enableMovieset')
 
         self.auto_play_delay = utils.get_setting_int('autoPlayCountdown')
         self.popup_durations = {

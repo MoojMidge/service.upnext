@@ -39,7 +39,7 @@ msgid "Still there?"
 msgstr ""
 
 msgctxt "#30032"
-msgid "Enable UpNext when using a playlist"
+msgid "Next item in playlist"
 msgstr ""
 
 msgctxt "#30033"
@@ -260,7 +260,7 @@ msgid "Default action after UpNext popup is shown"
 msgstr ""
 
 msgctxt "#30605"
-msgid "Play already watched videos"
+msgid "Previously watched videos"
 msgstr ""
 
 msgctxt "#30606"
@@ -320,7 +320,7 @@ msgid "Detection window [COLOR gray](seconds/hr prior to popup appearing by time
 msgstr ""
 
 msgctxt "#30640"
-msgid "Kodi library"
+msgid "Next selection"
 msgstr ""
 
 msgctxt "#30641"
@@ -332,7 +332,11 @@ msgid "Resume playback where possible [COLOR gray](disable to play next video fr
 msgstr ""
 
 msgctxt "#30643"
-msgid "Search for next episode in next season"
+msgid "Next episode in next season"
+msgstr ""
+
+msgctxt "#30644"
+msgid "Next movie in movie set"
 msgstr ""
 
 msgctxt "#30700"

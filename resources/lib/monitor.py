@@ -107,6 +107,13 @@ class UpNextMonitor(xbmc.Monitor, object):
             self.log('Skip video check: playlist handling not enabled')
             return
 
+        # Exit if UpNext movie set handling has not been enabled
+        if (not playlist_position
+                and not SETTINGS.enable_movieset
+                and playback['media_type'] == 'movie'):
+            self.log('Skip video check: movie set handling not enabled')
+            return
+
         # Use new plugin data if provided or erase old plugin data.
         # Note this may cause played in a row count to reset incorrectly if
         # playlist of mixed non-plugin and plugin content is used

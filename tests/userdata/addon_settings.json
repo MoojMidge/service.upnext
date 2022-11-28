@@ -28,6 +28,7 @@
 		"detectorThreads": 3,
 		"disableNextUp": "false",
 		"enableDemoMode": "true",
+		"enableMovieset": "true",
 		"enablePlaylist": "true",
 		"enablePopupSkin": "true",
 		"enableQueue": "true",
