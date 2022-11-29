@@ -27,7 +27,7 @@ jobs:
         id: get-details
         run: |
           readarray -t details < <(sed -En '/^## Releases.*$/,/^[[:space:]]*$/!d;s/\r//g;s/^### (v[[:digit:]][^[:space:]]*.*)$/\1/p;s/^(- .*)$/\1/p' README.md)
-          tag=`echo ${details[0]} | sed -En 's/v([[:digit:]][^[:space:]]*).*/\1/p;'`
+          tag=`echo ${details[0]} | sed -En 's/(v[[:digit:]][^[:space:]]*).*/\1/p;'`
           echo "tag=${tag}" >> $GITHUB_OUTPUT
           echo "release_name=${details[0]}" >> $GITHUB_OUTPUT
           echo "body<<${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
