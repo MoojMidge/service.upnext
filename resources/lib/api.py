@@ -97,7 +97,7 @@ MOVIE_PROPERTIES = {
     'top250',
     # 'votes',  # Not used
     'fanart',
-    'thumbnail',
+    # 'thumbnail',  # Not used
     'file',
     # 'sorttitle',  # Not used
     'resume',
@@ -109,6 +109,9 @@ MOVIE_PROPERTIES = {
     # 'ratings',  # Not used, slow
     'premiered',
     # 'uniqueid',  # Not used, slow
+}
+MOVIE_ART_REPLACEMENTS = {
+    'thumb': ('poster', ),
 }
 
 PLAYER_PLAYLIST = {
@@ -1054,9 +1057,22 @@ def get_upnext_movies_from_library(limit=25):
         else:
             continue
 
-        if upnext_movie:
-            # Restore current movie lastplayed for sorting of next-up movie
-            upnext_movie[0]['lastplayed'] = movie['lastplayed']
-            upnext_movies += upnext_movie
+        if not upnext_movie:
+            continue
+
+        # Restore current movie lastplayed for sorting of next-up movie
+        upnext_movie[0]['lastplayed'] = movie['lastplayed']
+
+        art = upnext_movie[0].get('art')
+        if art:
+            art_types = frozenset(art.keys())
+            for art_type, art_replacements in MOVIE_ART_REPLACEMENTS.items():
+                for art_replacement in art_replacements:
+                    if art_replacement in art_types:
+                        art[art_type] = art[art_replacement]
+                        break
+            upnext_movie[0]['art'] = art
+
+        upnext_movies += upnext_movie
 
     return upnext_movies
