@@ -178,16 +178,6 @@ class UpNextMonitor(xbmc.Monitor, object):
         # Otherwise just ensure details of current/next item to play are reset
         else:
             self.state.reset_item()
-
-        # Update playcount and reset resume point of previous file
-        if self.state.playing_next and SETTINGS.mark_watched:
-            api.handle_just_watched(
-                item=self.state.current_item,
-                reset_playcount=(
-                    SETTINGS.mark_watched == constants.SETTING_OFF
-                ),
-                reset_resume=True
-            )
         self.state.playing_next = False
 
         # Check whether UpNext can start tracking
@@ -344,6 +334,16 @@ class UpNextMonitor(xbmc.Monitor, object):
         )
         # Stop popuphandler and release resources
         self._stop_popuphandler(terminate=True)
+
+        # Update playcount and reset resume point of previous file
+        if not playback_cancelled and SETTINGS.mark_watched:
+            api.handle_just_watched(
+                item=self.state.current_item,
+                reset_playcount=(
+                    SETTINGS.mark_watched == constants.SETTING_OFF
+                ),
+                reset_resume=True
+            )
 
         if not self.detector:
             self._stop_detector()
