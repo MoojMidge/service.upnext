@@ -103,8 +103,8 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         next_video = None
         source = None
         media_type = self.current_item['media_type']
-        playlist_position = api.get_playlist_position()
-        plugin_type = self.get_plugin_type(playlist_position)
+        next_position, _ = api.get_playlist_position(offset=1)
+        plugin_type = self.get_plugin_type(next_position)
 
         # Next episode from plugin data
         if plugin_type:
@@ -117,9 +117,9 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             self.log('Plugin next_episode: {0}'.format(next_video))
 
         # Next item from non-plugin playlist
-        elif playlist_position and not self.shuffle_on:
+        elif next_position and not self.shuffle_on:
             next_video = api.get_from_playlist(
-                position=playlist_position,
+                position=next_position,
                 properties=(api.EPISODE_PROPERTIES | api.MOVIE_PROPERTIES),
                 unwatched_only=SETTINGS.unwatched_only
             )
@@ -146,7 +146,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
         if next_video:
             self.next_item = utils.create_item_details(
-                next_video, source, media_type, playlist_position
+                next_video, source, media_type, next_position
             )
         return self.next_item
 
@@ -242,7 +242,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
         elif playlist_position:
             current_video = api.get_from_playlist(
-                position=(playlist_position - 1),
+                position=playlist_position,
                 properties=(
                     api.MOVIE_PROPERTIES if media_type == 'movie' else
                     api.EPISODE_PROPERTIES
@@ -347,10 +347,10 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
         return current_video
 
-    def get_plugin_type(self, playlist_position=None):
+    def get_plugin_type(self, playlist_next=None):
         if self.data:
             plugin_type = constants.PLUGIN_DATA_ERROR
-            if playlist_position:
+            if playlist_next:
                 plugin_type += constants.PLUGIN_PLAYLIST
             if self.data.get('play_url'):
                 plugin_type += constants.PLUGIN_PLAY_URL

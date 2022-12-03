@@ -383,52 +383,62 @@ def dequeue_next_item():
     return False
 
 
-def play_playlist_item(position=0, resume=False):
-    """Function to play episode in playlist"""
+def play_playlist_item(position, resume=False):
+    """Function to play item in playlist from a specified position, where the
+       first item in the playlist is position 1"""
 
     if position == 'next':
-        position = get_playlist_position()
-    log('Playing from playlist position: {0}'.format(position + 1))
+        position, _ = get_playlist_position(offset=1)
+    if not position:
+        log('Unable to play from playlist position: {0}'.format(position),
+            utils.LOGWARNING)
+        return
+    log('Playing from playlist position: {0}'.format(position))
 
     # JSON Player.Open can be too slow but is needed if resuming is enabled
     # Unfortunately resuming from a playlist item does not seem to work...
     utils.jsonrpc(
         method='Player.Open',
         params={
-            'item': {'playlistid': get_playlistid(), 'position': position}
+            'item': {
+                'playlistid': get_playlistid(),
+                # Convert one indexed position to zero indexed position
+                'position': position - 1
+            }
         },
         options={'resume': resume},
         no_response=True
     )
 
 
-def get_playlist_position():
-    """Function to get current playlist playback position, where the first item
-       in the playlist is position 1"""
+def get_playlist_position(offset=0):
+    """Function to get current playlist position and number of remaining
+       playlist items, where the first item in the playlist is position 1"""
 
     # Use actual playlistid rather than xbmc.PLAYLIST_VIDEO as Kodi sometimes
     # plays video content in a music playlist
     playlistid = get_playlistid()
     if playlistid is None:
-        return None
+        return None, None
 
     playlist = xbmc.PlayList(playlistid)
     playlist_size = playlist.size()
     # Use 1 based index value for playlist position
-    position = playlist.getposition() + 1
+    position = playlist.getposition() + 1 + offset
 
     # A playlist with only one element has no next item
     # PlayList().getposition() starts counting from zero
-    if playlist_size > 1 and position < playlist_size:
+    if playlist_size > 1 and position <= playlist_size:
         log('playlistid: {0}, position - {1}/{2}'.format(
             playlistid, position, playlist_size
         ))
-        return position
-    return None
+        return position, (playlist_size - position)
+    return None, None
 
 
 def get_from_playlist(position, properties, unwatched_only=False):
-    """Function to get details of item in playlist"""
+    """Function to get details of item in playlist, where the first item in the
+       playlist is position 1"""
 
     result = utils.jsonrpc(
         method='Playlist.GetItems',
@@ -436,8 +446,8 @@ def get_from_playlist(position, properties, unwatched_only=False):
             'playlistid': get_playlistid(),
             # limits are zero indexed, position is one indexed
             'limits': {
-                'start': position,
-                'end': -1 if unwatched_only else position + 1
+                'start': position - 1,
+                'end': -1 if unwatched_only else position
             },
             'properties': properties
         }

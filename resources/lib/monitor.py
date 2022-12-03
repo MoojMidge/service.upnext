@@ -102,13 +102,13 @@ class UpNextMonitor(xbmc.Monitor, object):
             return
 
         # Exit if UpNext playlist handling has not been enabled
-        playlist_position = api.get_playlist_position()
-        if playlist_position and not SETTINGS.enable_playlist:
+        playlist_position, playlist_remaining = api.get_playlist_position()
+        if playlist_remaining and not SETTINGS.enable_playlist:
             self.log('Skip video check: playlist handling not enabled')
             return
 
         # Exit if UpNext movie set handling has not been enabled
-        if (not playlist_position
+        if (not playlist_remaining
                 and not SETTINGS.enable_movieset
                 and playback['media_type'] == 'movie'):
             self.log('Skip video check: movie set handling not enabled')
@@ -118,12 +118,14 @@ class UpNextMonitor(xbmc.Monitor, object):
         # Note this may cause played in a row count to reset incorrectly if
         # playlist of mixed non-plugin and plugin content is used
         self.state.set_plugin_data(data, encoding)
-        plugin_type = self.state.get_plugin_type(playlist_position)
+        plugin_type = self.state.get_plugin_type(playlist_remaining)
 
         # Start tracking if UpNext can handle the currently playing video
         # Process now playing video to get episode details and save playcount
         now_playing_item = self.state.process_now_playing(
-            playlist_position, plugin_type, playback['media_type']
+            playlist_position if playlist_remaining else None,
+            plugin_type,
+            playback['media_type']
         )
         if now_playing_item:
             self.state.set_tracking(playback['file'])
