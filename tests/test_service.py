@@ -12,6 +12,7 @@ SKIP_TEST_ALL = False
 SKIP_TEST_POPUP = False
 SKIP_TEST_OVERALL = False
 SKIP_TEST_PLUGIN = False
+SKIP_TEST_WIDGET = False
 
 
 def test_popup():
@@ -34,6 +35,15 @@ def test_plugin():
         '1',
         '?dbtype=episode&dbid={0}'.format(dbid)
     ])
+    assert test_complete is True
+
+
+def test_widget():
+    if SKIP_TEST_ALL or SKIP_TEST_WIDGET:
+        assert True
+        return
+
+    test_complete = plugin.run(['plugin://service.upnext/next_media', '1', ''])
     assert test_complete is True
 
 
