@@ -1021,7 +1021,9 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
     return upnext_episodes.values()
 
 
-def get_upnext_movies_from_library(limit=25):
+def get_upnext_movies_from_library(limit=25,
+                                   movie_sets=True,
+                                   unwatched_only=False):
     """Function to get in-progress and next movie details from Kodi library"""
 
     _QUERY_LIMITS['end'] = limit
@@ -1036,26 +1038,35 @@ def get_upnext_movies_from_library(limit=25):
     )
     inprogress = inprogress.get('result', {}).get('movies', [])
 
-    watched = utils.jsonrpc(
-        method='VideoLibrary.GetMovies',
-        params={
-            'properties': MOVIE_PROPERTIES,
-            'sort': _SORT_LASTPLAYED,
-            'limits': _QUERY_LIMITS,
-            'filter': _FILTER_WATCHED
-        }
-    )
-    watched = watched.get('result', {}).get('movies', [])
+    if movie_sets:
+        watched = utils.jsonrpc(
+            method='VideoLibrary.GetMovies',
+            params={
+                'properties': MOVIE_PROPERTIES,
+                'sort': _SORT_LASTPLAYED,
+                'limits': _QUERY_LIMITS,
+                'filter': _FILTER_WATCHED
+            }
+        )
+        watched = watched.get('result', {}).get('movies', [])
 
-    inprogress_or_watched = utils.merge_and_sort(
-        inprogress, watched, key='lastplayed', reverse=True
+        movies = utils.merge_and_sort(
+            inprogress, watched, key='lastplayed', reverse=True
+        )
+    else:
+        movies = inprogress
+
+    filters = (
+        _FILTER_UNWATCHED_UPNEXT_MOVIE if unwatched_only
+        else _FILTER_UPNEXT_MOVIE
     )
 
     upnext_movies = []
-    for movie in inprogress_or_watched:
+    for movie in movies:
         if movie['resume']['position']:
-            upnext_movie = [movie]
-        elif movie['setid'] and movie['setid'] != constants.UNDEFINED:
+            upnext_movie = movie
+        elif (movie_sets
+              and movie['setid'] and movie['setid'] != constants.UNDEFINED):
             _FILTER_SEARCH_SET['value'] = movie['set']
             _FILTER_NEXT_MOVIE['value'] = str(movie['year'])
 
@@ -1065,20 +1076,21 @@ def get_upnext_movies_from_library(limit=25):
                     'properties': MOVIE_PROPERTIES,
                     'sort': _SORT_YEAR,
                     'limits': _QUERY_LIMIT_ONE,
-                    'filter': _FILTER_UNWATCHED_UPNEXT_MOVIE
+                    'filter': filters
                 }
             )
-            upnext_movie = upnext_movie.get('result', {}).get('movies', [])
+            upnext_movie = upnext_movie.get('result', {}).get('movies')
+
+            if not upnext_movie:
+                continue
+            upnext_movie = upnext_movie[0]
         else:
             continue
 
-        if not upnext_movie:
-            continue
-
         # Restore current movie lastplayed for sorting of next-up movie
-        upnext_movie[0]['lastplayed'] = movie['lastplayed']
+        upnext_movie['lastplayed'] = movie['lastplayed']
 
-        art = upnext_movie[0].get('art')
+        art = upnext_movie.get('art')
         if art:
             art_types = frozenset(art.keys())
             for art_type, art_replacements in MOVIE_ART_REPLACEMENTS.items():
@@ -1086,8 +1098,8 @@ def get_upnext_movies_from_library(limit=25):
                     if art_replacement in art_types:
                         art[art_type] = art[art_replacement]
                         break
-            upnext_movie[0]['art'] = art
+            upnext_movie['art'] = art
 
-        upnext_movies += upnext_movie
+        upnext_movies.append(upnext_movie)
 
     return upnext_movies
