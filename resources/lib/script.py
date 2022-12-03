@@ -15,14 +15,15 @@ import utils
 
 def test_popup(popup_type, simple_style=False):
     test_episode = dummydata.LIBRARY['episodes'][0]
+    test_next_episode = dummydata.LIBRARY['episodes'][1]
 
     # Create test state object
     test_state = state.UpNextState()
     # Simulate after file has started
     test_state.starting = 0
     # Use test episode to simulate next playing episode used for popup display
-    test_state.current_item = utils.create_item_details(
-        item=test_episode, source='library'
+    test_state.next_item = utils.create_item_details(
+        item=test_next_episode, source='playlist',
     )
 
     # Choose popup style
@@ -71,6 +72,7 @@ def test_popup(popup_type, simple_style=False):
 
 def test_upnext(popup_type, simple_style=False):
     test_episode = dummydata.LIBRARY['episodes'][0]
+    test_next_episode = dummydata.LIBRARY['episodes'][1]
 
     # Create test state object
     test_state = state.UpNextState()
@@ -93,6 +95,7 @@ def test_upnext(popup_type, simple_style=False):
         # 'paused': {'value': False, 'force': False},
         # Simulate dummy file name
         'playing_file': {'value': test_episode['file'], 'force': True},
+        'next_file': {'value': test_next_episode['file'], 'force': True},
         'speed': {'value': 1, 'force': True},
         # Simulate playtime to start of dummy episode
         'time': {'value': 0, 'force': True},
@@ -100,13 +103,13 @@ def test_upnext(popup_type, simple_style=False):
         'total_time': {'value': test_episode['runtime'], 'force': True},
         # Simulate episode media type is being played based on dummy episode
         'media_type': {'value': 'episode', 'force': True},
-        # 'playnext': {'force': False},
         # Simulate stop to ensure actual playback doesn't stop on popup close
         'stop': {'force': True}
     })
     # Simulate player state could also be done using the following
     test_player.player_state.set('playing', True, force=True)
     test_player.player_state.set('playing_file', test_episode['file'], force=True)
+    test_player.player_state.set('next_file', test_next_episode['file'], force=True)
     test_player.player_state.set('speed', 1, force=True)
     test_player.player_state.set('time', 0, force=True)
     test_player.player_state.set('total_time', test_episode['runtime'], force=True)
