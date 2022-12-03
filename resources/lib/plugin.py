@@ -95,8 +95,6 @@ def generate_next_movies_list(addon_handle, addon_id, **kwargs):  # pylint: disa
 
 
 def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
-    listing = []
-
     episodes = api.get_upnext_episodes_from_library(
         next_season=SETTINGS.next_season,
         unwatched_only=SETTINGS.unwatched_only
@@ -106,11 +104,12 @@ def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disab
         unwatched_only=SETTINGS.unwatched_only
     )
 
-    media = utils.merge_and_sort(
+    videos = utils.merge_and_sort(
         episodes, movies, key='lastplayed', reverse=True
     )
 
-    for video in media:
+    listing = []
+    for video in videos:
         url = video['file']
         listitem = upnext.create_listitem(video)
         listing += ((url, listitem, False),)

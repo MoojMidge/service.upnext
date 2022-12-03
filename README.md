@@ -35,6 +35,14 @@ The add-on has various settings to fine-tune the experience, however the default
 For [Addon Integration](https://github.com/im85288/service.upnext/wiki/Addon-Integration) and [Skinners](https://github.com/im85288/service.upnext/wiki/Skinners) see the [wiki](https://github.com/im85288/service.upnext/wiki)
 
 ## Releases
+### v2.0.5+dev.0 (2022-12-03)
+- Improve speed of widget sources
+- Fix demo mode to use existing addon settings
+- Widget sources now use existing addon settings for enabling/disabling
+  - unwatched items
+  - next episodes from next season
+  - next movie from movie set
+
 ### v2.0.4+dev.0 (2022-11-28)
 - Add support for movie sets
 - Add UpNext combined episode + movie widget source
