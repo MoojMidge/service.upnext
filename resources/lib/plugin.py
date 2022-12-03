@@ -7,6 +7,7 @@ import xbmcgui
 import xbmcplugin
 import api
 import constants
+from settings import SETTINGS
 import upnext
 import utils
 
@@ -22,7 +23,12 @@ def generate_library_plugin_data(current_item, addon_id, state=None):
         next_item = state.get_next()
     else:
         next_item = utils.create_item_details(
-            api.get_next_from_library(current_item), 'library', media_type
+            api.get_next_from_library(
+                item=current_item,
+                next_season=SETTINGS.next_season,
+                unwatched_only=SETTINGS.unwatched_only
+            ),
+            source='library', media_type=media_type
         )
 
     if not next_item['details'] or next_item['source'] != 'library':
