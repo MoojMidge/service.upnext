@@ -190,16 +190,15 @@ class UpNextPopupHandler(object):
         del self.popup
         self.popup = None
 
-    def _run(self):
-        next_item = self.state.get_next()
+    def _run(self, item=None):
+        next_item = item if item else self.state.get_next()
         # No next item to play, get out of here
         if not next_item:
             self.log('Exiting: no next item to play')
             play_next = False
             keep_playing = True
-            has_next_item = False
             restart = False
-            return has_next_item, play_next, keep_playing, restart
+            return next_item, play_next, keep_playing, restart
 
         # Add next file to playlist if existing playlist is not being used
         if (SETTINGS.enable_queue
@@ -231,33 +230,34 @@ class UpNextPopupHandler(object):
         keep_playing = not popup_state['stop'] and (
             popup_state['show_upnext'] or self._sigcont.is_set()
         )
-        has_next_item = False
         restart = self._sigcont.is_set()
 
         # Popup closed prematurely
         if popup_state['abort']:
             self.log('Exiting: popup force closed', utils.LOGWARNING)
+            next_item = None if not restart else next_item
 
         # Shuffle start request
         elif popup_state['shuffle_start']:
             self.log('Exiting: shuffle requested')
+            next_item = None
             keep_playing = True
             restart = True
 
         elif not (popup_state['auto_play'] or popup_state['play_now']):
             self.log('Exiting: playback not selected')
+            next_item = None
 
         else:
             # Request playback of next file based on source and type
             self._play_next_video(next_item, popup_state)
             play_next = True
             keep_playing = True
-            has_next_item = True
             # Update played in a row count if auto_play otherwise reset
             self.state.played_in_a_row = (1 if popup_state['play_now']
                                           else self.state.played_in_a_row + 1)
 
-        return has_next_item, play_next, keep_playing, restart
+        return next_item, play_next, keep_playing, restart
 
     def _show_popup(self):
         if not self._has_popup():
@@ -329,15 +329,15 @@ class UpNextPopupHandler(object):
     def start(self):
         # Exit if popuphandler previously requested
         if self._running.is_set():
-            has_next_item = False
-            return has_next_item
+            return False
 
         self.log('Started')
         self._running.set()
 
+        next_item = None
         while True:
             # Show popup and get new playback state
-            has_next_item, play_next, keep_playing, restart = self._run()
+            next_item, play_next, keep_playing, restart = self._run(next_item)
 
             # Update playback state
             self.state.playing_next = play_next
@@ -365,7 +365,7 @@ class UpNextPopupHandler(object):
         self._sigterm.clear()
         self._running.clear()
 
-        return has_next_item
+        return bool(next_item)
 
     def stop(self, restart=False, terminate=False):
         # Set terminate or stop signals if popuphandler is running
