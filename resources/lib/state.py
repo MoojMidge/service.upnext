@@ -144,9 +144,10 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             ):
                 self.played_in_a_row = SETTINGS.played_limit
 
-        self.next_item = utils.create_item_details(
-            next_video, source, media_type, playlist_position
-        )
+        if next_video:
+            self.next_item = utils.create_item_details(
+                next_video, source, media_type, playlist_position
+            )
         return self.next_item
 
     def get_detect_time(self):
@@ -257,27 +258,24 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             current_video = None
             source = None
 
-        if not current_video or not source:
-            return None
-
-        current_item = utils.create_item_details(
-            current_video, source, media_type, playlist_position
-        )
-
-        # Reset played in a row count if new tvshow or set is playing, unless
-        # playing from a playlist
-        if (not playlist_position and self.current_item
-                and self.current_item['group_id'] != current_item['group_id']):
-            self.log(
-                'Reset played count: {0} group_id changed - {1} to {2}'.format(
-                    media_type,
-                    self.current_item['group_id'],
-                    current_item['group_id']
-                )
+        if current_video:
+            item = utils.create_item_details(
+                current_video, source, media_type, playlist_position
             )
-            self.played_in_a_row = 1
 
-        self.current_item = current_item
+            # Reset played in a row count if new tvshow or set is playing,
+            # unless playing from a playlist
+            if (not playlist_position and self.current_item
+                    and self.current_item['group_id'] != item['group_id']):
+                self.log('Reset playcount: {0} group_id change - {1} to {2}'
+                         .format(
+                             media_type,
+                             self.current_item['group_id'],
+                             item['group_id']
+                         ))
+                self.played_in_a_row = 1
+
+            self.current_item = item
         return self.current_item
 
     def _get_plugin_now_playing(self, media_type):
