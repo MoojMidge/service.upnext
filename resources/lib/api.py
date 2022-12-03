@@ -972,10 +972,11 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
     else:
         filters = filters[0]
 
-    upnext_episodes = {}
+    upnext_episodes = []
+    tvshows = set()
     for episode in episodes:
         tvshowid = episode['tvshowid']
-        if tvshowid in upnext_episodes:
+        if tvshowid in tvshows:
             continue
 
         if episode['resume']['position']:
@@ -999,6 +1000,7 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
             upnext_episode = upnext_episode.get('result', {}).get('episodes')
 
             if not upnext_episode:
+                tvshows.add(tvshowid)
                 continue
             upnext_episode = upnext_episode[0]
 
@@ -1017,9 +1019,10 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
                         break
             upnext_episode['art'] = art
 
-        upnext_episodes[tvshowid] = upnext_episode
+        upnext_episodes.append(upnext_episode)
+        tvshows.add(tvshowid)
 
-    return upnext_episodes.values()
+    return upnext_episodes
 
 
 def get_upnext_movies_from_library(limit=25,
