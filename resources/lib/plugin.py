@@ -65,8 +65,12 @@ def generate_listing(addon_handle, addon_id, items):  # pylint: disable=unused-a
 
 
 def generate_next_episodes_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
+    episodes = api.get_upnext_episodes_from_library(
+        next_season=SETTINGS.next_season,
+        unwatched_only=SETTINGS.unwatched_only
+    )
+
     listing = []
-    episodes = api.get_upnext_episodes_from_library()
     for episode in episodes:
         url = episode['file']
         listitem = upnext.create_episode_listitem(episode)
@@ -89,7 +93,10 @@ def generate_next_movies_list(addon_handle, addon_id, **kwargs):  # pylint: disa
 def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     listing = []
 
-    episodes = api.get_upnext_episodes_from_library()
+    episodes = api.get_upnext_episodes_from_library(
+        next_season=SETTINGS.next_season,
+        unwatched_only=SETTINGS.unwatched_only
+    )
     movies = api.get_upnext_movies_from_library()
 
     media = utils.merge_and_sort(
