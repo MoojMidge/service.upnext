@@ -35,6 +35,16 @@ The add-on has various settings to fine-tune the experience, however the default
 For [Addon Integration](https://github.com/im85288/service.upnext/wiki/Addon-Integration) and [Skinners](https://github.com/im85288/service.upnext/wiki/Skinners) see the [wiki](https://github.com/im85288/service.upnext/wiki)
 
 ## Releases
+### v2.0.6+dev.0 (2022-12-04)
+- Lots of bug fixes
+  - Fix marking as watched at end of playback
+  - Fix showing watched episode without next episode in widgets
+  - Fix testing popup display from addon settings
+  - Fix testing service operation
+  - Fix various issues with incorrect playlist position
+  - Fix various issues with pausing/restarting popup and detector
+  - Fix deprecated getFirstAired 
+
 ### v2.0.5+dev.0 (2022-12-03)
 - Improve speed of widget sources
 - Fix demo mode to use existing addon settings
