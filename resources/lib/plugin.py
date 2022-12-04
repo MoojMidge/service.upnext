@@ -31,7 +31,9 @@ def generate_library_plugin_data(current_item, addon_id, state=None):
             source='library', media_type=media_type
         )
 
-    if not next_item['details'] or next_item['source'] != 'library':
+    if (not next_item
+            or not next_item['details']
+            or next_item['source'] != 'library'):
         return None
 
     upnext_info = {
