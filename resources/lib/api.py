@@ -733,7 +733,7 @@ def get_next_movie_from_library(movie=constants.UNDEFINED,
             utils.LOGWARNING)
         return None
 
-    if not utils.get_int(movie, 'setid') > 0:
+    if utils.get_int(movie, 'setid') <= 0:
         log('No next movie found, invalid movie setid', utils.LOGWARNING)
         return None
 

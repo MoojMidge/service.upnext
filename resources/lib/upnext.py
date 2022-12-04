@@ -3,6 +3,7 @@
 """Implements helper functions for video plugins to interact with UpNext"""
 
 from __future__ import absolute_import, division, unicode_literals
+from collections import deque
 import xbmc
 import xbmcgui
 from settings import SETTINGS
@@ -173,7 +174,8 @@ def _create_video_listitem(video,
         info_tag.setResumePoint(
             time=resume.get('position'), totalTime=resume.get('total')
         )
-        infolabels = dict(map(_set_info, default_infolabels.items()))
+        # Consume iterator
+        deque(map(_set_info, default_infolabels.items(), maxlen=0))
     else:
         listitem.setInfo(type='Video', infoLabels=default_infolabels)
 
