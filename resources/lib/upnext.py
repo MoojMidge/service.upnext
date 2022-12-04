@@ -301,7 +301,10 @@ def send_signal(sender, upnext_info):
             else val.getTVShowTitle()
         ) or constants.UNDEFINED
         # Fallback for available date information
-        firstaired = val.getFirstAired() or val.getPremiered() or val.getYear()
+        firstaired = (
+            val.getFirstAiredAsW3C() if utils.supports_python_api(20)
+            else val.getFirstAired()
+        ) or val.getPremiered() or val.getYear()
         # Runtime used to evaluate endtime in UpNext popup, if available
         runtime = val.getDuration() if utils.supports_python_api(18) else 0
         # Prefer outline over full plot for UpNext popup
