@@ -599,7 +599,7 @@ def create_item_details(item, source,
     elif is_episode:
         group_id = get_int(item, 'tvshowid')
         group_name = '-'.join((
-            item.get('showtitle', constants.UNTITLED_SHOW),
+            item.get('showtitle', constants.UNTITLED),
             str(get_int(item, 'season', 0))
         ))
         group_idx = get_int(item, 'episode')

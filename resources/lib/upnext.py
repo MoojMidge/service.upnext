@@ -282,7 +282,7 @@ def send_signal(sender, upnext_info):
     for key, val in upnext_info.items():
         thumb = ''
         fanart = ''
-        tvshowid = str(constants.UNDEFINED)
+        tvshowid = constants.UNDEFINED_STR
 
         if key in required_plugin_info:
             upnext_data[key] = val
@@ -299,7 +299,7 @@ def send_signal(sender, upnext_info):
 
         # Use show title as substitute for missing ListItem tvshowid
         tvshowid = (
-            tvshowid if tvshowid != str(constants.UNDEFINED)
+            tvshowid if tvshowid != constants.UNDEFINED_STR
             else val.getTVShowTitle()
         ) or constants.UNDEFINED
         # Fallback for available date information

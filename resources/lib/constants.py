@@ -7,6 +7,7 @@ from __future__ import absolute_import, division, unicode_literals
 ADDON_ID = 'service.upnext'
 
 UNDEFINED = -1
+UNDEFINED_STR = '-1'
 
 WINDOW_HOME = 10000
 
@@ -45,15 +46,14 @@ VALUE_TO_STR = {
     None: '',
     False: 'false',
     True: 'true',
-    UNDEFINED: '-1',
 }
 
 LOG_ENABLE_DISABLED = 0
 LOG_ENABLE_INFO = 1
 LOG_ENABLE_DEBUG = 2
 
-UNTITLED_SHOW = '_untitled'
-MIXED_PLAYLIST = '_mixedplaylist'
+UNTITLED = 'untitled'
+MIXED_PLAYLIST = 'mixedplaylist'
 
 PLUGIN_TYPES = (
     'plugin_data_error',

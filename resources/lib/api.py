@@ -155,17 +155,17 @@ _QUERY_LIMIT_ONE = {
 _FILTER_SEARCH_TVSHOW = {
     'field': 'title',
     'operator': 'is',
-    'value': constants.VALUE_TO_STR[constants.UNDEFINED]
+    'value': constants.UNDEFINED_STR
 }
 _FILTER_NOT_FILE = {
     'field': 'filename',
     'operator': 'isnot',
-    'value': constants.VALUE_TO_STR[constants.UNDEFINED]
+    'value': constants.UNDEFINED_STR
 }
 _FILTER_NOT_PATH = {
     'field': 'path',
     'operator': 'isnot',
-    'value': constants.VALUE_TO_STR[constants.UNDEFINED]
+    'value': constants.UNDEFINED_STR
 }
 _FILTER_NOT_FILEPATH = {
     'or': [
@@ -210,23 +210,23 @@ _FILTER_REGULAR_SEASON_WATCHED = {
 _FILTER_THIS_SEASON = {
     'field': 'season',
     'operator': 'is',
-    'value': constants.VALUE_TO_STR[constants.UNDEFINED]
+    'value': constants.UNDEFINED_STR
 }
 _FILTER_NEXT_SEASON = {
     'field': 'season',
     'operator': 'greaterthan',
-    'value': constants.VALUE_TO_STR[constants.UNDEFINED]
+    'value': constants.UNDEFINED_STR
 }
 
 _FILTER_THIS_EPISODE = {
     'field': 'episode',
     'operator': 'is',
-    'value': constants.VALUE_TO_STR[constants.UNDEFINED]
+    'value': constants.UNDEFINED_STR
 }
 _FILTER_NEXT_EPISODE = {
     'field': 'episode',
     'operator': 'greaterthan',
-    'value': constants.VALUE_TO_STR[constants.UNDEFINED]
+    'value': constants.UNDEFINED_STR
 }
 
 _FILTER_SEARCH_EPISODE = {
@@ -251,12 +251,12 @@ _FILTER_UPNEXT_EPISODE_SEASON = {
 _FILTER_SEARCH_SET = {
     'field': 'set',
     'operator': 'is',
-    'value': constants.VALUE_TO_STR[constants.UNDEFINED]
+    'value': constants.UNDEFINED_STR
 }
 _FILTER_NEXT_MOVIE = {
     'field': 'year',
     'operator': 'after',
-    'value': constants.VALUE_TO_STR[constants.UNDEFINED]
+    'value': constants.UNDEFINED_STR
 }
 _FILTER_UPNEXT_MOVIE = {
     'and': [
