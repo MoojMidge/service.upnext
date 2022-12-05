@@ -288,10 +288,6 @@ def send_signal(sender, upnext_info):
     # Extract ListItem or InfoTagVideo details for use by UpNext
     upnext_data = {}
     for key, val in upnext_info.items():
-        thumb = ''
-        fanart = ''
-        tvshowid = constants.UNDEFINED_STR
-
         if key in required_plugin_info:
             upnext_data[key] = val
             continue
@@ -300,49 +296,72 @@ def send_signal(sender, upnext_info):
         if not key:
             continue
 
+        thumb = ''
+        fanart = ''
+        tvshow_id = constants.UNDEFINED
+        set_id = constants.UNDEFINED
+        set_name = ''
+
         if isinstance(val, xbmcgui.ListItem):
             thumb = val.getArt('thumb')
             fanart = val.getArt('fanart')
-            tvshowid = val.getProperty('tvshowid')
+            tvshow_id = (
+                val.getProperty('tvshowid')
+                or val.getProperty('TvShowDBID')
+                or tvshow_id
+            )
+            set_id = val.getProperty('setid') or set_id
+            set_name = val.getProperty('set')
             val = val.getVideoInfoTag()
 
         if not isinstance(val, xbmc.InfoTagVideo):
             continue
 
-        # Use show title as substitute for missing ListItem tvshowid
-        tvshowid = (
-            tvshowid if tvshowid != constants.UNDEFINED_STR
-            else val.getTVShowTitle()
-        ) or constants.UNDEFINED
-        # Fallback for available date information
-        firstaired = (
-            val.getFirstAiredAsW3C() if utils.supports_python_api(20)
-            else val.getFirstAired()
-        ) or val.getPremiered() or val.getYear()
-        # Runtime used to evaluate endtime in UpNext popup, if available
-        runtime = val.getDuration() if utils.supports_python_api(18) else 0
-        # Prefer outline over full plot for UpNext popup
-        plot = val.getPlotOutline() or val.getPlot()
-        # Prefer user rating over scraped rating
-        rating = val.getUserRating() or val.getRating()
+        media_type = val.getMediaType()
 
-        upnext_data[key] = {
-            'episodeid': val.getDbId(),
-            'tvshowid': tvshowid,
+        # Fallback for available date information
+        first_aired = (
+            val.getFirstAiredAsW3C() or val.getPremieredAsW3C()
+        ) if utils.supports_python_api(20) else (
+            val.getFirstAired() or val.getPremiered()
+        ) or val.getYear()
+
+        video_info = {
             'title': val.getTitle(),
             'art': {
                 'thumb': thumb,
                 'tvshow.fanart': fanart,
             },
-            'season': val.getSeason(),
-            'episode': val.getEpisode(),
-            'showtitle': val.getTVShowTitle(),
-            'plot': plot,
+            # Prefer outline over full plot for UpNext popup
+            'plot': val.getPlotOutline() or val.getPlot(),
             'playcount': val.getPlayCount(),
-            'rating': rating,
-            'firstaired': firstaired,
-            'runtime': runtime
+            # Prefer user rating over scraped rating
+            'rating': val.getUserRating() or val.getRating(),
+            'firstaired': first_aired,
+            # Runtime used to evaluate endtime in UpNext popup, if available
+            'runtime': utils.supports_python_api(18) and val.getDuration() or 0
         }
+
+        if media_type == 'episode':
+            video_info.update({
+                'episodeid': val.getDbId(),
+                'tvshowid': tvshow_id,
+                'season': val.getSeason(),
+                'episode': val.getEpisode(),
+                'showtitle': val.getTVShowTitle(),
+            })
+        elif media_type == 'movie':
+            video_info.update({
+                'movieid': val.getDbId(),
+                'setid': set_id,
+                'set': set_name,
+            })
+        else:
+            video_info.update({
+                'id': val.getDbId(),
+            })
+
+        upnext_data[key] = video_info
 
     upnext_data = _copy_video_details(upnext_data)
 

@@ -602,21 +602,22 @@ def create_item_details(item, source=None,
     is_episode = (media_type == 'episode') or ('tvshowid' in item)
 
     if playlist_position:
-        group_id = None
         group_name = constants.MIXED_PLAYLIST
         group_idx = playlist_position
 
     elif is_episode:
-        group_id = get_int(item, 'tvshowid')
         group_name = '-'.join((
+            str(get_int(item, 'tvshowid')),
             item.get('showtitle', constants.UNTITLED),
-            str(get_int(item, 'season', 0))
+            str(get_int(item, 'season'))
         ))
         group_idx = get_int(item, 'episode')
 
     else:
-        group_id = get_int(item, 'setid')
-        group_name = item.get('set')
+        group_name = '-'.join((
+            str(get_int(item, 'setid')),
+            item.get('set', constants.UNTITLED),
+        ))
         group_idx = playlist_position
 
     item_details = {
@@ -627,7 +628,6 @@ def create_item_details(item, source=None,
             get_int(item, 'episodeid' if is_episode else 'movieid', None)
             or get_int(item, 'id')
         ),
-        'group_id': group_id,
         'group_name': group_name,
         'group_idx': group_idx,
     }

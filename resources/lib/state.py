@@ -257,14 +257,12 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
             # Reset played in a row count if new tvshow or set is playing,
             # unless playing from a playlist
-            if (not playlist_position and self.current_item
-                    and self.current_item['group_id'] != new_item['group_id']):
-                self.log('Reset playcount: {0} group_id change - {1} to {2}'
-                         .format(
-                             media_type,
-                             self.current_item['group_id'],
-                             new_item['group_id']
-                         ))
+            new_group = new_item['group_name']
+            current_group = self.current_item['group_name']
+            if new_group != current_group:
+                self.log('Reset playcount: group change - {0} to {1}'.format(
+                    current_group, new_group
+                ))
                 self.played_in_a_row = 1
 
             self.current_item = new_item
