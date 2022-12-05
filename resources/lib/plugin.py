@@ -37,8 +37,8 @@ def generate_library_plugin_data(current_item, addon_id, state=None):
         return None
 
     upnext_info = {
-        'current_episode': upnext.create_listitem(current_item),
-        'next_episode': upnext.create_listitem(next_item),
+        'current_video': upnext.create_listitem(current_item),
+        'next_video': upnext.create_listitem(next_item),
         'play_url': 'plugin://{0}/play/?dbtype={1}&dbid={2}'.format(
             addon_id, media_type, next_item['db_id']
         )
@@ -158,10 +158,10 @@ def play_media(addon_handle, addon_id, **kwargs):
         upnext.send_signal(addon_id, upnext_info)
     else:
         resolved = False
-        upnext_info = {'current_episode': upnext.create_episode_listitem({})}
+        upnext_info = {'current_video': upnext.create_episode_listitem({})}
 
     xbmcplugin.setResolvedUrl(
-        addon_handle, resolved, upnext_info['current_episode']
+        addon_handle, resolved, upnext_info['current_video']
     )
     return resolved
 

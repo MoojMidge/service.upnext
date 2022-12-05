@@ -100,13 +100,13 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
         # Next episode from plugin data
         if plugin_type:
-            next_video = self.data.get('next_episode')
+            next_video = self.data.get('next_video')
             source = constants.PLUGIN_TYPES[plugin_type]
 
             if (SETTINGS.unwatched_only
                     and utils.get_int(next_video, 'playcount') > 0):
                 next_video = None
-            self.log('Plugin next_episode: {0}'.format(next_video))
+            self.log('Plugin next_video: {0}'.format(next_video))
 
         # Next item from non-plugin playlist
         elif next_position and not self.shuffle_on:
@@ -229,11 +229,11 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
     def process_now_playing(self, playlist_position, plugin_type, media_type):
         if plugin_type:
-            current_video = self._get_plugin_now_playing(media_type)
+            new_video = self._get_plugin_now_playing(media_type)
             source = constants.PLUGIN_TYPES[plugin_type]
 
         elif playlist_position:
-            current_video = api.get_from_playlist(
+            new_video = api.get_from_playlist(
                 position=playlist_position,
                 properties=(
                     api.MOVIE_PROPERTIES if media_type == 'movie' else
@@ -243,31 +243,31 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             source = 'playlist'
 
         elif media_type in ('episode', 'movie'):
-            current_video = self._get_library_now_playing(media_type)
+            new_video = self._get_library_now_playing(media_type)
             source = 'library'
 
         else:
-            current_video = None
+            new_video = None
             source = None
 
-        if current_video and source:
-            item = utils.create_item_details(
-                current_video, source, media_type, playlist_position
+        if new_video and source:
+            new_item = utils.create_item_details(
+                new_video, source, media_type, playlist_position
             )
 
             # Reset played in a row count if new tvshow or set is playing,
             # unless playing from a playlist
             if (not playlist_position and self.current_item
-                    and self.current_item['group_id'] != item['group_id']):
+                    and self.current_item['group_id'] != new_item['group_id']):
                 self.log('Reset playcount: {0} group_id change - {1} to {2}'
                          .format(
                              media_type,
                              self.current_item['group_id'],
-                             item['group_id']
+                             new_item['group_id']
                          ))
                 self.played_in_a_row = 1
 
-            self.current_item = item
+            self.current_item = new_item
         return self.current_item
 
     def _get_plugin_now_playing(self, media_type):
@@ -275,7 +275,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             # Fallback to now playing info if plugin does not provide current
             # episode details
             current_video = (
-                self.data.get('current_episode')
+                self.data.get('current_video')
                 or api.get_now_playing(
                     properties=(
                         api.MOVIE_PROPERTIES if media_type == 'movie' else
@@ -287,7 +287,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         else:
             current_video = None
 
-        self.log('Plugin current_episode: {0}'.format(current_video))
+        self.log('Plugin current_video: {0}'.format(current_video))
         if not current_video:
             return None
 
