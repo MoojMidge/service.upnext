@@ -41,15 +41,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         self.data = None
         self.encoding = 'base64'
         # Current video details
-        self.current_item = {
-            'details': {},
-            'source': None,
-            'media_type': None,
-            'db_id': constants.UNDEFINED,
-            'group_id': constants.UNDEFINED,
-            'group_name': None,
-            'group_idx': constants.UNDEFINED,
-        }
+        self.current_item = utils.create_item_details('empty')
         self.filename = None
         self.total_time = 0
         # Popup state variables
@@ -74,7 +66,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         self.__init__(reset=True)  # pylint: disable=unnecessary-dunder-call
 
     def reset_item(self):
-        self.current_item = None
+        self.current_item = utils.create_item_details('empty')
         self.next_item = None
 
     def get_tracked_file(self):
@@ -258,7 +250,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             current_video = None
             source = None
 
-        if current_video:
+        if current_video and source:
             item = utils.create_item_details(
                 current_video, source, media_type, playlist_position
             )

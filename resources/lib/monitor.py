@@ -127,7 +127,7 @@ class UpNextMonitor(xbmc.Monitor, object):
             plugin_type,
             playback['media_type']
         )
-        if now_playing_item:
+        if now_playing_item and now_playing_item['details']:
             self.state.set_tracking(playback['file'])
             self.state.reset_queue()
 
