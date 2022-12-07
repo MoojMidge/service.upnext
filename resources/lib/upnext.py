@@ -324,7 +324,7 @@ def send_signal(sender, upnext_info):
             val.getFirstAiredAsW3C() or val.getPremieredAsW3C()
         ) if utils.supports_python_api(20) else (
             val.getFirstAired() or val.getPremiered()
-        ) or val.getYear()
+        ) or str(val.getYear())
 
         video_info = {
             'title': val.getTitle(),
