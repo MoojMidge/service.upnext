@@ -352,5 +352,12 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
     def set_plugin_data(self, data, encoding='base64'):
         if data:
             self.log('Plugin data: {0}'.format(data))
+
+            # Map to new data structure
+            if 'current_episode' in data:
+                data['current_video'] = data.pop('current_episode')
+            if 'next_episode' in data:
+                data['next_video'] = data.pop('next_episode')
+
         self.data = data
         self.encoding = encoding
