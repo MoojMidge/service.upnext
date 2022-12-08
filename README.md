@@ -35,6 +35,12 @@ The add-on has various settings to fine-tune the experience, however the default
 For [Addon Integration](https://github.com/im85288/service.upnext/wiki/Addon-Integration) and [Skinners](https://github.com/im85288/service.upnext/wiki/Skinners) see the [wiki](https://github.com/im85288/service.upnext/wiki)
 
 ## Releases
+### v2.0.7+dev.0 (2022-12-09)
+  - Code tidy up
+  - Additional updates for Kodi Nexus
+  - Fix bug with parsing inconsistent plugin date values
+  - Fix bug with not loading old style plugin data
+
 ### v2.0.6+dev.0 (2022-12-04)
 - Lots of bug fixes
   - Fix marking as watched at end of playback
