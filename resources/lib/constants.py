@@ -30,11 +30,11 @@ DEFAULT_SPOILERS = [
 ]
 NO_SPOILER_IMAGE = 'OverlaySpoiler.png'
 NO_SPOILER_ART = {
-    'tvshow.fanart': NO_SPOILER_IMAGE,
-    'tvshow.landscape': NO_SPOILER_IMAGE,
-    'tvshow.clearart': NO_SPOILER_IMAGE,
-    'tvshow.clearlogo': NO_SPOILER_IMAGE,
-    'tvshow.poster': NO_SPOILER_IMAGE,
+    'fanart': NO_SPOILER_IMAGE,
+    'landscape': NO_SPOILER_IMAGE,
+    'clearart': NO_SPOILER_IMAGE,
+    'clearlogo': NO_SPOILER_IMAGE,
+    'poster': NO_SPOILER_IMAGE,
     'thumb': NO_SPOILER_IMAGE,
 }
 

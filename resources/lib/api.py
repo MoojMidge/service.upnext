@@ -35,7 +35,7 @@ EPISODE_PROPERTIES = {
     'dateadded',
     'lastplayed',
 }
-EPISODE_ART_SUBSTITUTES = {
+EPISODE_ART_MAP = {
     'poster': ('season.poster', 'tvshow.poster'),
     'fanart': ('season.fanart', 'tvshow.fanart'),
     'landscape': ('season.landscape', 'tvshow.landscape'),
@@ -110,7 +110,7 @@ MOVIE_PROPERTIES = {
     'premiered',
     # 'uniqueid',  # Not used, slow
 }
-MOVIE_ART_REPLACEMENTS = {
+MOVIE_ART_MAP = {
     'thumb': ('poster', ),
 }
 
@@ -313,6 +313,21 @@ def log(msg, level=utils.LOGDEBUG):
     """Log wrapper"""
 
     utils.log(msg, name=__name__, level=level)
+
+
+def art_fallbacks(art, art_map, replace=False):
+    if not art or not art_map:
+        return {}
+
+    art_types = frozenset(art.keys())
+    for art_type, art_substitutes in art_map.items():
+        if not replace and art_type in art_types:
+            continue
+        for art_substitute in art_substitutes:
+            if art_substitute in art_types:
+                art[art_type] = art[art_substitute]
+                break
+    return art
 
 
 def get_item_id(item):
@@ -1035,17 +1050,9 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
         # Restore current episode lastplayed for sorting of next-up episode
         upnext_episode['lastplayed'] = episode['lastplayed']
 
-        art = upnext_episode.get('art')
-        if art:
-            art_types = frozenset(art.keys())
-            for art_type, art_substitutes in EPISODE_ART_SUBSTITUTES.items():
-                if art_type in art_types:
-                    continue
-                for art_substitute in art_substitutes:
-                    if art_substitute in art_types:
-                        art[art_type] = art[art_substitute]
-                        break
-            upnext_episode['art'] = art
+        upnext_episode['art'] = art_fallbacks(
+            upnext_episode.get('art'), EPISODE_ART_MAP
+        )
 
         upnext_episodes.append(upnext_episode)
         tvshows.add(tvshowid)
@@ -1122,15 +1129,9 @@ def get_upnext_movies_from_library(limit=25,
         # Restore current movie lastplayed for sorting of next-up movie
         upnext_movie['lastplayed'] = movie['lastplayed']
 
-        art = upnext_movie.get('art')
-        if art:
-            art_types = frozenset(art.keys())
-            for art_type, art_replacements in MOVIE_ART_REPLACEMENTS.items():
-                for art_replacement in art_replacements:
-                    if art_replacement in art_types:
-                        art[art_type] = art[art_replacement]
-                        break
-            upnext_movie['art'] = art
+        upnext_movie['art'] = art_fallbacks(
+            upnext_movie.get('art'), MOVIE_ART_MAP, replace=True
+        )
 
         upnext_movies.append(upnext_movie)
 

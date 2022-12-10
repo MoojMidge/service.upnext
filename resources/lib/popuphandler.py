@@ -61,7 +61,7 @@ class UpNextPopupHandler(object):
             utils.get_addon_path(),
             'default',
             '1080i',
-            item=next_item['details'],
+            item=next_item,
             shuffle_on=(
                 self.state.shuffle_on if next_item['source'] == 'library'
                 else None
