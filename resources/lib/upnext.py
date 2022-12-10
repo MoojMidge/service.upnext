@@ -205,7 +205,7 @@ def create_episode_listitem(episode):
 
     season_episode = (
         episode_num if season is None or episode_num == ''
-        else '{0}x{1}'.format(season, episode_num)
+        else constants.SEASON_EPISODE.format(season, episode_num)
     )
     label_tokens = (None, show_title, season_episode, episode_title)
 
