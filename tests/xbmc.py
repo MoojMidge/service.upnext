@@ -14,6 +14,7 @@ import threading
 import time
 from datetime import datetime
 from weakref import WeakValueDictionary
+import dateutil.parser
 from xbmcextra import global_settings, import_language, __KODI_MATRIX__
 from dummydata import LIBRARY
 from statichelper import to_unicode
@@ -437,17 +438,28 @@ def _videolibrary_getepisodes(params):
 
     season = _filter_walker(episode_filter, 'season')
     episode_number = _filter_walker(episode_filter, 'episode')
-    if not season or not episode_number:
-        return False
+    air_date = _filter_walker(episode_filter, 'airdate')
 
-    episodes = [
-        episode for episode in LIBRARY['episodes']
-        if episode['tvshowid'] == tvshowid
-        and episode['season'] == int(season.get('value'))
-        and episode['episode'] >= int(episode_number.get('value'))
-    ]
-    if episode_number.get('operator') == 'greaterthan':
-        episodes = episodes[1:]
+    if season is not None and episode_number is not None:
+        episodes = [
+            episode for episode in LIBRARY['episodes']
+            if episode['tvshowid'] == tvshowid
+            and episode['season'] == int(season.get('value'))
+            and episode['episode'] >= int(episode_number.get('value'))
+        ]
+        if episodes and episode_number.get('operator') == 'greaterthan':
+            episodes = episodes[1:]
+    elif air_date:
+        episodes = [
+            episode for episode in LIBRARY['episodes']
+            if episode['tvshowid'] == tvshowid
+            and (dateutil.parser.parse(episode['firstaired'])
+                 >= dateutil.parser.parse(air_date.get('value')))
+        ]
+        if episodes and air_date.get('operator') == 'after':
+            episodes = episodes[1:]
+    else:
+        return False
 
     return json.dumps(dict(
         id=1,

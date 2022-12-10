@@ -332,7 +332,7 @@ msgid "Resume playback where possible [COLOR gray](disable to play next video fr
 msgstr ""
 
 msgctxt "#30643"
-msgid "Next episode in next season"
+msgid "Next special or season"
 msgstr ""
 
 msgctxt "#30644"

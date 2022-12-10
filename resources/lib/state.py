@@ -127,12 +127,15 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
                 random=self.shuffle_on
             )
             source = 'library'
+
             # Show Still Watching? popup if next episode is from next season or
             # next item is a movie
             if media_type == 'movie' or (
-                    not self.shuffle_on and next_video and
-                    next_video['season']
-                    != self.current_item['details']['season']
+                    not self.shuffle_on and next_video and len({
+                        constants.SPECIALS,
+                        next_video['season'],
+                        self.current_item['details']['season']
+                    }) == 3
             ):
                 self.played_in_a_row = SETTINGS.played_limit
 

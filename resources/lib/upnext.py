@@ -199,13 +199,13 @@ def create_episode_listitem(episode):
 
     show_title = episode.get('showtitle', '')
     episode_title = episode.get('title', '')
-    season = episode.get('season', '')
-    episode_number = episode.get('episode', '')
+    season = episode.get('season')
+    episode_num = episode.get('episode', '')
     first_aired = episode.get('firstaired', '')
 
     season_episode = (
-        '{0}x{1}'.format(season, episode_number) if season and episode_number
-        else episode_number
+        episode_num if season is None or episode_num == ''
+        else '{0}x{1}'.format(season, episode_num)
     )
     label_tokens = (None, show_title, season_episode, episode_title)
 
@@ -225,8 +225,8 @@ def create_episode_listitem(episode):
     infolabels = {
         'dbid': episode.get('episodeid', constants.UNDEFINED),
         'tvshowtitle': show_title,
-        'season': season or constants.UNDEFINED,
-        'episode': episode_number or constants.UNDEFINED,
+        'season': constants.UNDEFINED if season is None else season,
+        'episode': constants.UNDEFINED if episode_num == '' else episode_num,
         'aired': first_aired,
         'premiered': first_aired,
         'year': utils.get_year(first_aired),
