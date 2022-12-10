@@ -52,48 +52,7 @@ Många befintliga tillägg integreras redan med den här utanför lådan-tjänst
   - Code tidy up
   - Additional updates for Kodi Nexus
   - Fix bug with parsing inconsistent plugin date values
-  - Fix bug with not loading old style plugin data  
-  
-### v2.0.6+dev.0 (2022-12-04)
-- Lots of bug fixes
-  - Fix marking as watched at end of playback
-  - Fix showing watched episode without next episode in widgets
-  - Fix testing popup display from addon settings
-  - Fix testing service operation
-  - Fix various issues with incorrect playlist position
-  - Fix various issues with pausing/restarting popup and detector
-  - Fix deprecated getFirstAired 
-
-### v2.0.5+dev.0 (2022-12-03)
-- Improve speed of widget sources
-- Fix demo mode to use existing addon settings
-- Widget sources now use existing addon settings for enabling/disabling
-  - unwatched items
-  - next episodes from next season
-  - next movie from movie set
-
-### v2.0.4+dev.0 (2022-11-28)
-- Add support for movie sets
-- Add UpNext combined episode + movie widget source
-
-### v2.0.3+dev.0 (2022-11-18)
-- Add UpNext movie widget source
-- Updates for Kodi v20
-
-### v2.0.2b+dev.0 (2022-11-14)
-- Add tests for non-ASCII titles and filenames
-- Fix potential unicode string errors
-- Re-organise UpNextPopup class
-- Add settings to customise plugin listing labels
-
-### v2.0.1+dev.0 (2022-10-12)
-- Fix release workflow and makefile
-- Improve speed and reliability of detector
-- Fix tvshow artwork of episodes in plugin listing
-- Add PL translation (@notoco)
-
-### v2.0.0+dev.0 (2022-09-01)
-- Initial release
+  - Fix bug with not loading old style plugin data
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>
