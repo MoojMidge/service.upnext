@@ -1,7 +1,11 @@
-name: Kodi
+name: Kodi Addon Checker
 on:
-- pull_request
-- push
+  pull_request:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'  
 jobs:
   tests:
     name: Addon checker

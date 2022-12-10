@@ -9,7 +9,7 @@ Personal fork (commits are often untested and cause addon to break) that impleme
 - Provides UpNext video listings to act as source for in-progress and next-up episodes and movies skin widgets
 - Multi-threaded event driven code
 - More skin, popup, and addon settings
-- Shuffle (random, non-sequential) playback mode
+- Shuffle (random, non-sequential) playback mode (requires skin integration, or use of internal skin)
 - Added support for movie sets
 - Improved compatibility with playlists, plugins, and other non-library media (plugins still require modification to integrate with UpNext, alternatively can just use playlists)
 - Built-in methods to simplify plugin integration
@@ -35,6 +35,12 @@ The add-on has various settings to fine-tune the experience, however the default
 For [Addon Integration](https://github.com/im85288/service.upnext/wiki/Addon-Integration) and [Skinners](https://github.com/im85288/service.upnext/wiki/Skinners) see the [wiki](https://github.com/im85288/service.upnext/wiki)
 
 ## Releases
+### v2.0.8+dev.0 (2022-12-11)
+  - Fix addon_checker failing
+  - Allow specials in widgets and popup, based on episode air date
+  - Fix SxE episode labels for videos without season or episode info
+  - Fix popup artwork for non-episode videos
+  
 ### v2.0.7+dev.0 (2022-12-09)
   - Code tidy up
   - Additional updates for Kodi Nexus
