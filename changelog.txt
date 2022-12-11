@@ -1,4 +1,7 @@
 ## Releases
+### v2.0.8b+dev.0 (2022-12-11)
+  - Updated addon.xml and workflows to make releases less work
+
 ### v2.0.8+dev.0 (2022-12-11)
   - Fix addon_checker failing
   - Allow specials in widgets and popup, based on episode air date
