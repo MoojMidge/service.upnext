@@ -1,0 +1,114 @@
+## Releases
+### v2.0.8b+dev.0 (2022-12-11)
+  - Updated addon.xml and workflows to make releases less work
+
+### v2.0.8+dev.0 (2022-12-11)
+  - Fix addon_checker failing
+  - Allow specials in widgets and popup, based on episode air date
+  - Fix SxE episode labels for videos without season or episode info
+  - Fix popup artwork for non-episode videos
+  
+### v2.0.7+dev.0 (2022-12-09)
+  - Code tidy up
+  - Additional updates for Kodi Nexus
+  - Fix bug with parsing inconsistent plugin date values
+  - Fix bug with not loading old style plugin data
+
+### v2.0.6+dev.0 (2022-12-04)
+- Lots of bug fixes
+  - Fix marking as watched at end of playback
+  - Fix showing watched episode without next episode in widgets
+  - Fix testing popup display from addon settings
+  - Fix testing service operation
+  - Fix various issues with incorrect playlist position
+  - Fix various issues with pausing/restarting popup and detector
+  - Fix deprecated getFirstAired 
+
+### v2.0.5+dev.0 (2022-12-03)
+- Improve speed of widget sources
+- Fix demo mode to use existing addon settings
+- Widget sources now use existing addon settings for enabling/disabling
+  - unwatched items
+  - next episodes from next season
+  - next movie from movie set
+
+### v2.0.4+dev.0 (2022-11-28)
+- Add support for movie sets
+- Add UpNext combined episode + movie widget source
+
+### v2.0.3+dev.0 (2022-11-18)
+- Add UpNext movie widget source
+- Updates for Kodi v20
+
+### v2.0.2b+dev.0 (2022-11-14)
+- Add tests for non-ASCII titles and filenames
+- Fix potential unicode string errors
+- Re-organise UpNextPopup class
+- Add settings to customise plugin listing labels
+
+### v2.0.1+dev.0 (2022-10-12)
+- Fix release workflow and makefile
+- Improve speed and reliability of detector
+- Fix tvshow artwork of episodes in plugin listing
+- Add PL translation (@notoco)
+
+### v2.0.0+dev.0 (2022-09-01)
+- Initial release
+
+### v1.1.2 (2020-06-22)
+- Small bugfix release (@im85288)
+
+### v1.1.1 (2020-06-21)
+- Avoid conflict with external players (@BrutuZ)
+- Restore "Ignore Playlist" option (@BrutuZ)
+- Fix a known Kodi bug related to displaying hours (@Maven85)
+- Improvements to endtime visualization (@dagwieers)
+- New translations for Hindi and Romanian (@tahirdon, @tmihai20)
+- Translation updates to Hungarian and Spanish (@frodo19, @roliverosc)
+
+### v1.1.0 (2020-01-17)
+- Add notification_offset for Netflix add-on (@CastagnaIT)
+- Fix various runtime exceptions (@thebertster)
+- Implement new settings (@dagwieers)
+- Implement new developer mode (@dagwieers)
+- Show current time and next endtime in notification (@dagwieers)
+- New translations for Brazilian, Czech, Greek, Japanese, Korean (@mediabrasiltv, @svetlemodry, @Twilight0, @Thunderbird2086)
+- New translations for Russian, Slovak, Spanish, Swedish (@vlmaksime, @matejmosko, @sagatxxx, @Sopor)
+- Translation updates to Croatian, French, German, Hungarian, Italian, Polish (@arvvoid, @zecakeh, @tweimer, @frodo19, @EffeF, @notoco)
+
+### v1.0.7 (2019-12-03)
+- Add Up Next in the program add-on section (@dagwieers)
+- Update add-on icon to use black background (@dagwieers)
+- Fix 24-hour format based on Kodi setting (@dagwieers)
+- New translations for Croatian (@arvvoid)
+- Translation updates to French, Hungarian, Italian and Polish (@mediaminister, @frodo19, @EffeF, @notoco)
+
+### v1.0.6 (2019-11-26)
+- Implement base64 encoding to support newer AddonSignals (@dagwieers)
+- Fixes to Python 3.5 support (@anxdpanic)
+- Add SPDX identifier for license (@dagwieers)
+- Translation updates to German (@tweimer)
+
+### v1.0.5 (2019-11-19)
+- Translation fixes (@dagwieers)
+
+### v1.0.4 (2019-11-19)
+- Automatic stop playing as option (@notoco)
+- Fix exception when add-on is exited (@dagwieers)
+- Fix playlist logic (@mediaminister)
+- Add support for Python 3 and Kodi v19 (@mediaminister)
+- Introduce "Close" button when configured in settings (@dagwieers)
+- Add support for a Back-button action to dismiss Up Next pop-up (@dagwieers)
+- Always reset state when playback finishes (@mediaminister)
+- Various code improvements and fixes (@dagwieers, @mediaminister)
+- New translations for Dutch (@dagwieers)
+- Translation updates to German (@semool, @beatmasterRS)
+
+### v1.0.3 (2019-07-30)
+- Disable tracking for non episode (@angelblue05)
+
+### v1.0.2 (2019-07-24)
+- Add JSONRPC method (@angelblue05)
+- Add priority to existing playlist (@angelblue05)
+- Add endtime prop (@angelblue05)
+- Remove enablePlaylist setting (@angelblue05)

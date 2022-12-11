@@ -13,7 +13,7 @@ else
     zip_name = $(name)-$(version)-$(git_branch)-$(git_hash).zip
 endif
 
-include_files = addon.xml LICENSE README.md resources/
+include_files = addon.xml LICENSE README.md changelog.txt resources/
 include_paths = $(patsubst %,$(name)/%,$(include_files))
 exclude_files = \*.new \*.orig \*.pyc \*.pyo
 zip_dir = $(name)/
@@ -61,8 +61,6 @@ test-run:
 	@-pkill -ef '$(PYTHON) resources/lib/service_entry.py'
 	$(PYTHON) resources/lib/service_entry.py &
 	@sleep 10
-#	$(PYTHON) tests/run.py
-	@sleep 5
 	@-pkill -ef -INT '$(PYTHON) resources/lib/service_entry.py'
 
 build: clean
