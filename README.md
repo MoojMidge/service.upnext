@@ -14,7 +14,7 @@ Personal fork (commits are often untested and cause addon to break) that impleme
 - Improved compatibility with playlists, plugins, and other non-library media (plugins still require modification to integrate with UpNext, alternatively can just use playlists)
 - Built-in methods to simplify plugin integration
 
-Changelog: [changelog.md](changelog.md)
+Changelog: [changelog.txt](changelog.txt)
 
 Official release available through official Kodi addon repository and at https://github.com/im85288/service.upnext/
 
