@@ -13,4 +13,3 @@ disable=
     super-with-arguments,
     too-many-instance-attributes,
     too-many-lines
-    

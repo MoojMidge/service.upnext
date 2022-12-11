@@ -61,8 +61,6 @@ test-run:
 	@-pkill -ef '$(PYTHON) resources/lib/service_entry.py'
 	$(PYTHON) resources/lib/service_entry.py &
 	@sleep 10
-#	$(PYTHON) tests/run.py
-	@sleep 5
 	@-pkill -ef -INT '$(PYTHON) resources/lib/service_entry.py'
 
 build: clean
