@@ -20,6 +20,7 @@ tests/userdata/addon_data/
 # Logs
 kodi-addon-checker-report.log
 kodi-addon-checker.log
+changelog.md
 
 # IDE Workspaces
 .idea/
