@@ -92,6 +92,7 @@ MOVIE_PROPERTIES = {
     # 'imdbnumber',  # Not used
     'runtime',
     'set',
+    'setid',
     # 'showlink',  # Not used, slow
     # 'streamdetails',  # Not used, slow
     'top250',
@@ -101,7 +102,6 @@ MOVIE_PROPERTIES = {
     'file',
     # 'sorttitle',  # Not used
     'resume',
-    'setid',
     'dateadded',
     # 'tag',  # Not used, slow
     'art',
@@ -1101,7 +1101,12 @@ def get_upnext_movies_from_library(limit=25,
     )
 
     upnext_movies = []
+    sets = set()
     for movie in movies:
+        setid = movie['setid']
+        if setid in sets:
+            continue
+
         if movie['resume']['position']:
             upnext_movie = movie
         elif (movie_sets
@@ -1121,6 +1126,7 @@ def get_upnext_movies_from_library(limit=25,
             upnext_movie = upnext_movie.get('result', {}).get('movies')
 
             if not upnext_movie:
+                sets.add(setid)
                 continue
             upnext_movie = upnext_movie[0]
         else:
@@ -1134,5 +1140,6 @@ def get_upnext_movies_from_library(limit=25,
         )
 
         upnext_movies.append(upnext_movie)
+        sets.add(setid)
 
     return upnext_movies
