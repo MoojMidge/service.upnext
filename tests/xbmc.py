@@ -11,7 +11,7 @@ import json
 import random
 import sys
 import threading
-import time
+from time import sleep as time_sleep
 from datetime import datetime
 from weakref import WeakValueDictionary
 import dateutil.parser
@@ -82,6 +82,38 @@ _REGIONS = {
 
 _GLOBAL_SETTINGS = global_settings()
 _PO = import_language(language=_GLOBAL_SETTINGS.get('locale.language'))
+
+
+class Actor(object):
+    def __init__(self, name='', role='', order=0, thumbnail=''):
+        self.name = name
+        self.role = role
+        self.order = order
+        self.thumbnail = thumbnail
+
+    def getName(self):
+        return self.name
+
+    def getRole(self):
+        return self.role
+
+    def getOrder(self):
+        return self.order
+
+    def getThumbnail(self):
+        return self.thumbnail
+
+    def setName(self, name=''):
+        self.name = name
+
+    def setRole(self, role=''):
+        self.role = role
+
+    def setOrder(self, order=0):
+        self.order = order
+
+    def setThumbnail(self, thumbnail=''):
+        self.thumbnail = thumbnail
 
 
 class Keyboard(object):
@@ -250,7 +282,7 @@ class PlayList(object):
         return len(_PLAYLIST[self.playlist_type]['playlist'])
 
 
-class InfoTagVideo(object):
+class InfoTagVideo(object):  # pylint: disable=too-many-public-methods
     ''' A stub implementation of the xbmc InfoTagVideo class '''
 
     def __init__(self, tags=None):
@@ -281,8 +313,16 @@ class InfoTagVideo(object):
         ''' A stub implementation for the xbmc InfoTagVideo class getFirstAired() method '''
         return self._tags.get('aired', '')
 
+    def getFirstAiredAsW3C(self):
+        ''' A stub implementation for the xbmc InfoTagVideo class getFirstAiredAsW3C() method '''
+        return self._tags.get('aired', '')
+
     def getPremiered(self):
         ''' A stub implementation for the xbmc InfoTagVideo class getPremiered() method '''
+        return self._tags.get('premiered', '')
+
+    def getPremieredAsW3C(self):
+        ''' A stub implementation for the xbmc InfoTagVideo class getPremieredAsW3C() method '''
         return self._tags.get('premiered', '')
 
     def getYear(self):
@@ -309,13 +349,162 @@ class InfoTagVideo(object):
         ''' A stub implementation for the xbmc InfoTagVideo class getPlayCount() method '''
         return self._tags.get('playcount', 0)
 
-    def getRating(self):
+    def getRating(self, _type='_default'):
         ''' A stub implementation for the xbmc InfoTagVideo class getRating() method '''
-        return self._tags.get('rating', 0.0)
+        ratings = self._tags.get('ratings', {})
+        rating = ratings.get(_type, 0.0)
+        return rating
 
     def getMediaType(self):
         ''' A stub implementation for the xbmc InfoTagVideo class getMediaType() method '''
         return self._tags.get('mediatype', '')
+
+    def setSortEpisode(self, value):
+        self._tags['sortepisode'] = value
+
+    def setDbId(self, value):
+        self._tags['dbid'] = value
+
+    def setYear(self, value):
+        self._tags['year'] = value
+
+    def setEpisode(self, value):
+        self._tags['episode'] = value
+
+    def setSeason(self, value):
+        self._tags['season'] = value
+
+    def setSortSeason(self, value):
+        self._tags['sortseason'] = value
+
+    def setEpisodeGuide(self, value):
+        self._tags['episodeguide'] = value
+
+    def setTop250(self, value):
+        self._tags['top250'] = value
+
+    def setSetId(self, value):
+        self._tags['setid'] = value
+
+    def setTrackNumber(self, value):
+        self._tags['tracknumber'] = value
+
+    def setRating(self, rating, votes=0, _type='_default', isdefault=True):
+        ratings = self._tags.get('ratings', {})
+        rating = {
+            'rating': rating,
+            'votes': votes,
+            'isdefault': isdefault
+        }
+        ratings[_type] = rating
+        if isdefault:
+            ratings['_default'] = rating
+
+    def setUserRating(self, value):
+        self._tags['userrating'] = value
+
+    def setPlaycount(self, value):
+        self._tags['playcount'] = value
+
+    def setMpaa(self, value):
+        self._tags['mpaa'] = value
+
+    def setPlot(self, value):
+        self._tags['plot'] = value
+
+    def setPlotOutline(self, value):
+        self._tags['plotoutline'] = value
+
+    def setTitle(self, value):
+        self._tags['title'] = value
+
+    def setOriginalTitle(self, value):
+        self._tags['originaltitle'] = value
+
+    def setSortTitle(self, value):
+        self._tags['sorttitle'] = value
+
+    def setTagLine(self, value):
+        self._tags['tagline'] = value
+
+    def setTvShowTitle(self, value):
+        self._tags['tvshowtitle'] = value
+
+    def setTvShowStatus(self, value):
+        self._tags['tvshowstatus'] = value
+
+    def setGenres(self, value):
+        self._tags['genres'] = value
+
+    def setCountries(self, value):
+        self._tags['countries'] = value
+
+    def setDirectors(self, value):
+        self._tags['directors'] = value
+
+    def setStudios(self, value):
+        self._tags['studios'] = value
+
+    def setWriters(self, value):
+        self._tags['writers'] = value
+
+    def setDuration(self, value):
+        self._tags['duration'] = value
+
+    def setResumePoint(self, time, totalTime=0):
+        self._tags['resumetime'] = time
+        self._tags['resumetimetotal'] = totalTime
+
+    def setPremiered(self, value):
+        self._tags['premiered'] = value
+
+    def setSet(self, value):
+        self._tags['set'] = value
+
+    def setSetOverview(self, value):
+        self._tags['setoverview'] = value
+
+    def setTags(self, value):
+        self._tags['tags'] = value
+
+    def setProductionCode(self, value):
+        self._tags['productioncode'] = value
+
+    def setFirstAired(self, value):
+        self._tags['firstaired'] = value
+
+    def setLastPlayed(self, value):
+        self._tags['lastplayed'] = value
+
+    def setAlbum(self, value):
+        self._tags['album'] = value
+
+    def setVotes(self, value):
+        self._tags['votes'] = value
+
+    def setTrailer(self, value):
+        self._tags['trailer'] = value
+
+    def setPath(self, value):
+        self._tags['path'] = value
+
+    def setIMDBNumber(self, value):
+        self._tags['imdbnumber'] = value
+
+    def setDateAdded(self, value):
+        self._tags['dateadded'] = value
+
+    def setMediaType(self, value):
+        self._tags['mediatype'] = value
+
+    def setShowLinks(self, value):
+        self._tags['showlinks'] = value
+
+    def setArtists(self, value):
+        self._tags['artists'] = value
+
+    def setCast(self, value):
+        self._tags['cast'] = value
 
 
 class RenderCapture(object):
@@ -728,7 +917,7 @@ def setContent(self, content):  # pylint: disable=unused-argument
 
 def sleep(seconds):
     ''' A reimplementation of the xbmc sleep() function '''
-    time.sleep(seconds)
+    time_sleep(seconds)
 
 
 # translatePath and makeLegalFilename have been moved to xbmcvfs in Kodi 19+

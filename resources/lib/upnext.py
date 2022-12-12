@@ -60,69 +60,104 @@ def _copy_video_details(upnext_data):
 
 # pylint: disable=no-member
 if utils.supports_python_api(20):
+    def _wrap(value):
+        if isinstance(value, (list, tuple)):
+            return value
+        return (value, )
+
+    def _convert_cast(cast_list):
+        cast_role_list = []
+        for order, person in enumerate(cast_list):
+            if isinstance(person, xbmc.Actor):
+                return cast_list
+            if isinstance(person, tuple):
+                name = person[0]
+                role = person[1]
+            elif isinstance(person, dict):
+                name = person.get('name', '')
+                role = person.get('role', '')
+                order = person.get('order', order)
+            else:
+                name = person
+                role = ''
+            cast_role_list.append(
+                xbmc.Actor(name=name, role=role, order=order)
+            )
+        return cast_role_list
+
     def _set_info(infolabel):
         info_tag = _set_info.info_tag
         if not info_tag or not infolabel:
-            return None
+            return
 
         name = infolabel[0].lower()
         value = infolabel[1]
-        setter = _set_info.mapping.get(name)
-        if callable(setter):
-            setter(info_tag, value)
-            return (name, value)
-        return None
+        mapping = _set_info.mapping.get(name)
+
+        if not mapping:
+            return
+
+        setter, pre_process, force = mapping
+        # Some exceptions get logged even if caught. Force pre_process to avoid
+        # log spam
+        try:
+            setter(info_tag, pre_process(value) if force else value)
+        except TypeError as error:
+            if force:
+                log(error)
+            else:
+                setter(info_tag, pre_process(value))
 
     _InfoTagVideo = xbmc.InfoTagVideo
     _set_info.mapping = {
-        'sortepisode': _InfoTagVideo.setSortEpisode,
-        'dbid': _InfoTagVideo.setDbId,
-        'year': _InfoTagVideo.setYear,
-        'episode': _InfoTagVideo.setEpisode,
-        'season': _InfoTagVideo.setSeason,
-        'sortseason': _InfoTagVideo.setSortSeason,
-        'episodeguide': _InfoTagVideo.setEpisodeGuide,
-        'top250': _InfoTagVideo.setTop250,
-        'setid': _InfoTagVideo.setSetId,
-        'tracknumber': _InfoTagVideo.setTrackNumber,
-        'rating': _InfoTagVideo.setRating,
-        # 'rating': _InfoTagVideo.setRatings,
-        'userrating': _InfoTagVideo.setUserRating,
-        'playcount': _InfoTagVideo.setPlaycount,
-        'mpaa': _InfoTagVideo.setMpaa,
-        'plot': _InfoTagVideo.setPlot,
-        'plotoutline': _InfoTagVideo.setPlotOutline,
-        'title': _InfoTagVideo.setTitle,
-        'originaltitle': _InfoTagVideo.setOriginalTitle,
-        'sorttitle': _InfoTagVideo.setSortTitle,
-        'tagline': _InfoTagVideo.setTagLine,
-        'tvshowtitle': _InfoTagVideo.setTvShowTitle,
-        'status': _InfoTagVideo.setTvShowStatus,
-        'genre': _InfoTagVideo.setGenres,
-        'country': _InfoTagVideo.setCountries,
-        'director': _InfoTagVideo.setDirectors,
-        'studio': _InfoTagVideo.setStudios,
-        'writer': _InfoTagVideo.setWriters,
-        'duration': _InfoTagVideo.setDuration,
-        'premiered': _InfoTagVideo.setPremiered,
-        'set': _InfoTagVideo.setSet,
-        'setoverview': _InfoTagVideo.setSetOverview,
-        'tag': _InfoTagVideo.setTags,
-        'code': _InfoTagVideo.setProductionCode,
-        'aired': _InfoTagVideo.setFirstAired,
-        'lastplayed': _InfoTagVideo.setLastPlayed,
-        'album': _InfoTagVideo.setAlbum,
-        'votes': _InfoTagVideo.setVotes,
-        'trailer': _InfoTagVideo.setTrailer,
-        'path': _InfoTagVideo.setPath,
-        # 'path': _InfoTagVideo.setFilenameAndPath,
-        'imdbnumber': _InfoTagVideo.setIMDBNumber,
-        'dateadded': _InfoTagVideo.setDateAdded,
-        'mediatype': _InfoTagVideo.setMediaType,
-        'showlink': _InfoTagVideo.setShowLinks,
-        'artist': _InfoTagVideo.setArtists,
-        'cast': _InfoTagVideo.setCast,
-        'castandrole': _InfoTagVideo.setCast,
+        'sortepisode': (_InfoTagVideo.setSortEpisode, int, False),
+        'dbid': (_InfoTagVideo.setDbId, int, False),
+        'year': (_InfoTagVideo.setYear, int, False),
+        'episode': (_InfoTagVideo.setEpisode, int, False),
+        'season': (_InfoTagVideo.setSeason, int, False),
+        'sortseason': (_InfoTagVideo.setSortSeason, int, False),
+        'episodeguide': (_InfoTagVideo.setEpisodeGuide, str, False),
+        'top250': (_InfoTagVideo.setTop250, int, False),
+        'setid': (_InfoTagVideo.setSetId, int, False),
+        'tracknumber': (_InfoTagVideo.setTrackNumber, int, False),
+        'rating': (_InfoTagVideo.setRating, float, False),
+        # 'rating': (_InfoTagVideo.setRatings, int, False),
+        'userrating': (_InfoTagVideo.setUserRating, int, False),
+        'playcount': (_InfoTagVideo.setPlaycount, int, False),
+        'mpaa': (_InfoTagVideo.setMpaa, str, False),
+        'plot': (_InfoTagVideo.setPlot, str, False),
+        'plotoutline': (_InfoTagVideo.setPlotOutline, str, False),
+        'title': (_InfoTagVideo.setTitle, str, False),
+        'originaltitle': (_InfoTagVideo.setOriginalTitle, str, False),
+        'sorttitle': (_InfoTagVideo.setSortTitle, str, False),
+        'tagline': (_InfoTagVideo.setTagLine, str, False),
+        'tvshowtitle': (_InfoTagVideo.setTvShowTitle, str, False),
+        'status': (_InfoTagVideo.setTvShowStatus, str, False),
+        'genre': (_InfoTagVideo.setGenres, _wrap, True),
+        'country': (_InfoTagVideo.setCountries, _wrap, True),
+        'director': (_InfoTagVideo.setDirectors, _wrap, True),
+        'studio': (_InfoTagVideo.setStudios, _wrap, True),
+        'writer': (_InfoTagVideo.setWriters, _wrap, True),
+        'duration': (_InfoTagVideo.setDuration, int, False),
+        'premiered': (_InfoTagVideo.setPremiered, str, False),
+        'set': (_InfoTagVideo.setSet, str, False),
+        'setoverview': (_InfoTagVideo.setSetOverview, str, False),
+        'tag': (_InfoTagVideo.setTags, _wrap, True),
+        'code': (_InfoTagVideo.setProductionCode, str, False),
+        'aired': (_InfoTagVideo.setFirstAired, str, False),
+        'lastplayed': (_InfoTagVideo.setLastPlayed, str, False),
+        'album': (_InfoTagVideo.setAlbum, str, False),
+        'votes': (_InfoTagVideo.setVotes, int, False),
+        'trailer': (_InfoTagVideo.setTrailer, str, False),
+        'path': (_InfoTagVideo.setPath, str, False),
+        # 'path': (_InfoTagVideo.setFilenameAndPath, str, False),
+        'imdbnumber': (_InfoTagVideo.setIMDBNumber, str, False),
+        'dateadded': (_InfoTagVideo.setDateAdded, str, False),
+        'mediatype': (_InfoTagVideo.setMediaType, str, False),
+        'showlink': (_InfoTagVideo.setShowLinks, _wrap, True),
+        'artist': (_InfoTagVideo.setArtists, _wrap, True),
+        'cast': (_InfoTagVideo.setCast, _convert_cast, True),
+        'castandrole': (_InfoTagVideo.setCast, _convert_cast, True),
     }
 
 
@@ -150,7 +185,7 @@ def _create_video_listitem(video,
         'plot': video.get('plot', ''),
         'rating': float(video.get('rating', 0.0)),
         'premiered': video.get('premiered', ''),
-        'year': video.get('year', ''),
+        'year': video.get('year', 0),
         'mpaa': video.get('mpaa', ''),
         'dateadded': video.get('dateadded', ''),
         'lastplayed': video.get('lastplayed', ''),
