@@ -2,8 +2,10 @@
 # GNU General Public License v2.0 (see COPYING or https://www.gnu.org/licenses/gpl-2.0.txt)
 
 from __future__ import absolute_import, division, unicode_literals
+import xbmcaddon
 import constants
 import file_utils
+import statichelper
 import utils
 
 
@@ -11,6 +13,10 @@ class UpNextSettings(object):
     """Class containing all addon settings"""
 
     __slots__ = (
+        '_store',
+        '_get_bool',
+        '_get_int',
+        '_get_string',
         # Settings state variables
         'api_retry_attempts',
         'auto_play',
@@ -54,6 +60,16 @@ class UpNextSettings(object):
     )
 
     def __init__(self):
+        if utils.supports_python_api(20):
+            _class = xbmcaddon.Settings
+            self._get_bool = _class.getBool
+            self._get_int = _class.getInt
+            self._get_string = _class.getString
+        else:
+            _class = xbmcaddon.Addon
+            self._get_bool = _class.getSettingBool
+            self._get_int = _class.getSettingInt
+            self._get_string = _class.getSetting
         self.update()
 
     def __getitem__(self, name):
@@ -72,107 +88,162 @@ class UpNextSettings(object):
     def log(cls, msg, level=utils.LOGDEBUG):
         utils.log(msg, name='Settings', level=level)
 
-    def update(self):
+    def get_bool(self, key, default=None, echo=True):
+        """Get an addon setting as boolean"""
+
+        value = default
+        try:
+            value = self._get_bool(self._store, key)
+            value = bool(value)
+        # On Krypton or older, or when not a boolean
+        except (AttributeError, TypeError):
+            value = self.get_string(key, echo=False)
+            value = constants.VALUE_FROM_STR.get(value.lower(), default)
+        # Occurs when the addon is disabled
+        except RuntimeError:
+            value = default
+
+        if echo:
+            self.log(msg='{0}: {1}'.format(key, value))
+        return value
+
+    def get_int(self, key, default=None, echo=True):
+        """Get an addon setting as integer"""
+
+        value = default
+        try:
+            value = self._get_int(self._store, key)
+            value = int(value)
+        # On Krypton or older, or when not an integer
+        except (AttributeError, TypeError):
+            value = self.get_string(key, echo=False)
+            value = utils.get_int(value, default=default, strict=True)
+        # Occurs when the addon is disabled
+        except RuntimeError:
+            value = default
+
+        if echo:
+            self.log(msg='{0}: {1}'.format(key, value))
+        return value
+
+    def get_string(self, key, default='', echo=True):
+        """Get an addon setting as string"""
+
+        value = default
+        try:
+            value = self._get_string(self._store, key)
+            value = statichelper.to_unicode(value)
+        # Occurs when the addon is disabled
+        except RuntimeError:
+            value = default
+
+        if echo:
+            self.log(msg='{0}: {1}'.format(key, value))
+        return value
+
+    def update(self):  # pylint: disable=too-many-statements
         self.log('Loading...')
-        utils.ADDON = utils.get_addon(constants.ADDON_ID)
-        utils.LOG_ENABLE_SETTING = utils.get_setting_int('logLevel')
+        if utils.supports_python_api(20):
+            self._store = utils.get_addon(constants.ADDON_ID).getSettings()
+        else:
+            self._store = utils.get_addon(constants.ADDON_ID)
+        utils.LOG_ENABLE_SETTING = self.get_int('logLevel')
         utils.DEBUG_LOG_ENABLE = utils.get_global_setting('debug.showloginfo')
 
-        self.simple_mode = utils.get_setting_bool('simpleMode')
-        self.show_stop_button = utils.get_setting_bool('stopAfterClose')
-        self.skin_popup = utils.get_setting_bool('enablePopupSkin')
+        self.simple_mode = self.get_bool('simpleMode')
+        self.show_stop_button = self.get_bool('stopAfterClose')
+        self.skin_popup = self.get_bool('enablePopupSkin')
         self.popup_position = constants.POPUP_POSITIONS.get(
-            utils.get_setting_int('popupPosition', default=0)
+            self.get_int('popupPosition', default=0)
         )
 
         accent_colour = constants.POPUP_ACCENT_COLOURS.get(
-            utils.get_setting_int('popupAccentColour', default=0)
+            self.get_int('popupAccentColour', default=0)
         )
         if not accent_colour:
             accent_colour = hex(
-                (utils.get_setting_int('popupCustomAccentColourA') << 24)
-                + (utils.get_setting_int('popupCustomAccentColourR') << 16)
-                + (utils.get_setting_int('popupCustomAccentColourG') << 8)
-                + utils.get_setting_int('popupCustomAccentColourB')
+                (self.getInt('popupCustomAccentColourA') << 24)
+                + (self.getInt('popupCustomAccentColourR') << 16)
+                + (self.getInt('popupCustomAccentColourG') << 8)
+                + self.getInt('popupCustomAccentColourB')
             )[2:]
         self.popup_accent_colour = accent_colour
 
         self.plugin_main_label = (
-            utils.get_setting_int('pluginMainLabelToken1'),
-            utils.get_setting_int('pluginMainLabelToken2'),
-            utils.get_setting_int('pluginMainLabelToken3')
+            self.get_int('pluginMainLabelToken1'),
+            self.get_int('pluginMainLabelToken2'),
+            self.get_int('pluginMainLabelToken3')
         )
 
         self.plugin_secondary_label = (
-            utils.get_setting_int('pluginSecondaryLabelToken1'),
-            utils.get_setting_int('pluginSecondaryLabelToken2'),
-            utils.get_setting_int('pluginSecondaryLabelToken3')
+            self.get_int('pluginSecondaryLabelToken1'),
+            self.get_int('pluginSecondaryLabelToken2'),
+            self.get_int('pluginSecondaryLabelToken3')
         )
 
-        self.auto_play = utils.get_setting_int('autoPlayMode') == 1
+        self.auto_play = self.get_int('autoPlayMode') == 1
         self.played_limit = (
-            utils.get_setting_int('playedInARow')
-            if self.auto_play and utils.get_setting_bool('enableStillWatching')
+            self.get_int('playedInARow')
+            if self.auto_play and self.get_bool('enableStillWatching')
             else 0
         )
-        self.mark_watched = utils.get_setting_int('markWatched')
-        self.enable_resume = utils.get_setting_bool('enableResume')
+        self.mark_watched = self.get_int('markWatched')
+        self.enable_resume = self.get_bool('enableResume')
 
-        self.unwatched_only = not utils.get_setting_bool('includeWatched')
-        self.next_season = utils.get_setting_bool('nextSeason')
-        self.enable_playlist = utils.get_setting_bool('enablePlaylist')
-        self.enable_movieset = utils.get_setting_bool('enableMovieset')
+        self.unwatched_only = not self.get_bool('includeWatched')
+        self.next_season = self.get_bool('nextSeason')
+        self.enable_playlist = self.get_bool('enablePlaylist')
+        self.enable_movieset = self.get_bool('enableMovieset')
 
-        self.auto_play_delay = utils.get_setting_int('autoPlayCountdown')
+        self.auto_play_delay = self.get_int('autoPlayCountdown')
         self.popup_durations = {
-            3600: utils.get_setting_int('autoPlayTimeXL'),  # > 60 minutes
-            2400: utils.get_setting_int('autoPlayTimeL'),   # > 40 minutes
-            1200: utils.get_setting_int('autoPlayTimeM'),   # > 20 minutes
-            600: utils.get_setting_int('autoPlayTimeS'),    # > 10 minutes
-            0: utils.get_setting_int('autoPlayTimeXS')      # < 10 minutes
-        } if utils.get_setting_bool('customAutoPlayTime') else {
-            0: utils.get_setting_int('autoPlaySeasonTime')
+            3600: self.get_int('autoPlayTimeXL'),  # > 60 minutes
+            2400: self.get_int('autoPlayTimeL'),   # > 40 minutes
+            1200: self.get_int('autoPlayTimeM'),   # > 20 minutes
+            600: self.get_int('autoPlayTimeS'),    # > 10 minutes
+            0: self.get_int('autoPlayTimeXS')      # < 10 minutes
+        } if self.get_bool('customAutoPlayTime') else {
+            0: self.get_int('autoPlaySeasonTime')
         }
 
-        self.detect_enabled = utils.get_setting_bool('detectPlayTime')
-        self.detect_period = utils.get_setting_int('detectPeriod')
+        self.detect_enabled = self.get_bool('detectPlayTime')
+        self.detect_period = self.get_int('detectPeriod')
 
-        self.start_delay = utils.get_setting_int('startDelay')
-        self.disabled = utils.get_setting_bool('disableNextUp')
-        self.api_retry_attempts = utils.get_setting_int('apiRetryAttempts')
-        self.enable_queue = utils.get_setting_bool('enableQueue')
+        self.start_delay = self.get_int('startDelay')
+        self.disabled = self.get_bool('disableNextUp')
+        self.api_retry_attempts = self.get_int('apiRetryAttempts')
+        self.enable_queue = self.get_bool('enableQueue')
 
         # Create valid directory here so that it can be used whenever settings
         # are changed rather than only when a module is imported i.e. on addon
         # start/restart
         self.detector_save_path = file_utils.make_legal_path(
-            utils.get_setting('detectorSavePath')
+            self.get_string('detectorSavePath')
         )
-        self.detector_threads = utils.get_setting_int('detectorThreads')
-        data_limit = utils.get_setting_int('detectorDataLimit')
+        self.detector_threads = self.get_int('detectorThreads')
+        data_limit = self.get_int('detectorDataLimit')
         self.detector_data_limit = data_limit - data_limit % 8
-        self.detector_filter = utils.get_setting_bool('detectorFilter')
+        self.detector_filter = self.get_bool('detectorFilter')
         self.detector_resize_method = constants.PIL_RESIZE_METHODS.get(
-            utils.get_setting_int('detectorResizeMethod', default=1)
+            self.get_int('detectorResizeMethod', default=1)
         )
-        self.detect_level = utils.get_setting_int('detectLevel')
-        self.detect_significance = utils.get_setting_int('detectSignificance')
-        self.detect_matches = utils.get_setting_int('detectMatches')
-        self.detect_mismatches = utils.get_setting_int('detectMismatches')
+        self.detect_level = self.get_int('detectLevel')
+        self.detect_significance = self.get_int('detectSignificance')
+        self.detect_matches = self.get_int('detectMatches')
+        self.detect_mismatches = self.get_int('detectMismatches')
 
-        self.demo_mode = utils.get_setting_bool('enableDemoMode')
-        self.demo_seek = self.demo_mode and utils.get_setting_int('demoSeek')
-        self.demo_cue = self.demo_mode and utils.get_setting_int('demoCue')
-        self.demo_plugin = (
-            self.demo_mode and utils.get_setting_bool('demoPlugin')
-        )
+        self.demo_mode = self.get_bool('enableDemoMode')
+        self.demo_seek = self.demo_mode and self.get_int('demoSeek')
+        self.demo_cue = self.demo_mode and self.get_int('demoCue')
+        self.demo_plugin = self.demo_mode and self.get_bool('demoPlugin')
 
-        self.detector_debug = utils.get_setting_bool('detectorDebug')
+        self.detector_debug = self.get_bool('detectorDebug')
         self.detector_debug_save = (
-            self.detector_save_path
-            and utils.get_setting_bool('detectorDebugSave')
+            self.detector_save_path and self.get_bool('detectorDebugSave')
         )
-        self.start_trigger = utils.get_setting_bool('startTrigger')
+        self.start_trigger = self.get_bool('startTrigger')
+
+        self._store = None
 
 
 SETTINGS = UpNextSettings()

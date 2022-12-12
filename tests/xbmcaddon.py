@@ -35,7 +35,18 @@ class Addon(object):
 
     def getSetting(self, key):
         ''' A working implementation for the xbmcaddon Addon class getSetting() method '''
-        return ADDON_SETTINGS.get(self.id, {}).get(key, '')
+        return str(ADDON_SETTINGS.get(self.id, {}).get(key, ''))
+
+    def getSettingBool(self, key):
+        ''' A working implementation for the xbmcaddon Addon class getSettingBool() method '''
+        return {'true': True, 'false': False}.get(ADDON_SETTINGS.get(self.id, {}).get(key))
+
+    def getSettingInt(self, key):
+        ''' A working implementation for the xbmcaddon Addon class getSettingInt() method '''
+        return int(ADDON_SETTINGS.get(self.id, {}).get(key))
+
+    def getSettings(self):
+        return Settings(addon_id=self.id)
 
     @staticmethod
     def openSettings():
@@ -49,3 +60,19 @@ class Addon(object):
         # NOTE: Disable actual writing as it is no longer needed for testing
         # with open('tests/userdata/addon_settings.json', 'w') as fd:
         #     json.dump(filtered_settings, fd, sort_keys=True, indent=4)
+
+
+class Settings(object):
+    ''' A reimplementation of the xbmcaddon Settings class '''
+
+    def __init__(self, addon_id=ADDON_ID):
+        self._settings = addon_settings().get(addon_id, {})
+
+    def getBool(self, key):
+        return {'true': True, 'false': False}.get(self._settings.get(key))
+
+    def getInt(self, key):
+        return int(self._settings.get(key))
+
+    def getString(self, key):
+        return str(self._settings.get(key))

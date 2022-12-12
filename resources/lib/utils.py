@@ -268,60 +268,6 @@ def clear_property(key, window_id=constants.WINDOW_HOME):
     return xbmcgui.Window(window_id).clearProperty(key)
 
 
-def get_setting(key, default='', echo=True):
-    """Get an addon setting as string"""
-
-    value = default
-    try:
-        value = ADDON.getSetting(key)
-        value = statichelper.to_unicode(value)
-    # Occurs when the addon is disabled
-    except RuntimeError:
-        value = default
-
-    if echo:
-        log(msg='{0}: {1}'.format(key, value), name='Settings', level=LOGDEBUG)
-    return value
-
-
-def get_setting_bool(key, default=None, echo=True):
-    """Get an addon setting as boolean"""
-
-    value = default
-    try:
-        value = bool(ADDON.getSettingBool(key))
-    # On Krypton or older, or when not a boolean
-    except (AttributeError, TypeError):
-        value = get_setting(key, echo=False)
-        value = constants.VALUE_FROM_STR.get(value.lower(), default)
-    # Occurs when the addon is disabled
-    except RuntimeError:
-        value = default
-
-    if echo:
-        log(msg='{0}: {1}'.format(key, value), name='Settings', level=LOGDEBUG)
-    return value
-
-
-def get_setting_int(key, default=None, echo=True):
-    """Get an addon setting as integer"""
-
-    value = default
-    try:
-        value = ADDON.getSettingInt(key)
-    # On Krypton or older, or when not an integer
-    except (AttributeError, TypeError):
-        value = get_setting(key, echo=False)
-        value = get_int(value, default=default, strict=True)
-    # Occurs when the addon is disabled
-    except RuntimeError:
-        value = default
-
-    if echo:
-        log(msg='{0}: {1}'.format(key, value), name='Settings', level=LOGDEBUG)
-    return value
-
-
 def get_int(obj, key=None, default=constants.UNDEFINED, strict=False):
     """Returns an object or value for the given key in object, as an integer.
        Returns default value if key or object is not available.
@@ -444,7 +390,7 @@ LOGERROR = xbmc.LOGERROR        # |  4  |  3
 LOGFATAL = xbmc.LOGFATAL        # |  6  |  4
 LOGNONE = xbmc.LOGNONE          # |  7  |  5
 
-LOG_ENABLE_SETTING = get_setting_int('logLevel', echo=False)
+LOG_ENABLE_SETTING = constants.LOG_ENABLE_DEBUG
 DEBUG_LOG_ENABLE = get_global_setting('debug.showloginfo')
 MIN_LOG_LEVEL = LOGINFO if supports_python_api(19) else LOGINFO + 1
 
