@@ -43,7 +43,12 @@ def test_widget():
         assert True
         return
 
-    test_complete = plugin.run(['plugin://service.upnext/next_media', '1', ''])
+    test_complete = (
+        plugin.run(['plugin://service.upnext/', '1', ''])
+        and plugin.run(['plugin://service.upnext/next_episodes', '1', ''])
+        and plugin.run(['plugin://service.upnext/next_movies', '1', ''])
+        and plugin.run(['plugin://service.upnext/next_media', '1', ''])
+    )
     assert test_complete is True
 
 

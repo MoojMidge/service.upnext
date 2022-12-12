@@ -537,19 +537,39 @@ def executebuiltin(string, wait=False):  # pylint: disable=unused-argument
     return
 
 
-def _filter_walker(filter_object, seeking):
-    for level in filter_object:
-        if isinstance(filter_object, dict) and filter_object[level] == seeking:
-            return filter_object
-        if isinstance(level, dict):
-            found = _filter_walker(level, seeking)
-            if found:
-                return found
-        elif isinstance(filter_object[level], (dict, list)):
-            found = _filter_walker(filter_object[level], seeking)
-            if found:
-                return found
-    return None
+def _filter_walker(haystacks, needles):
+    found_needles = {}
+    target = None
+    if isinstance(needles, tuple):
+        needles = list(needles)
+    if not isinstance(needles, list):
+        needles = [needles, ]
+    if len(needles) == 1:
+        target = needles[0]
+
+    for stack in haystacks:
+        if isinstance(haystacks, dict) and haystacks[stack] in needles:
+            needle = haystacks[stack]
+            found_needles[needle] = haystacks
+            needles.remove(needle)
+            return found_needles, needles
+
+        if isinstance(stack, dict):
+            found_needle, needles = _filter_walker(stack, needles)
+            if found_needle:
+                found_needles.update(found_needle)
+
+        elif isinstance(haystacks[stack], (dict, list)):
+            found_needle, needles = _filter_walker(haystacks[stack], needles)
+            if found_needle:
+                found_needles.update(found_needle)
+
+        if not needles:
+            break
+
+    if target is not None:
+        return found_needles.get(target), needles
+    return found_needles, needles
 
 
 def _application_getproperties(params):
@@ -628,16 +648,38 @@ def _videolibrary_gettvshows(params):
 
 
 def _videolibrary_getepisodes(params):
-    episode_filter = params.get('filter', {})
+    filters = params.get('filter')
     tvshowid = params.get('tvshowid')
-    if tvshowid is None or not episode_filter:
+    # sort = params.get('sort')
+    limits = params.get('limits')
+
+    if not filters:
         return False
 
-    season = _filter_walker(episode_filter, 'season')
-    episode_number = _filter_walker(episode_filter, 'episode')
-    air_date = _filter_walker(episode_filter, 'airdate')
+    filters, _ = _filter_walker(
+        filters,
+        ['season', 'episode', 'airdate', 'playcount', 'inprogress']
+    )
+    season = filters.get('season')
+    episode_number = filters.get('episode')
+    air_date = filters.get('airdate')
+    watched = filters.get('playcount')
+    inprogress = filters.get('inprogress')
 
-    if season is not None and episode_number is not None:
+    episodes = []
+    if tvshowid is None:
+        if watched is not None and watched.get('operator') == 'greaterthan':
+            episodes = [
+                episode for episode in LIBRARY['episodes']
+                if episode['playcount'] > int(watched.get('value'))
+            ]
+        elif inprogress is not None:
+            episodes = [
+                episode for episode in LIBRARY['episodes']
+                if episode['resume']['position'] > 0
+                and episode['playcount'] < 1
+            ]
+    elif season is not None and episode_number is not None:
         episodes = [
             episode for episode in LIBRARY['episodes']
             if episode['tvshowid'] == tvshowid
@@ -658,10 +700,72 @@ def _videolibrary_getepisodes(params):
     else:
         return False
 
+    if limits and episodes:
+        start = limits['start']
+        end = limits['end']
+        if end == -1:
+            end = len(episodes)
+        episodes = episodes[start:end]
+
     return json.dumps(dict(
         id=1,
         jsonrpc='2.0',
         result=dict(episodes=episodes)
+    ))
+
+
+def _videolibrary_getmovies(params):
+    filters = params.get('filter')
+    # sort = params.get('sort')
+    limits = params.get('limits')
+
+    if not filters:
+        return False
+
+    filters, _ = _filter_walker(
+        filters,
+        ['set', 'year', 'playcount', 'inprogress']
+    )
+    _set = filters.get('set')
+    year = filters.get('year')
+    watched = filters.get('playcount')
+    inprogress = filters.get('inprogress')
+
+    movies = []
+    if _set is None:
+        if watched is not None and watched.get('operator') == 'greaterthan':
+            movies = [
+                movie for movie in LIBRARY['movies']
+                if movie['playcount'] > int(watched.get('value'))
+            ]
+        elif inprogress is not None:
+            movies = [
+                movie for movie in LIBRARY['movies']
+                if movie['resume']['position'] > 0
+                and movie['playcount'] < 1
+            ]
+    elif _set is not None and year is not None:
+        movies = [
+            movie for movie in LIBRARY['movies']
+            if movie['set'] == _set.get('value')
+            and movie['year'] >= int(year.get('value'))
+        ]
+        if movies and year.get('operator') == 'after':
+            movies = movies[1:]
+    else:
+        return False
+
+    if limits and movies:
+        start = limits['start']
+        end = limits['end']
+        if end == -1:
+            end = len(movies)
+        movies = movies[start:end]
+
+    return json.dumps(dict(
+        id=1,
+        jsonrpc='2.0',
+        result=dict(movies=movies)
     ))
 
 
@@ -809,6 +913,7 @@ _JSONRPC_methods = {
     'Player.GetActivePlayers': _player_getactiveplayers,
     'Player.GetProperties': _player_getproperties,
     'Player.GetItem': _player_getitem,
+    'VideoLibrary.GetMovies': _videolibrary_getmovies,
     'VideoLibrary.GetTVShows': _videolibrary_gettvshows,
     'VideoLibrary.GetEpisodes': _videolibrary_getepisodes,
     'VideoLibrary.GetEpisodeDetails': _videolibrary_getepisodedetails,
