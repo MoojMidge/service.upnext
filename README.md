@@ -4,7 +4,7 @@
 [![License: GPLv3](https://img.shields.io/badge/License-GPLv2-yellow.svg)](https://opensource.org/licenses/GPL-2.0)
 [![Contributors](https://img.shields.io/github/contributors/MoojMidge/service.upnext.svg)](https://github.com/MoojMidge/service.upnext/graphs/contributors)
 
-Personal fork (commits are often untested and cause addon to break) that implements:
+Personal fork of service.upnext (commits are often untested and cause addon to break) that implements:
 - Automatic end credits detection
 - Provides UpNext video listings to act as source for in-progress and next-up episodes and movies skin widgets
 - Multi-threaded event driven code
@@ -16,8 +16,9 @@ Personal fork (commits are often untested and cause addon to break) that impleme
 
 Changelog: [changelog.txt](changelog.txt)
 
-Official release available through official Kodi addon repository and at https://github.com/im85288/service.upnext/
-
+Official release available through official Kodi addon repository and at [https://github.com/im85288/service.upnext/](https://github.com/im85288/service.upnext/)
+<br />
+<br />
 # Up Next - Proposes to play the next episode automatically
 
 This Kodi add-on shows a Netflix-style notification for watching the next episode. After a few automatic iterations it asks the user if he is still there watching.

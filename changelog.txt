@@ -1,4 +1,11 @@
 ## Releases
+### v2.0.9+dev.0 (2022-12-12)
+  - Updates for Kodi Nexus
+    - Fix bug in creating listitems
+    - Use new xbmcaddon.Settings class if available
+    - Use new settings style format
+    - Use built-in colour picker control for custom accent colour
+
 ### v2.0.8b+dev.0 (2022-12-11)
   - Updated addon.xml and workflows to make releases less work
 
