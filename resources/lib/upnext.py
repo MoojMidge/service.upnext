@@ -178,7 +178,7 @@ def _create_video_listitem(video,
             time=resume.get('position'), totalTime=resume.get('total')
         )
         # Consume iterator
-        deque(map(_set_info, default_infolabels.items(), maxlen=0))
+        deque(map(_set_info, default_infolabels.items()), maxlen=0)
     else:
         listitem.setInfo(type='Video', infoLabels=default_infolabels)
 
