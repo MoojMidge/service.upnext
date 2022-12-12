@@ -15,7 +15,7 @@ from time import sleep as time_sleep
 from datetime import datetime
 from weakref import WeakValueDictionary
 import dateutil.parser
-from xbmcextra import global_settings, import_language, __KODI_MATRIX__
+from xbmcextra import global_settings, import_language, __KODI_MATRIX__, __KODI_NEXUS__
 from dummydata import LIBRARY
 from statichelper import to_unicode
 
@@ -68,7 +68,11 @@ _PLAYLIST = {
 }
 
 _INFO_LABELS = {
-    'System.BuildVersion': '18.9' if __KODI_MATRIX__ else '19.0',
+    'System.BuildVersion': (
+        '20.0' if __KODI_NEXUS__
+        else '19.4' if __KODI_MATRIX__
+        else '18.9'
+    ),
     'Player.Process(VideoWidth)': '1,920',
     'Player.Process(VideoHeight)': '1,080',
     'Player.Process(VideoDAR)': '1.78'
@@ -553,7 +557,11 @@ def _application_getproperties(params):
         return json.dumps(dict(
             id=1,
             jsonrpc='2.0',
-            result=dict(version=dict(major=(19 if __KODI_MATRIX__ else 18)))
+            result={'version': {'major': (
+                20 if __KODI_NEXUS__
+                else 19 if __KODI_MATRIX__
+                else 18
+            )}}
         ))
     return False
 
@@ -922,7 +930,7 @@ def sleep(seconds):
 
 # translatePath and makeLegalFilename have been moved to xbmcvfs in Kodi 19+
 # but currently still available in xbmc
-if not __KODI_MATRIX__ or True:  # pylint: disable=condition-evals-to-constant
+if not __KODI_NEXUS__:
     def translatePath(path):
         ''' A stub implementation of the xbmc translatePath() function '''
         if path.startswith('special://home'):

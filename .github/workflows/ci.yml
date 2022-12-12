@@ -13,7 +13,7 @@ jobs:
     env:
       PYTHONIOENCODING: utf-8
       PYTHONPATH: ${{ github.workspace }}/resources/lib:${{ github.workspace }}/tests
-      TESTS_ENABLED: '2.7, 3.8'
+      TESTS_ENABLED: '2.7, 3.8, 3.11'
     strategy:
       fail-fast: false
       matrix:

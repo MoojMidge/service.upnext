@@ -13,7 +13,10 @@ import xml.etree.ElementTree as ET
 import polib
 
 
-__KODI_MATRIX__ = sys.version_info.major == 3
+_version_info = sys.version_info
+__KODI_LEIA__ = _version_info.major < 3
+__KODI_MATRIX__ = _version_info.major > 2
+__KODI_NEXUS__ = __KODI_MATRIX__ and _version_info.minor > 10
 _addon_directory = os.path.dirname(os.path.abspath(__file__)) + '/../'
 
 
