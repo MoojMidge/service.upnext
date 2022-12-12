@@ -46,6 +46,17 @@
 					</constraints>
 					<control type="spinner" format="string"/>
 				</setting>
+                <setting id="popupCustomAccentColour" type="string" label="30520" help="" parent="popupAccentColour">
+                    <level>0</level>
+                    <default>FFFF4081</default>
+                    <dependencies>
+                        <dependency type="visible">
+							<condition operator="is" setting="popupAccentColour">4</condition>
+						</dependency>
+                        <dependency type="visible" on="property" name="infobool">String.StartsWith(System.BuildVersionShort,2)</dependency>
+                    </dependencies>
+                    <control type="colorbutton"/>
+                </setting>
 				<setting id="popupCustomAccentColourA" type="integer" label="30516" help="" parent="popupAccentColour">
 					<level>0</level>
 					<default>255</default>
@@ -58,6 +69,7 @@
 						<dependency type="visible">
 							<condition operator="is" setting="popupAccentColour">4</condition>
 						</dependency>
+                        <dependency type="visible" on="property" name="infobool">!String.StartsWith(System.BuildVersionShort,2)</dependency>
 					</dependencies>
 					<control type="slider" format="integer">
 						<popup>false</popup>
@@ -75,6 +87,7 @@
 						<dependency type="visible">
 							<condition operator="is" setting="popupAccentColour">4</condition>
 						</dependency>
+                        <dependency type="visible" on="property" name="infobool">!String.StartsWith(System.BuildVersionShort,2)</dependency>
 					</dependencies>
 					<control type="slider" format="integer">
 						<popup>false</popup>
@@ -82,7 +95,7 @@
 				</setting>
 				<setting id="popupCustomAccentColourG" type="integer" label="30518" help="" parent="popupAccentColour">
 					<level>0</level>
-					<default>255</default>
+					<default>64</default>
 					<constraints>
 						<minimum>0</minimum>
 						<step>1</step>
@@ -92,6 +105,7 @@
 						<dependency type="visible">
 							<condition operator="is" setting="popupAccentColour">4</condition>
 						</dependency>
+                        <dependency type="visible" on="property" name="infobool">!String.StartsWith(System.BuildVersionShort,2)</dependency>
 					</dependencies>
 					<control type="slider" format="integer">
 						<popup>false</popup>
@@ -99,7 +113,7 @@
 				</setting>
 				<setting id="popupCustomAccentColourB" type="integer" label="30519" help="" parent="popupAccentColour">
 					<level>0</level>
-					<default>000</default>
+					<default>129</default>
 					<constraints>
 						<minimum>0</minimum>
 						<step>1</step>
@@ -109,6 +123,7 @@
 						<dependency type="visible">
 							<condition operator="is" setting="popupAccentColour">4</condition>
 						</dependency>
+                        <dependency type="visible" on="property" name="infobool">!String.StartsWith(System.BuildVersionShort,2)</dependency>
 					</dependencies>
 					<control type="slider" format="integer">
 						<popup>false</popup>

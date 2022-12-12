@@ -203,6 +203,10 @@ msgctxt "#30519"
 msgid "Blue channel"
 msgstr ""
 
+msgctxt "#30520"
+msgid "Colour selection"
+msgstr ""
+
 msgctxt "#30550"
 msgid "Plugin listing label customisation"
 msgstr ""

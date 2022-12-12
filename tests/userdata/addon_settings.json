@@ -46,6 +46,7 @@
 		"pluginSecondaryLabelToken2": 0,
 		"pluginSecondaryLabelToken3": 0,
 		"popupAccentColour": 0,
+        "popupCustomAccentColour": "FFFF4081",
 		"popupCustomAccentColourA": 255,
 		"popupCustomAccentColourB": 0,
 		"popupCustomAccentColourG": 255,
