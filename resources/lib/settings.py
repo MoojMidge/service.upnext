@@ -21,10 +21,6 @@ class UpNextSettings(object):
         'api_retry_attempts',
         'auto_play',
         'auto_play_delay',
-        'demo_cue',
-        'demo_mode',
-        'demo_plugin',
-        'demo_seek',
         'detect_enabled',
         'detect_level',
         'detect_matches',
@@ -52,6 +48,10 @@ class UpNextSettings(object):
         'popup_durations',
         'popup_position',
         'show_stop_button',
+        'sim_cue',
+        'sim_mode',
+        'sim_plugin',
+        'sim_seek',
         'simple_mode',
         'skin_popup',
         'start_delay',
@@ -235,10 +235,10 @@ class UpNextSettings(object):
         self.detect_matches = self.get_int('detectMatches')
         self.detect_mismatches = self.get_int('detectMismatches')
 
-        self.demo_mode = self.get_bool('enableDemoMode')
-        self.demo_seek = self.demo_mode and self.get_int('demoSeek')
-        self.demo_cue = self.demo_mode and self.get_int('demoCue')
-        self.demo_plugin = self.demo_mode and self.get_bool('demoPlugin')
+        self.sim_mode = self.get_bool('enableSimMode')
+        self.sim_seek = self.sim_mode and self.get_int('simSeek')
+        self.sim_cue = self.sim_mode and self.get_int('simCue')
+        self.sim_plugin = self.sim_mode and self.get_bool('simPlugin')
 
         self.detector_debug = self.get_bool('detectorDebug')
         self.detector_debug_save = (

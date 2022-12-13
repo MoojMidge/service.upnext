@@ -6,10 +6,10 @@ import xbmc
 from settings import SETTINGS
 import api
 import constants
-import demo
 import detector
 import player
 import popuphandler
+import simulation
 import state
 import statichelper
 import utils
@@ -134,8 +134,8 @@ class UpNextMonitor(xbmc.Monitor, object):
             # Store popup time and check if cue point was provided
             self.state.set_popup_time(playback['duration'])
 
-            # Handle demo mode functionality and notification
-            skip_tracking = demo.handle_demo_mode(
+            # Handle sim mode functionality and notification
+            skip_tracking = simulation.handle_sim_mode(
                 player=self.player,
                 state=self.state,
                 now_playing_item=now_playing_item

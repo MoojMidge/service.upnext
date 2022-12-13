@@ -172,8 +172,8 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             # Force popup time to specified play time
             popup_time = detected_time
 
-            # Enable cue point unless forced off in demo mode
-            self.popup_cue = SETTINGS.demo_cue != constants.SETTING_OFF
+            # Enable cue point unless forced off in sim mode
+            self.popup_cue = SETTINGS.sim_cue != constants.SETTING_OFF
 
         self.popup_time = popup_time
         self._set_detect_time()
@@ -198,8 +198,8 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
             # Ensure popup time is not too close to end of playback
             if 0 < popup_time <= total_time - constants.POPUP_MIN_DURATION:
-                # Enable cue point unless forced off in demo mode
-                self.popup_cue = SETTINGS.demo_cue != constants.SETTING_OFF
+                # Enable cue point unless forced off in sim mode
+                self.popup_cue = SETTINGS.sim_cue != constants.SETTING_OFF
             # Otherwise ignore popup time from plugin data
             else:
                 popup_time = 0
@@ -219,8 +219,8 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             else:
                 popup_time = total_time - constants.POPUP_MIN_DURATION
 
-            # Disable cue point unless forced on in demo mode
-            self.popup_cue = SETTINGS.demo_cue == constants.SETTING_ON
+            # Disable cue point unless forced on in sim mode
+            self.popup_cue = SETTINGS.sim_cue == constants.SETTING_ON
 
         self.popup_time = popup_time
         self.total_time = total_time

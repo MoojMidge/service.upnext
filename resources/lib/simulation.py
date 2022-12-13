@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # GNU General Public License v2.0 (see COPYING or https://www.gnu.org/licenses/gpl-2.0.txt)
-"""Implements UpNext demo mode functions used for runtime testing UpNext"""
+"""Implements UpNext simulation mode functions used for runtime testing UpNext"""
 
 from __future__ import absolute_import, division, unicode_literals
 from settings import SETTINGS
@@ -20,17 +20,17 @@ def log(msg, level=utils.LOGDEBUG):
     utils.log(msg, name=__name__, level=level)
 
 
-def handle_demo_mode(player, state, now_playing_item):
+def handle_sim_mode(player, state, now_playing_item):
     _EVENT_TRIGGERED['general'] = False
-    if not SETTINGS.demo_mode or _EVENT_TRIGGERED['playback']:
+    if not SETTINGS.sim_mode or _EVENT_TRIGGERED['playback']:
         _EVENT_TRIGGERED['playback'] = False
         return _EVENT_TRIGGERED['general']
 
-    utils.notification('UpNext demo mode', 'Active')
+    utils.notification('UpNext sim mode', 'Active')
     log('Active')
 
-    # Force use of plugin data method if demo plugin mode is enabled
-    if state.get_plugin_type() is None and SETTINGS.demo_plugin:
+    # Force use of plugin data method if sim plugin mode is enabled
+    if state.get_plugin_type() is None and SETTINGS.sim_plugin:
         addon_id = utils.get_addon_id()
         upnext_info = plugin.generate_library_plugin_data(
             now_playing_item, addon_id, state
@@ -42,13 +42,13 @@ def handle_demo_mode(player, state, now_playing_item):
             upnext.send_signal(addon_id, upnext_info)
 
     # Seek to 15s before end of video
-    if SETTINGS.demo_seek == constants.DEMO_SEEK_15S:
+    if SETTINGS.sim_seek == constants.SIM_SEEK_15S:
         seek_time = player.getTotalTime() - 15
     # Seek to popup start time
-    elif SETTINGS.demo_seek == constants.DEMO_SEEK_POPUP_TIME:
+    elif SETTINGS.sim_seek == constants.SIM_SEEK_POPUP_TIME:
         seek_time = state.get_popup_time()
     # Seek to detector start time
-    elif SETTINGS.demo_seek == constants.DEMO_SEEK_DETECT_TIME:
+    elif SETTINGS.sim_seek == constants.SIM_SEEK_DETECT_TIME:
         seek_time = state.get_detect_time() or state.get_popup_time()
     else:
         return _EVENT_TRIGGERED['general']

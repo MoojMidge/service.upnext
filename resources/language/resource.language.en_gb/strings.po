@@ -464,7 +464,7 @@ msgid "Test UpNext operation"
 msgstr ""
 
 msgctxt "#30815"
-msgid "Enable demo mode"
+msgid "Enable simulation mode"
 msgstr ""
 
 msgctxt "#30817"
