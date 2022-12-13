@@ -1,4 +1,16 @@
 ## Releases
+### v2.0.10+dev.0 (2022-12-13)
+  - Fixes for importable UpNext module
+    - Additional type conversions for Nexus infotag setters
+    - Fix set details being lost for movie listitems
+    - Fix incorrect artwork being set for movie listitems
+  - Fix for multiple movies from same set being shown in widgets
+  - Add tests to CI workflow
+    - Nexus specific code paths
+    - Plugin listings and widgets
+    - Movies
+  - Randomise test popups
+
 ### v2.0.9+dev.0 (2022-12-12)
   - Updates for Kodi Nexus
     - Fix bug in creating listitems
