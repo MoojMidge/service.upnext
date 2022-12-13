@@ -59,9 +59,8 @@ def generate_listing(addon_handle, addon_id, items):  # pylint: disable=unused-a
         )
         if 'art' in content:
             listitem.setArt(content.get('art'))
-        is_folder = content.get('content_type') != 'action'
 
-        listing += ((url, listitem, is_folder),)
+        listing += ((url, listitem, True),)
 
     return listing
 
@@ -121,7 +120,9 @@ def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disab
 
 def open_settings(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     utils.get_addon(addon_id).openSettings()
-    return True
+
+    xbmcplugin.endOfDirectory(addon_handle, False)
+    return False
 
 
 def parse_plugin_url(url):
@@ -142,23 +143,26 @@ def parse_plugin_url(url):
 def play_media(addon_handle, addon_id, **kwargs):
     dbtype = kwargs.get('dbtype', [''])[0]
     dbid = int(kwargs.get('dbid', [constants.UNDEFINED])[0])
-    if not dbtype or dbid == constants.UNDEFINED:
-        return False
 
-    current_video = api.get_from_library(media_type=dbtype, db_id=dbid)
-    current_item = utils.create_item_details(current_video, 'library', dbtype)
+    if dbtype and dbid != constants.UNDEFINED:
+        current_video = api.get_from_library(media_type=dbtype, db_id=dbid)
+        current_item = utils.create_item_details(
+            current_video, 'library', dbtype
+        )
+    else:
+        current_item = None
 
     upnext_info = generate_library_plugin_data(
         current_item=current_item,
         addon_id=addon_id
-    ) if current_item['details'] else None
+    ) if current_item and current_item['details'] else None
 
     if upnext_info:
         resolved = True
         upnext.send_signal(addon_id, upnext_info)
     else:
         resolved = False
-        upnext_info = {'current_video': upnext.create_episode_listitem({})}
+        upnext_info = {'current_video': xbmcgui.ListItem(offscreen=True)}
 
     xbmcplugin.setResolvedUrl(
         addon_handle, resolved, upnext_info['current_video']
