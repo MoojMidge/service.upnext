@@ -268,6 +268,8 @@ def create_episode_listitem(episode):
         'mediatype': 'episode'
     }
 
+    # Pass as property - there is no method to set/get tvshowid from a ListItem
+    # or InfoTagVideo
     properties = {
         'tvshowid': str(episode.get('tvshowid', constants.UNDEFINED))
     }
@@ -279,12 +281,24 @@ def create_episode_listitem(episode):
 def create_movie_listitem(movie):
     """Create a xbmcgui.ListItem from provided movie details"""
 
+    set_id = movie.get('setid', constants.UNDEFINED)
+    set_name = movie.get('set', '')
+
     infolabels = {
         'dbid': movie.get('movieid', constants.UNDEFINED),
+        'setid': set_id,
+        'set': set_name,
         'mediatype': 'movie'
     }
 
-    listitem = _create_video_listitem(movie, None, infolabels)
+    # Pass as property - there is no method to get setid/set from a ListItem
+    # or InfoTagVideo even though there are new methods to set these info tags
+    properties = {
+        'setid': str(set_id),
+        'set': set_name
+    }
+
+    listitem = _create_video_listitem(movie, None, infolabels, properties)
     return listitem
 
 
@@ -345,7 +359,7 @@ def send_signal(sender, upnext_info):
                 or val.getProperty('TvShowDBID')
                 or tvshow_id
             )
-            set_id = val.getProperty('setid') or set_id
+            set_id = int(val.getProperty('setid') or set_id)
             set_name = val.getProperty('set')
             val = val.getVideoInfoTag()
 
