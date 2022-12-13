@@ -2,7 +2,7 @@
 # GNU General Public License v2.0 (see COPYING or https://www.gnu.org/licenses/gpl-2.0.txt)
 
 from __future__ import absolute_import, division, unicode_literals
-import random
+from random import randint
 import constants
 
 LIBRARY = {
@@ -250,18 +250,18 @@ def update_library_ids():
     for idx, tvshow in enumerate(LIBRARY['tvshows'], start=1):
         min_id = idx * 10
         max_id = min_id + 9
-        tvshow_id = random.randint(min_id, max_id)
+        tvshow_id = randint(min_id, max_id)
         while tvshow_id in tvshow_ids:
-            tvshow_id = random.randint(min_id, max_id)
+            tvshow_id = randint(min_id, max_id)
         tvshow_ids.append(tvshow_id)
         LIBRARY['tvshows'][tvshow]['tvshowid'] = tvshow_id
 
     for idx, episode in enumerate(LIBRARY['episodes'], start=1):
         min_id = idx * 10
         max_id = min_id + 9
-        episode_id = random.randint(min_id, max_id)
+        episode_id = randint(min_id, max_id)
         while episode_id in episode_ids:
-            episode_id = random.randint(min_id, max_id)
+            episode_id = randint(min_id, max_id)
         episode_ids.append(episode_id)
         episode['episodeid'] = episode_id
 
@@ -271,18 +271,18 @@ def update_library_ids():
     for idx, _set in enumerate(LIBRARY['sets'], start=1):
         min_id = idx * 10
         max_id = min_id + 9
-        set_id = random.randint(min_id, max_id)
+        set_id = randint(min_id, max_id)
         while set_id in set_ids:
-            set_id = random.randint(min_id, max_id)
+            set_id = randint(min_id, max_id)
         set_ids.append(set_id)
         LIBRARY['sets'][_set]['setid'] = set_id
 
     for idx, movie in enumerate(LIBRARY['movies'], start=1):
         min_id = idx * 10
         max_id = min_id + 9
-        movie_id = random.randint(min_id, max_id)
+        movie_id = randint(min_id, max_id)
         while movie_id in movie_ids:
-            movie_id = random.randint(min_id, max_id)
+            movie_id = randint(min_id, max_id)
         movie_ids.append(movie_id)
         movie['movieid'] = movie_id
 
