@@ -3,9 +3,12 @@
 """UpNext script and service tests"""
 
 from __future__ import absolute_import, division, unicode_literals
+import api
 import dummydata
 import plugin
 import script
+import upnext
+import utils
 
 
 SKIP_TEST_ALL = False
@@ -36,6 +39,36 @@ def test_plugin():
         '?dbtype=episode&dbid={0}'.format(dbid)
     ])
     assert test_complete is True
+
+
+def test_movie_plugin():
+    if SKIP_TEST_ALL or SKIP_TEST_PLUGIN:
+        assert True
+        return
+
+    addon_id = 'video.test_movie_plugin'
+
+    dbid = dummydata.LIBRARY['movies'][0]['movieid']
+    dbtype = 'movie'
+    current_video = api.get_from_library(media_type=dbtype, db_id=dbid)
+    current_item = utils.create_item_details(current_video, 'library', dbtype)
+
+    next_item = utils.create_item_details(
+        api.get_next_from_library(item=current_item),
+        source='library',
+        media_type=dbtype
+    )
+
+    upnext_info = {
+        'current_video': upnext.create_listitem(current_item),
+        'play_url': 'plugin://{0}/play/?dbtype={1}&dbid={2}'.format(
+            1, dbtype, next_item['db_id']
+        )
+    }
+    test_complete = upnext.send_signal(addon_id, upnext_info)
+    test_complete = test_complete and test_complete.get('result')
+
+    assert test_complete == 'OK'
 
 
 def test_widget():

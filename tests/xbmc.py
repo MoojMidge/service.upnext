@@ -769,6 +769,23 @@ def _videolibrary_getmovies(params):
     ))
 
 
+def _videolibrary_getmoviedetails(params):
+    movieid = params.get('movieid')
+    if movieid is None:
+        return False
+
+    movies = [
+        movie for movie in LIBRARY['movies']
+        if movie['movieid'] == movieid
+    ]
+
+    return json.dumps(dict(
+        id=1,
+        jsonrpc='2.0',
+        result=dict(moviedetails=movies[0] if movies else {})
+    ))
+
+
 def _videolibrary_getepisodedetails(params):
     episodeid = params.get('episodeid')
     if episodeid is None:
@@ -916,6 +933,7 @@ _JSONRPC_methods = {
     'VideoLibrary.GetMovies': _videolibrary_getmovies,
     'VideoLibrary.GetTVShows': _videolibrary_gettvshows,
     'VideoLibrary.GetEpisodes': _videolibrary_getepisodes,
+    'VideoLibrary.GetMovieDetails': _videolibrary_getmoviedetails,
     'VideoLibrary.GetEpisodeDetails': _videolibrary_getepisodedetails,
     'VideoLibrary.GetTVShowDetails': _videolibrary_gettvshowdetails,
     'JSONRPC.NotifyAll': _jsonrpc_notifyall,
