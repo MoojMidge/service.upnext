@@ -363,10 +363,6 @@ def send_signal(sender, upnext_info):
 
         video_info = {
             'title': val.getTitle(),
-            'art': {
-                'thumb': thumb,
-                'tvshow.fanart': fanart,
-            },
             # Prefer outline over full plot for UpNext popup
             'plot': val.getPlotOutline() or val.getPlot(),
             'playcount': val.getPlayCount(),
@@ -384,12 +380,20 @@ def send_signal(sender, upnext_info):
                 'season': val.getSeason(),
                 'episode': val.getEpisode(),
                 'showtitle': val.getTVShowTitle(),
+                'art': {
+                    'thumb': thumb,
+                    'tvshow.fanart': fanart,
+                },
             })
         elif media_type == 'movie':
             video_info.update({
                 'movieid': val.getDbId(),
                 'setid': set_id,
                 'set': set_name,
+                'art': {
+                    'thumb': thumb,
+                    'fanart': fanart,
+                },
             })
         else:
             video_info.update({
