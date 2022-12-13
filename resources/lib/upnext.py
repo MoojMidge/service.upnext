@@ -318,7 +318,7 @@ def send_signal(sender, upnext_info):
     if not (any(info in upnext_info for info in required_episode_info)
             and any(info in upnext_info for info in required_plugin_info)):
         log('Invalid UpNext info - {0}'.format(upnext_info), utils.LOGWARNING)
-        return
+        return None
 
     # Extract ListItem or InfoTagVideo details for use by UpNext
     upnext_data = {}
@@ -400,7 +400,7 @@ def send_signal(sender, upnext_info):
 
     upnext_data = _copy_video_details(upnext_data)
 
-    utils.event(
+    return utils.event(
         sender=sender,
         message='upnext_data',
         data=upnext_data,

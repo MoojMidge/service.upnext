@@ -358,9 +358,9 @@ def event(message, data=None, sender=None, encoding='base64'):
 
     encoded_data = encode_data(data, encoding=encoding)
     if not encoded_data:
-        return
+        return None
 
-    jsonrpc(
+    return jsonrpc(
         method='JSONRPC.NotifyAll',
         params={
             'sender': '{0}.SIGNAL'.format(sender),
