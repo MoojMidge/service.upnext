@@ -8,6 +8,8 @@ import binascii
 from itertools import chain
 import json
 from operator import itemgetter
+from re import compile as re_compile
+from string import punctuation
 import sys
 import threading
 import dateutil.parser
@@ -590,7 +592,32 @@ def merge_iterable(*iterables, **kwargs):
         limit = kwargs.get('limit')
 
         if key and limit is not None:
-            merged = filter(lambda item: key(item) >= limit, merged)
+            merged = (item for item in merged if key(item) >= limit)
 
         merged = sorted(merged, key=key, reverse=reverse)
     return merged
+
+
+def strip_punctuation(value, table=dict.fromkeys(map(ord, punctuation))):  # pylint: disable=dangerous-default-value
+    length = len(value)
+    if length < 3 or (length == 3 and value.upper() != value):
+        return ''
+    return value.lower().translate(table)
+
+
+def tokenise(value,
+             split=re_compile(r'[_\.,]* |[\|/\\]').split,
+             strip=strip_punctuation,
+             remove=frozenset({
+                 '', 'about', 'after', 'from', 'have', 'hers', 'into', 'only',
+                 'over', 'than', 'that', 'their', 'there', 'them', 'then',
+                 'they', 'this', 'what', 'when', 'where', 'will', 'with',
+                 'your', 'duringcreditsstinger', 'aftercreditsstinger',
+                 'collection'
+             })):
+    tokens = split(value) if split else value
+    if strip:
+        tokens = set(map(strip, tokens))
+    if remove:
+        tokens = tokens - remove
+    return tokens

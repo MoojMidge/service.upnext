@@ -115,6 +115,14 @@ MOVIE_ART_MAP = {
     'icon': ('poster', ),
 }
 
+RECOMMENDATION_PROPERTIES = frozenset({
+    'title',
+    'genre',
+    'plot',
+    'set',
+    'tag'
+})
+
 PLAYER_PLAYLIST = {
     'video': xbmc.PLAYLIST_VIDEO,  # 1
     'audio': xbmc.PLAYLIST_MUSIC   # 0
@@ -156,6 +164,11 @@ _QUERY_LIMIT_ONE = {
 _FILTER_SEARCH_TVSHOW = {
     'field': 'title',
     'operator': 'is',
+    'value': constants.UNDEFINED_STR
+}
+_FILTER_NOT_TITLE = {
+    'field': 'title',
+    'operator': 'isnot',
     'value': constants.UNDEFINED_STR
 }
 _FILTER_NOT_FILE = {
@@ -277,6 +290,30 @@ _FILTER_UNWATCHED_UPNEXT_MOVIE = {
         _FILTER_UNWATCHED,
         _FILTER_SEARCH_SET,
         _FILTER_NEXT_MOVIE
+    ]
+}
+
+_FILTER_SEARCH_GENRE = {
+    'field': 'genre',
+    'operator': 'is',
+    'value': constants.UNDEFINED_STR
+}
+_FILTER_SIMILAR = {
+    'or': [
+        _FILTER_SEARCH_SET
+    ]
+}
+_FILTER_SIMILAR_NOT_SAME = {
+    'and': [
+        _FILTER_NOT_TITLE,
+        _FILTER_SIMILAR
+    ]
+}
+_FILTER_UNWATCHED_SIMILAR_NOT_SAME = {
+    'and': [
+        _FILTER_UNWATCHED,
+        _FILTER_NOT_TITLE,
+        _FILTER_SIMILAR
     ]
 }
 
@@ -1146,3 +1183,121 @@ def get_upnext_movies_from_library(limit=25,
         sets.add(setid)
 
     return upnext_movies
+
+
+def get_watched_movies_from_library(limit=25,  # pylint: disable=dangerous-default-value
+                                    sort=_SORT_LASTPLAYED,
+                                    properties=MOVIE_PROPERTIES):
+    """Function to get watched movie details from Kodi library"""
+
+    _QUERY_LIMITS['end'] = limit
+    watched = utils.jsonrpc(
+        method='VideoLibrary.GetMovies',
+        params={
+            'properties': properties,
+            'sort': sort,
+            'limits': _QUERY_LIMITS,
+            'filter': _FILTER_WATCHED
+        }
+    )
+    watched = watched.get('result', {}).get('movies', [])
+
+    if watched and limit == 1:
+        return watched[0]
+    return watched
+
+
+def get_similar_movies_from_library(limit=25,  # pylint: disable=too-many-locals
+                                    movieid=constants.UNDEFINED,
+                                    unwatched_only=False,
+                                    loose_match=True):
+    """Function to search by movieid for similar movies from Kodi library"""
+
+    if movieid == constants.UNDEFINED or movieid is None:
+        original = get_watched_movies_from_library(
+            limit=1,
+            sort=_SORT_RANDOM,
+            properties=RECOMMENDATION_PROPERTIES
+        )
+    else:
+        original, _ = get_details_from_library(
+            media_type='movie',
+            db_id=int(movieid),
+            properties=RECOMMENDATION_PROPERTIES
+        )
+
+    if not original:
+        return None, []
+
+    movie_genres = frozenset(original['genre'])
+    movie_tags = frozenset(utils.tokenise(original['tag'], split=False))
+    movie_title = frozenset(utils.tokenise(original['title']))
+    movie_set = frozenset(utils.tokenise(original['set']))
+
+    if not movie_tags or loose_match:
+        loose_match = True
+        movie_tags = (movie_tags | movie_title |
+                      frozenset(utils.tokenise(original['plot'])))
+    elif len(movie_genres) == 1:
+        loose_match = True
+
+    _FILTER_NOT_TITLE['value'] = original['title']
+    _FILTER_SEARCH_SET['value'] = original['set'] or constants.UNDEFINED_STR
+    _FILTER_SIMILAR['or'] = _FILTER_SIMILAR['or'][:1]
+
+    for genre in movie_genres:
+        _FILTER_SEARCH_GENRE['value'] = genre
+        _FILTER_SIMILAR['or'].append(_FILTER_SEARCH_GENRE.copy())
+
+    similar_movies = utils.jsonrpc(
+        method='VideoLibrary.GetMovies',
+        params={
+            'properties': MOVIE_PROPERTIES | RECOMMENDATION_PROPERTIES,
+            'sort': _SORT_RANDOM,
+            'filter': (
+                _FILTER_UNWATCHED_SIMILAR_NOT_SAME if unwatched_only
+                else _FILTER_SIMILAR_NOT_SAME
+            )
+        }
+    )
+    similar_movies = similar_movies.get('result', {}).get('movies', [])
+
+    recommended_movies = []
+    for similar in similar_movies:
+        similar_genres = frozenset(similar['genre'])
+        rank_genre = (
+            (len(movie_genres & similar_genres) - 1).bit_length()
+            - len(similar_genres ^ movie_genres).bit_length()
+        )
+        if not loose_match and rank_genre < -1:
+            continue
+
+        similar_tags = frozenset(utils.tokenise(similar['tag'], split=False))
+        similar_title = frozenset(utils.tokenise(similar['title']))
+        similar_set = frozenset(utils.tokenise(similar['set']))
+
+        if not similar_tags or loose_match:
+            similar_plot = frozenset(utils.tokenise(similar['plot']))
+            similar_tags = similar_tags | similar_title | similar_plot
+            rank_plot = len(similar_plot & movie_tags).bit_length()
+        else:
+            rank_plot = 0
+
+        rank = (
+            len(similar_title & movie_title).bit_length() * 2
+            + len(similar_set & movie_set).bit_length() * 2
+            + len(similar_tags & movie_tags).bit_length() * 1.5
+            + rank_genre
+            + rank_plot
+        )
+
+        if loose_match or rank >= 1:
+            similar['art'] = art_fallbacks(
+                similar.get('art'), MOVIE_ART_MAP, replace=True
+            )
+            similar['__rank__'] = rank
+            recommended_movies.append(similar)
+
+    return original, utils.merge_iterable(
+        recommended_movies, sort='__rank__', limit=1, reverse=True
+    )[:limit]

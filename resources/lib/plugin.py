@@ -116,6 +116,52 @@ def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disab
     return listing
 
 
+def generate_watched_movie_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
+    movies = api.get_watched_movies_from_library()
+
+    listing = []
+    for movie in movies:
+        url = 'plugin://{0}/similar_movies/{1}'.format(addon_id, movie['movieid'])
+        listitem = upnext.create_movie_listitem(
+            movie,
+            infolabels={'path': url},
+            properties={'isPlayable': 'false', 'isFolder': True}
+        )
+        listing += ((url, listitem, True),)
+
+    return listing
+
+
+def generate_similar_movie_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
+    path = kwargs.get('__path__')
+    if not path or path[-1] == 'similar_movies':
+        movieid = constants.UNDEFINED
+    else:
+        movieid = path[-1]
+
+    movie, movies = api.get_similar_movies_from_library(
+        movieid=movieid,
+        unwatched_only=SETTINGS.unwatched_only
+    )
+    if movie:
+        title = movie['title']
+        category = 'Because you watched "{0}"'.format(title)
+        xbmcplugin.setPluginCategory(addon_handle, category)
+
+    listing = []
+    for movie in movies:
+        listitem = upnext.create_movie_listitem(
+            movie,
+            properties={
+                'searchstring': title,  # For Emburary skin integration
+                'widget': category      # For AH2 skin integration
+            }
+        )
+        listing += ((movie['file'], listitem, False),)
+
+    return listing
+
+
 def open_settings(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     utils.get_addon(addon_id).openSettings()
 
@@ -214,6 +260,8 @@ PLUGIN_CONTENT = {
             'next_episodes',
             'next_movies',
             'next_media',
+            'watched_movies',
+            'similar_movies',
             'settings',
         ],
     },
@@ -240,6 +288,23 @@ PLUGIN_CONTENT = {
         },
         'content_type': 'videos',
         'handler': generate_next_media_list,
+    },
+    'watched_movies': {
+        'label': 'Watched movie recommendations',
+        'art': {
+            'icon': 'DefaultMovies.png'
+        },
+        'content_type': 'movies',
+        'handler': generate_watched_movie_list,
+    },
+    'similar_movies': {
+        'label': 'Because you watched...',
+        'art': {
+            'icon': 'DefaultMovies.png'
+        },
+        'content_type': 'movies',
+        'handler': generate_similar_movie_list,
+        'params': '?reload=$INFO[Window(Home).Property(UpNext.Widgets.Reload)]'
     },
     'settings': {
         'label': 'Settings',
