@@ -165,23 +165,9 @@ def _create_video_listitem(video,
                            kwargs=None, infolabels=None, properties=None):
     """Create a xbmcgui.ListItem from provided video details"""
 
-    title = video.get('title', '')
-    file_path = video.get('file', '')
-    resume = video.get('resume', {})
-    art = video.get('art', {})
-
-    default_kwargs = {
-        'label': title,
-        'path': file_path
-    }
-    if utils.supports_python_api(18):
-        default_kwargs['offscreen'] = True
-    if kwargs:
-        default_kwargs.update(kwargs)
-
-    default_infolabels = {
-        'path': file_path,
-        'title': title,
+    _infolabels = {
+        'path': video.get('file', ''),
+        'title': video.get('title', ''),
         'plot': video.get('plot', ''),
         'rating': float(video.get('rating', 0.0)),
         'premiered': video.get('premiered', ''),
@@ -192,20 +178,30 @@ def _create_video_listitem(video,
         'playcount': video.get('playcount', 0),
     }
     if infolabels:
-        default_infolabels.update(infolabels)
+        _infolabels.update(infolabels)
 
-    default_properties = {
+    resume = video.get('resume', {})
+    _properties = {
         'isPlayable': 'true'
     }
     if not utils.supports_python_api(20):
-        default_properties.update({
+        _properties.update({
             'resumetime': str(resume.get('position')),
             'totaltime': str(resume.get('total')),
         })
     if properties:
-        default_properties.update(properties)
+        _properties.update(properties)
 
-    listitem = xbmcgui.ListItem(**default_kwargs)
+    _kwargs = {
+        'label': _infolabels.get('title'),
+        'path': _infolabels.get('path'),
+    }
+    if utils.supports_python_api(18):
+        _kwargs['offscreen'] = True
+    if kwargs:
+        _kwargs.update(kwargs)
+
+    listitem = xbmcgui.ListItem(**_kwargs)
     if utils.supports_python_api(20):
         info_tag = listitem.getVideoInfoTag()
         _set_info.info_tag = info_tag
@@ -213,23 +209,23 @@ def _create_video_listitem(video,
             time=resume.get('position'), totalTime=resume.get('total')
         )
         # Consume iterator
-        deque(map(_set_info, default_infolabels.items()), maxlen=0)
+        deque(map(_set_info, _infolabels.items()), maxlen=0)
     else:
-        listitem.setInfo(type='Video', infoLabels=default_infolabels)
+        listitem.setInfo(type='Video', infoLabels=_infolabels)
 
     if utils.supports_python_api(18):
-        listitem.setProperties(default_properties)
-        listitem.setIsFolder(False)
+        listitem.setProperties(_properties)
+        listitem.setIsFolder(_properties.get('isFolder', False))
     else:
-        for key, val in default_properties.items():
+        for key, val in _properties.items():
             listitem.setProperty(key, val)
-    listitem.setArt(art)
-    listitem.setPath(file_path)
+
+    listitem.setArt(video.get('art', {}))
 
     return listitem
 
 
-def create_episode_listitem(episode):
+def create_episode_listitem(episode, infolabels=None, properties=None):
     """Create a xbmcgui.ListItem from provided episode details"""
 
     show_title = episode.get('showtitle', '')
@@ -244,7 +240,7 @@ def create_episode_listitem(episode):
     )
     label_tokens = (None, show_title, season_episode, episode_title)
 
-    kwargs = {
+    _kwargs = {
         'label': ' - '.join(
             label_tokens[token]
             for token in SETTINGS.plugin_main_label
@@ -257,7 +253,7 @@ def create_episode_listitem(episode):
         ),
     }
 
-    infolabels = {
+    _infolabels = {
         'dbid': episode.get('episodeid', constants.UNDEFINED),
         'tvshowtitle': show_title,
         'season': constants.UNDEFINED if season is None else season,
@@ -267,42 +263,52 @@ def create_episode_listitem(episode):
         'year': utils.get_year(first_aired),
         'mediatype': 'episode'
     }
+    if infolabels:
+        _infolabels.update(infolabels)
 
     # Pass as property - there is no method to set/get tvshowid from a ListItem
     # or InfoTagVideo
-    properties = {
+    _properties = {
         'tvshowid': str(episode.get('tvshowid', constants.UNDEFINED))
     }
+    if properties:
+        _properties.update(properties)
 
-    listitem = _create_video_listitem(episode, kwargs, infolabels, properties)
+    listitem = _create_video_listitem(
+        episode, _kwargs, _infolabels, _properties
+    )
     return listitem
 
 
-def create_movie_listitem(movie):
+def create_movie_listitem(movie, infolabels=None, properties=None):
     """Create a xbmcgui.ListItem from provided movie details"""
 
     set_id = movie.get('setid', constants.UNDEFINED)
     set_name = movie.get('set', '')
 
-    infolabels = {
+    _infolabels = {
         'dbid': movie.get('movieid', constants.UNDEFINED),
         'setid': set_id,
         'set': set_name,
         'mediatype': 'movie'
     }
+    if infolabels:
+        _infolabels.update(infolabels)
 
     # Pass as property - there is no method to get setid/set from a ListItem
     # or InfoTagVideo even though there are new methods to set these info tags
-    properties = {
+    _properties = {
         'setid': str(set_id),
         'set': set_name
     }
+    if properties:
+        _properties.update(properties)
 
-    listitem = _create_video_listitem(movie, None, infolabels, properties)
+    listitem = _create_video_listitem(movie, None, _infolabels, _properties)
     return listitem
 
 
-def create_listitem(item):
+def create_listitem(item, infolabels=None, properties=None):
     """Create a xbmcgui.ListItem from provided item_details dict"""
 
     media_type = item.get('media_type')
@@ -310,10 +316,10 @@ def create_listitem(item):
         item = item['details']
 
     if media_type == 'episode' or 'tvshowid' in item:
-        return create_episode_listitem(item)
+        return create_episode_listitem(item, infolabels, properties)
 
     if media_type == 'movie' or 'setid' in item:
-        return create_movie_listitem(item)
+        return create_movie_listitem(item, infolabels, properties)
 
     return None
 
