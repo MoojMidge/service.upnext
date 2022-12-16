@@ -56,6 +56,7 @@ class UpNextSettings(object):
         'skin_popup',
         'start_delay',
         'start_trigger',
+        'widget_refresh_period',
         'unwatched_only',
     )
 
@@ -171,6 +172,10 @@ class UpNextSettings(object):
                     + self.get_int('popupCustomAccentColourB')
                 )[2:]
         self.popup_accent_colour = accent_colour
+
+        self.widget_refresh_period = (60 * utils.get_int(
+            self.get_string('widgetRefreshPeriod'), default=10
+        ))
 
         self.plugin_main_label = (
             self.get_int('pluginMainLabelToken1'),

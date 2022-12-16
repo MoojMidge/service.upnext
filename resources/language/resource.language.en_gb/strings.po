@@ -207,8 +207,12 @@ msgctxt "#30520"
 msgid "Colour selection"
 msgstr ""
 
-msgctxt "#30550"
-msgid "Plugin listing label customisation"
+msgctxt "#30540"
+msgid "Widget and Plugin Listings"
+msgstr ""
+
+msgctxt "#30541"
+msgid "Widget refresh period [COLOR gray](minutes)[/COLOR]"
 msgstr ""
 
 msgctxt "#30551"

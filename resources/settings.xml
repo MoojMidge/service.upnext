@@ -130,86 +130,102 @@
 					</control>
 				</setting>
 			</group>
-			<group id="pluginListing" label="30550">
-				<setting id="pluginMainLabelToken1" type="integer" label="30551" help="">
-					<level>0</level>
-					<default>1</default>
-					<constraints>
+			<group id="widgetPluginListings" label="30540">
+                <setting id="widgetRefreshPeriod" type="string" label="30541" help="">
+                    <level>0</level>
+                    <default>10</default>
+                    <constraints>
 						<options>
-							<option label="30560">0</option>
-							<option label="30561">1</option>
-							<option label="30562">2</option>
-							<option label="30563">3</option>
+							<option>1</option>
+							<option>5</option>
+							<option>10</option>
+							<option>15</option>
+                            <option>20</option>
+                            <option>30</option>
+                            <option>60</option>
 						</options>
 					</constraints>
 					<control type="spinner" format="string"/>
-				</setting>
-				<setting id="pluginMainLabelToken2" type="integer" label="30552" help="">
-					<level>0</level>
-					<default>2</default>
-					<constraints>
-						<options>
-							<option label="30560">0</option>
-							<option label="30561">1</option>
-							<option label="30562">2</option>
-							<option label="30563">3</option>
-						</options>
-					</constraints>
-					<control type="spinner" format="string"/>
-				</setting>
-				<setting id="pluginMainLabelToken3" type="integer" label="30553" help="">
-					<level>0</level>
-					<default>3</default>
-					<constraints>
-						<options>
-							<option label="30560">0</option>
-							<option label="30561">1</option>
-							<option label="30562">2</option>
-							<option label="30563">3</option>
-						</options>
-					</constraints>
-					<control type="spinner" format="string"/>
-				</setting>
-				<setting id="pluginSecondaryLabelToken1" type="integer" label="30554" help="">
-					<level>0</level>
-					<default>0</default>
-					<constraints>
-						<options>
-							<option label="30560">0</option>
-							<option label="30561">1</option>
-							<option label="30562">2</option>
-							<option label="30563">3</option>
-						</options>
-					</constraints>
-					<control type="spinner" format="string"/>
-				</setting>
-				<setting id="pluginSecondaryLabelToken2" type="integer" label="30555" help="">
-					<level>0</level>
-					<default>0</default>
-					<constraints>
-						<options>
-							<option label="30560">0</option>
-							<option label="30561">1</option>
-							<option label="30562">2</option>
-							<option label="30563">3</option>
-						</options>
-					</constraints>
-					<control type="spinner" format="string"/>
-				</setting>
-				<setting id="pluginSecondaryLabelToken3" type="integer" label="30556" help="">
-					<level>0</level>
-					<default>0</default>
-					<constraints>
-						<options>
-							<option label="30560">0</option>
-							<option label="30561">1</option>
-							<option label="30562">2</option>
-							<option label="30563">3</option>
-						</options>
-					</constraints>
-					<control type="spinner" format="string"/>
-				</setting>
-			</group>
+                </setting>       
+                <setting id="pluginMainLabelToken1" type="integer" label="30551" help="">
+                    <level>0</level>
+                    <default>1</default>
+                    <constraints>
+                        <options>
+                            <option label="30560">0</option>
+                            <option label="30561">1</option>
+                            <option label="30562">2</option>
+                            <option label="30563">3</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string"/>
+                </setting>
+                <setting id="pluginMainLabelToken2" type="integer" label="30552" help="">
+                    <level>0</level>
+                    <default>2</default>
+                    <constraints>
+                        <options>
+                            <option label="30560">0</option>
+                            <option label="30561">1</option>
+                            <option label="30562">2</option>
+                            <option label="30563">3</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string"/>
+                </setting>
+                <setting id="pluginMainLabelToken3" type="integer" label="30553" help="">
+                    <level>0</level>
+                    <default>3</default>
+                    <constraints>
+                        <options>
+                            <option label="30560">0</option>
+                            <option label="30561">1</option>
+                            <option label="30562">2</option>
+                            <option label="30563">3</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string"/>
+                </setting>
+                <setting id="pluginSecondaryLabelToken1" type="integer" label="30554" help="">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30560">0</option>
+                            <option label="30561">1</option>
+                            <option label="30562">2</option>
+                            <option label="30563">3</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string"/>
+                </setting>
+                <setting id="pluginSecondaryLabelToken2" type="integer" label="30555" help="">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30560">0</option>
+                            <option label="30561">1</option>
+                            <option label="30562">2</option>
+                            <option label="30563">3</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string"/>
+                </setting>
+                <setting id="pluginSecondaryLabelToken3" type="integer" label="30556" help="">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30560">0</option>
+                            <option label="30561">1</option>
+                            <option label="30562">2</option>
+                            <option label="30563">3</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string"/>
+                </setting>
+            </group>
 		</category>
 		<category id="behaviour" label="30600" help="">
 			<group id="playback" label="30601">

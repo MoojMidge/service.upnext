@@ -2,6 +2,7 @@
 # GNU General Public License v2.0 (see COPYING or https://www.gnu.org/licenses/gpl-2.0.txt)
 
 from __future__ import absolute_import, division, unicode_literals
+from time import time
 import xbmc
 from settings import SETTINGS
 import api
@@ -19,6 +20,7 @@ class UpNextMonitor(xbmc.Monitor, object):
     """Monitor service for Kodi"""
 
     __slots__ = (
+        '_idle',
         '_monitoring',
         '_queue_length',
         '_started',
@@ -36,6 +38,7 @@ class UpNextMonitor(xbmc.Monitor, object):
 
         self.log('Init')
 
+        self._idle = False
         self._monitoring = False
         self._queue_length = 0
         self._started = False
@@ -213,6 +216,9 @@ class UpNextMonitor(xbmc.Monitor, object):
         if data and data.get('shuttingdown'):
             return
 
+        # Update idle state for widget refresh
+        self._idle = False
+
         # Delay event handler execution to allow events to queue up
         self.waitForAbort(1)
         # Only process this event if it is the last in the queue
@@ -221,6 +227,10 @@ class UpNextMonitor(xbmc.Monitor, object):
 
         # Restart tracking if previously enabled
         self._start_tracking()
+
+    def _event_handler_screensaver_on(self, **_kwargs):
+        # Update idle state for widget refresh
+        self._idle = True
 
     def _event_handler_upnext_trigger(self, **_kwargs):
         # Remove remnants from previous operations
@@ -473,9 +483,15 @@ class UpNextMonitor(xbmc.Monitor, object):
 
         if not self._monitoring:
             self._monitoring = True
+            # Set initial idle state for widget refresh
+            self._idle = xbmc.getCondVisibility('System.ScreenSaverActive')
 
-            # Wait indefinitely until addon is terminated
-            self.waitForAbort()
+            # Wait indefinitely until addon is terminated, but periodically
+            # update widgets
+            while not self.waitForAbort(SETTINGS.widget_refresh_period):
+                if self._idle:
+                    continue
+                utils.set_property('UpNext.Widgets.Reload', str(int(time())))
             # Cleanup when abort requested
             self.stop()
 
@@ -501,6 +517,7 @@ class UpNextMonitor(xbmc.Monitor, object):
         'Other.upnext_data': _event_handler_upnext_signal,
         'Other.upnext_trigger': _event_handler_upnext_trigger,
         'Other.OnAVStart': _event_handler_player_start,
+        'GUI.OnScreensaverActivated': _event_handler_screensaver_on,
         'GUI.OnScreensaverDeactivated': _event_handler_screensaver_off,
         'Player.OnPause': _event_handler_player_general,
         'Player.OnResume': _event_handler_player_general,
