@@ -113,8 +113,8 @@ class UpNextPopup(xbmcgui.WindowXMLDialog, object):
         self.setProperty(
             'stop_close_label',
             utils.localize(
-                constants.STOP_STRING_ID if self.stop_enable
-                else constants.CLOSE_STRING_ID
+                constants.STOP_STR_ID if self.stop_enable
+                else constants.CLOSE_STR_ID
             )
         )
         self.setProperty('shuffle_enable', (self.shuffle_on is not None))

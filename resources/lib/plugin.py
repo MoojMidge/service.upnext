@@ -145,8 +145,8 @@ def generate_similar_movie_list(addon_handle, addon_id, **kwargs):  # pylint: di
     )
     if movie:
         title = movie['title']
-        category = 'Because you watched "{0}"'.format(title)
-        xbmcplugin.setPluginCategory(addon_handle, category)
+        label = utils.localize(constants.MORE_LIKE_THIS_STR_ID).format(title)
+        xbmcplugin.setPluginCategory(addon_handle, label)
 
     listing = []
     for movie in movies:
@@ -154,7 +154,7 @@ def generate_similar_movie_list(addon_handle, addon_id, **kwargs):  # pylint: di
             movie,
             properties={
                 'searchstring': title,  # For Emburary skin integration
-                'widget': category      # For AH2 skin integration
+                'widget': label         # For AH2 skin integration
             }
         )
         listing += ((movie['file'], listitem, False),)
@@ -223,7 +223,7 @@ def run(argv):
     if not content:
         return False
 
-    content_label = content.get('label', constants.PLUGIN_LABEL)
+    content_label = content.get('label') or PLUGIN_CONTENT['/']['label']
     content_type = content.get('content_type')
     content_items = content.get('items')
     content_handler = content.get('handler')
@@ -254,7 +254,7 @@ def run(argv):
 
 PLUGIN_CONTENT = {
     '/': {
-        'label': 'UpNext',
+        'label': utils.localize(constants.PLUGIN_HOME_STR_ID),
         'content_type': 'files',
         'items': [
             'next_episodes',
@@ -266,7 +266,7 @@ PLUGIN_CONTENT = {
         ],
     },
     'next_episodes': {
-        'label': 'In-progress and Next-up Episodes',
+        'label': utils.localize(constants.NEXT_EPISODES_STR_ID),
         'art': {
             'icon': 'DefaultInProgressShows.png',
         },
@@ -274,7 +274,7 @@ PLUGIN_CONTENT = {
         'handler': generate_next_episodes_list,
     },
     'next_movies': {
-        'label': 'In-progress and Next-up Movies',
+        'label': utils.localize(constants.NEXT_MOVIES_STR_ID),
         'art': {
             'icon': 'DefaultMovies.png',
         },
@@ -282,7 +282,7 @@ PLUGIN_CONTENT = {
         'handler': generate_next_movies_list,
     },
     'next_media': {
-        'label': 'In-progress and Next-up Media',
+        'label': utils.localize(constants.NEXT_MEDIA_STR_ID),
         'art': {
             'icon': 'DefaultVideo.png'
         },
@@ -290,7 +290,7 @@ PLUGIN_CONTENT = {
         'handler': generate_next_media_list,
     },
     'watched_movies': {
-        'label': 'Watched movie recommendations',
+        'label': utils.localize(constants.WATCHED_MOVIES_STR_ID),
         'art': {
             'icon': 'DefaultMovies.png'
         },
@@ -298,7 +298,7 @@ PLUGIN_CONTENT = {
         'handler': generate_watched_movie_list,
     },
     'similar_movies': {
-        'label': 'Because you watched...',
+        'label': utils.localize(constants.MORE_LIKE_MOVIES_STR_ID),
         'art': {
             'icon': 'DefaultMovies.png'
         },
@@ -307,7 +307,7 @@ PLUGIN_CONTENT = {
         'params': '?reload=$INFO[Window(Home).Property(UpNext.Widgets.Reload)]'
     },
     'settings': {
-        'label': 'Settings',
+        'label': utils.localize(constants.SETTINGS_STR_ID),
         'art': {
             'icon': 'DefaultAddonProgram.png'
         },

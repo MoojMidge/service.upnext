@@ -122,6 +122,45 @@ msgctxt "#30052"
 msgid "Forced off"
 msgstr ""
 
+
+### Widgets and Plugin listings
+msgctxt "#30100"
+msgid "UpNext"
+msgstr ""
+
+msgctxt "#30101"
+msgid "Settings"
+msgstr ""
+
+msgctxt "#30102"
+msgid "UpNext Episodes"
+msgstr ""
+
+msgctxt "#30103"
+msgid "UpNext Movies"
+msgstr ""
+
+msgctxt "#30104"
+msgid "UpNext Media"
+msgstr ""
+
+msgctxt "#30105"
+msgid "Watched movie recommendations"
+msgstr ""
+
+msgctxt "#30106"
+msgid "More like this... (Watched Movies)"
+msgstr ""
+
+msgctxt "#30107"
+msgid "More like this... (Watched TVShows)"
+msgstr ""
+
+msgctxt "#30108"
+msgid "Because you watched \"{0}\""
+msgstr ""
+
+
 ### SETTINGS
 msgctxt "#30500"
 msgid "Appearance"

@@ -32,7 +32,7 @@ def _copy_video_details(upnext_data):
     if dummy_key == 'next_video':
         # Next provided video may not be the next consecutive video so we set
         # the title to indicate the next video in the UpNext popup
-        dummy_info['title'] = utils.localize(constants.NEXT_STRING_ID)
+        dummy_info['title'] = utils.localize(constants.NEXT_STR_ID)
     else:
         dummy_info['title'] = ''
 
