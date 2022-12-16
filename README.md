@@ -6,7 +6,8 @@
 
 Personal fork of service.upnext (commits are often untested and cause addon to break) that implements:
 - Automatic end credits detection
-- Provides UpNext video listings to act as source for in-progress and next-up episodes and movies skin widgets
+- Provides UpNext video listings to act as source for "UpNext ..." episode and movie widgets
+- Provides "More like this..." and "Watched movie recommendations" as movie widgets 
 - Shuffle (random, non-sequential) playback mode (requires skin integration, or use of internal skin)
 - Added support for movie sets
 - Multi-threaded event driven code
