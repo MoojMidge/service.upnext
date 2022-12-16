@@ -177,6 +177,7 @@ def run(argv):
     if not content:
         return False
 
+    content_label = content.get('label', constants.PLUGIN_LABEL)
     content_type = content.get('content_type')
     content_items = content.get('items')
     content_handler = content.get('handler')
@@ -185,6 +186,7 @@ def run(argv):
     if content_type == 'action' and content_handler:
         return content_handler(addon_handle, addon_id, **addon_args)
 
+    xbmcplugin.setPluginCategory(addon_handle, content_label)
     if content_handler:
         content_items = content_handler(addon_handle, addon_id, **addon_args)
     elif content_items:

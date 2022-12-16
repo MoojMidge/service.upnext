@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 
 ADDON_ID = 'service.upnext'
+PLUGIN_LABEL = 'UpNext'
 
 UNDEFINED = -1
 UNDEFINED_STR = '-1'
