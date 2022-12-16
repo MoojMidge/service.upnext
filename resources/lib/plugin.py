@@ -3,6 +3,7 @@
 """This is the actual UpNext plugin handler"""
 
 from __future__ import absolute_import, division, unicode_literals
+from posixpath import split as posix_split
 import xbmcgui
 import xbmcplugin
 import api
@@ -53,7 +54,7 @@ def generate_listing(addon_handle, addon_id, items):  # pylint: disable=unused-a
         if not content:
             continue
 
-        url = 'plugin://{0}{1}'.format(addon_id, item)
+        url = 'plugin://{0}/{1}{2}'.format(addon_id, item, content.get('params', ''))
         listitem = xbmcgui.ListItem(
             label=content.get('label', ''), path=url, offscreen=True
         )
@@ -134,8 +135,10 @@ def parse_plugin_url(url):
         return None, None, None
 
     addon_id = parsed_url.netloc
-    addon_path = parsed_url.path.rstrip('/') or '/'
-    addon_args = parse_qs(parsed_url.query)
+    addon_path = posix_split(parsed_url.path.rstrip('/') or '/')
+    while addon_path[0] != '/':
+        addon_path = posix_split(addon_path[0]) + addon_path[1:]
+    addon_args = parse_qs(parsed_url.query, keep_blank_values=True)
 
     return addon_id, addon_path, addon_args
 
@@ -173,13 +176,14 @@ def play_media(addon_handle, addon_id, **kwargs):
 def run(argv):
     addon_handle = int(argv[1])
     addon_id, addon_path, addon_args = parse_plugin_url(argv[0] + argv[2])
-    content = PLUGIN_CONTENT.get(addon_path)
+    content = PLUGIN_CONTENT.get(addon_path[1] or addon_path[0])
     if not content:
         return False
 
     content_type = content.get('content_type')
     content_items = content.get('items')
     content_handler = content.get('handler')
+    addon_args['__path__'] = addon_path
 
     if content_type == 'action' and content_handler:
         return content_handler(addon_handle, addon_id, **addon_args)
@@ -205,16 +209,16 @@ def run(argv):
 
 PLUGIN_CONTENT = {
     '/': {
-        'label': 'Home',
+        'label': 'UpNext',
         'content_type': 'files',
         'items': [
-            '/next_episodes',
-            '/next_movies',
-            '/next_media',
-            '/settings',
+            'next_episodes',
+            'next_movies',
+            'next_media',
+            'settings',
         ],
     },
-    '/next_episodes': {
+    'next_episodes': {
         'label': 'In-progress and Next-up Episodes',
         'art': {
             'icon': 'DefaultInProgressShows.png',
@@ -222,7 +226,7 @@ PLUGIN_CONTENT = {
         'content_type': 'episodes',
         'handler': generate_next_episodes_list,
     },
-    '/next_movies': {
+    'next_movies': {
         'label': 'In-progress and Next-up Movies',
         'art': {
             'icon': 'DefaultMovies.png',
@@ -230,7 +234,7 @@ PLUGIN_CONTENT = {
         'content_type': 'movies',
         'handler': generate_next_movies_list,
     },
-    '/next_media': {
+    'next_media': {
         'label': 'In-progress and Next-up Media',
         'art': {
             'icon': 'DefaultVideo.png'
@@ -238,7 +242,7 @@ PLUGIN_CONTENT = {
         'content_type': 'videos',
         'handler': generate_next_media_list,
     },
-    '/settings': {
+    'settings': {
         'label': 'Settings',
         'art': {
             'icon': 'DefaultAddonProgram.png'
@@ -246,7 +250,7 @@ PLUGIN_CONTENT = {
         'content_type': 'action',
         'handler': open_settings,
     },
-    '/play': {
+    'play': {
         'content_type': 'action',
         'handler': play_media,
     },
