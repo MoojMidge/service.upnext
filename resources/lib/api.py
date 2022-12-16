@@ -112,6 +112,7 @@ MOVIE_PROPERTIES = frozenset({
 })
 MOVIE_ART_MAP = {
     'thumb': ('poster', ),
+    'icon': ('poster', ),
 }
 
 PLAYER_PLAYLIST = {
