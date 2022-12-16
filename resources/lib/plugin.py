@@ -304,7 +304,7 @@ PLUGIN_CONTENT = {
         },
         'content_type': 'movies',
         'handler': generate_similar_movie_list,
-        'params': '?reload=$INFO[Window(Home).Property(UpNext.Widgets.Reload)]'
+        'params': constants.WIDGET_RELOAD_PARAM_STRING
     },
     'settings': {
         'label': utils.localize(constants.SETTINGS_STR_ID),

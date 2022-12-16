@@ -491,7 +491,9 @@ class UpNextMonitor(xbmc.Monitor, object):
             while not self.waitForAbort(SETTINGS.widget_refresh_period):
                 if self._idle:
                     continue
-                utils.set_property('UpNext.Widgets.Reload', str(int(time())))
+                utils.set_property(
+                    constants.WIDGET_RELOAD_PROPERTY_NAME, str(int(time()))
+                )
             # Cleanup when abort requested
             self.stop()
 
