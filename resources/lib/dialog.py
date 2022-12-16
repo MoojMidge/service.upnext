@@ -63,7 +63,7 @@ class UpNextPopup(xbmcgui.WindowXMLDialog, object):
     def onInit(self):  # pylint: disable=invalid-name
         try:
             self.progress_control = self.getControl(
-                constants.PROGRESS_CONTROL_ID
+                constants.PROGRESS_CTRL_ID
             )
         # Occurs when skin does not include progress control
         except RuntimeError:
@@ -82,17 +82,17 @@ class UpNextPopup(xbmcgui.WindowXMLDialog, object):
 
     def onClick(self, controlId):  # pylint: disable=invalid-name
         # Play now - Watch now / Still Watching
-        if controlId == constants.PLAY_CONTROL_ID:
+        if controlId == constants.PLAY_CTRL_ID:
             self.set_playnow(True)
             self.close()
         # Cancel - Close / Stop
-        elif controlId == constants.CLOSE_CONTROL_ID:
+        elif controlId == constants.CLOSE_CTRL_ID:
             self.set_cancel(True)
             if self.stop_enable:
                 self.set_stop(True)
             self.close()
         # Shuffle play
-        elif controlId == constants.SHUFFLE_CONTROL_ID:
+        elif controlId == constants.SHUFFLE_CTRL_ID:
             if self.is_shuffle_on():
                 self.set_shuffle(False)
             else:
