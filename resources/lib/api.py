@@ -10,7 +10,7 @@ import constants
 import utils
 
 
-EPISODE_PROPERTIES = {
+EPISODE_PROPERTIES = frozenset({
     'title',
     'playcount',
     'season',
@@ -34,7 +34,7 @@ EPISODE_PROPERTIES = {
     # 'cast',  # Not used, slow
     'dateadded',
     'lastplayed',
-}
+})
 EPISODE_ART_MAP = {
     'poster': ('season.poster', 'tvshow.poster'),
     'fanart': ('season.fanart', 'tvshow.fanart'),
@@ -44,7 +44,7 @@ EPISODE_ART_MAP = {
     'clearlogo': ('season.clearlogo', 'tvshow.clearlogo'),
 }
 
-TVSHOW_PROPERTIES = {
+TVSHOW_PROPERTIES = frozenset({
     'title',
     'studio',
     'year',
@@ -69,9 +69,9 @@ TVSHOW_PROPERTIES = {
     'dateadded',
     'watchedepisodes',
     # 'imdbnumber',  # Not used
-}
+})
 
-MOVIE_PROPERTIES = {
+MOVIE_PROPERTIES = frozenset({
     'title',
     'genre',
     'year',
@@ -109,7 +109,7 @@ MOVIE_PROPERTIES = {
     # 'ratings',  # Not used, slow
     'premiered',
     # 'uniqueid',  # Not used, slow
-}
+})
 MOVIE_ART_MAP = {
     'thumb': ('poster', ),
 }
@@ -274,7 +274,8 @@ _FILTER_UPNEXT_MOVIE = {
 _FILTER_UNWATCHED_UPNEXT_MOVIE = {
     'and': [
         _FILTER_UNWATCHED,
-        _FILTER_UPNEXT_MOVIE
+        _FILTER_SEARCH_SET,
+        _FILTER_NEXT_MOVIE
     ]
 }
 
@@ -912,6 +913,7 @@ def get_details_from_library(media_type=None,
             ),
         }
     )
+
     result = result.get('result', {}).get(detail_type['result'])
     return result, detail_type
 

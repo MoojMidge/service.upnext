@@ -74,9 +74,8 @@ def generate_next_episodes_list(addon_handle, addon_id, **kwargs):  # pylint: di
 
     listing = []
     for episode in episodes:
-        url = episode['file']
         listitem = upnext.create_episode_listitem(episode)
-        listing += ((url, listitem, False),)
+        listing += ((episode['file'], listitem, False),)
 
     return listing
 
@@ -89,9 +88,8 @@ def generate_next_movies_list(addon_handle, addon_id, **kwargs):  # pylint: disa
 
     listing = []
     for movie in movies:
-        url = movie['file']
         listitem = upnext.create_movie_listitem(movie)
-        listing += ((url, listitem, False),)
+        listing += ((movie['file'], listitem, False),)
 
     return listing
 
@@ -112,9 +110,8 @@ def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disab
 
     listing = []
     for video in videos:
-        url = video['file']
         listitem = upnext.create_listitem(video)
-        listing += ((url, listitem, False),)
+        listing += ((video['file'], listitem, False),)
 
     return listing
 
