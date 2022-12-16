@@ -580,10 +580,17 @@ def create_item_details(item, source=None,
     return item_details
 
 
-def merge_and_sort(*iterables, **kwargs):
-    key = kwargs.get('key')
-    key = itemgetter(key) if key else None
+def merge_iterable(*iterables, **kwargs):
+    sort = kwargs.get('sort')
 
     merged = chain.from_iterable(iterables)
-    merged = sorted(merged, key=key, reverse=kwargs.get('reverse', True))
+    if sort:
+        reverse = kwargs.get('reverse', True)
+        key = None if isinstance(sort, bool) else itemgetter(sort)
+        limit = kwargs.get('limit')
+
+        if key and limit is not None:
+            merged = filter(lambda item: key(item) >= limit, merged)
+
+        merged = sorted(merged, key=key, reverse=reverse)
     return merged

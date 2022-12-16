@@ -1014,8 +1014,8 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
     )
     watched = watched.get('result', {}).get('episodes', [])
 
-    episodes = utils.merge_and_sort(
-        inprogress, watched, key='lastplayed', reverse=True
+    episodes = utils.merge_iterable(
+        inprogress, watched, sort='lastplayed', reverse=True
     )
 
     upnext_episodes = []
@@ -1091,8 +1091,8 @@ def get_upnext_movies_from_library(limit=25,
         )
         watched = watched.get('result', {}).get('movies', [])
 
-        movies = utils.merge_and_sort(
-            inprogress, watched, key='lastplayed', reverse=True
+        movies = utils.merge_iterable(
+            inprogress, watched, sort='lastplayed', reverse=True
         )
     else:
         movies = inprogress

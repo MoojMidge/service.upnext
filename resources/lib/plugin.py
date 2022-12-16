@@ -104,8 +104,8 @@ def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disab
         unwatched_only=SETTINGS.unwatched_only
     )
 
-    videos = utils.merge_and_sort(
-        episodes, movies, key='lastplayed', reverse=True
+    videos = utils.merge_iterable(
+        episodes, movies, sort='lastplayed', reverse=True
     )
 
     listing = []
