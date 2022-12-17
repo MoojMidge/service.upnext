@@ -117,7 +117,11 @@ def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disab
 
 
 def generate_watched_movie_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
-    movies = api.get_watched_movies_from_library()
+    movies = api.get_videos_from_library(
+        media_type='movies',
+        sort=api.SORT_LASTPLAYED,
+        filters=api.FILTER_WATCHED
+    )
 
     listing = []
     for movie in movies:
