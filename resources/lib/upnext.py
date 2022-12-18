@@ -186,8 +186,8 @@ def _create_video_listitem(video,
     }
     if not utils.supports_python_api(20):
         _properties.update({
-            'resumetime': str(resume.get('position')),
-            'totaltime': str(resume.get('total')),
+            'resumetime': str(resume.get('position', 0)),
+            'totaltime': str(resume.get('total', 0)),
         })
     if properties:
         _properties.update(properties)
@@ -206,7 +206,7 @@ def _create_video_listitem(video,
         info_tag = listitem.getVideoInfoTag()
         _set_info.info_tag = info_tag
         info_tag.setResumePoint(
-            time=resume.get('position'), totalTime=resume.get('total')
+            time=resume.get('position', 0), totalTime=resume.get('total', 0)
         )
         # Consume iterator
         deque(map(_set_info, _infolabels.items()), maxlen=0)
