@@ -1,9 +1,20 @@
 ## Releases
+### v2.0.12+dev.0 (2022-12-18)
+- Added additional tvshow widgets:
+  - More like this...
+    - shows tvshows similar to randomly selected watched tvshow
+  - Watched TVShow recommendations
+    - displays recently watched tvshows
+    - opens list of similar tvshows when a watched tvshow is selected
+- Added year to movie and tvshow labels
+- Added option to display firstaired date to episode labels
+- Fix for incorrectly setting missing resume info
+
 ### v2.0.11+dev.0 (2022-12-16)
 - Added additional movie widgets:
   - More like this...
     - shows movies similar to randomly selected watched movie
-  - Watched movie recommendations
+  - Watched Movie recommendations
     - displays recently watched movies
     - opens list of similar movies when a watched movie is selected
 - Added localisation support for widgets/plugin listings
