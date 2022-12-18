@@ -1206,6 +1206,64 @@ def get_videos_from_library(media_type,  # pylint: disable=too-many-arguments
     return videos
 
 
+class InfoTagComparator(object):
+    __slots__ = (
+        'genre',
+        'plot',
+        'tag',
+        'title',
+        'set',
+        'similarity'
+    )
+
+    def __init__(self, infotags):
+        self.genre = {}
+        self.plot = {}
+        self.tag = {}
+        self.title = {}
+        self.set = {}
+        self.similarity = 0
+        self.store(infotags)
+
+    def store(self, infotags, update=False):
+        key = 'new' if update else 'original'
+
+        self.genre[key] = frozenset(infotags.get('genre', []))
+        self.title[key] = frozenset(utils.tokenise(infotags.get('title')))
+        self.plot[key] = frozenset(utils.tokenise(infotags.get('plot')))
+        self.set[key] = frozenset(utils.tokenise(infotags.get('set')))
+        self.tag[key] = frozenset(
+            utils.tokenise(infotags.get('tag'), split=None)
+        ) | self.title[key] | self.plot[key]
+
+    def calc_similarity(self):
+        genre_score = (
+            (len(self.genre['original'] ^ self.genre['new']) - 1).bit_length()
+            - len(self.genre['new'] ^ self.genre['original']).bit_length()
+        )
+        tag_score = (
+            len(self.tag['new'] & self.tag['original']).bit_length() * 1.5
+        )
+        title_score = (
+            len(self.title['new'] & self.title['original']).bit_length() * 2
+        )
+        plot_score = (
+            len(self.plot['new'] & self.plot['original']).bit_length()
+        )
+        set_score = (
+            len(self.set['new'] & self.set['original']).bit_length() * 2
+        )
+
+        self.similarity = (
+            genre_score
+            + tag_score
+            + title_score
+            + plot_score
+            + set_score
+        )
+        return self.similarity
+
+
 def get_similar_from_library(media_type,  # pylint: disable=too-many-locals
                              limit=25,
                              db_id=constants.UNDEFINED,
@@ -1230,61 +1288,7 @@ def get_similar_from_library(media_type,  # pylint: disable=too-many-locals
     if not original:
         return None, []
 
-    infotags = {
-        'genre': {
-            'original': frozenset(original['genre']),
-            'new': frozenset(),
-        },
-        'tags': {
-            'original': frozenset(utils.tokenise(original['tag'], split=None)),
-            'new': frozenset(),
-        },
-        'title': {
-            'original': frozenset(utils.tokenise(original['title'])),
-            'new': frozenset(),
-        },
-        'plot': {
-            'original': frozenset(utils.tokenise(original['plot'])),
-            'new': frozenset(),
-        },
-        'set': {
-            'original': frozenset(utils.tokenise(original['set'])
-                                  if 'set' in original else []),
-            'new': frozenset(),
-        },
-        'similarity': {
-            'score': 0
-        }
-    }
-    infotags['genre']['eval'] = lambda this=infotags['genre']: (
-        (len(this['original'] ^ this['new']) - 1).bit_length()
-        - len(this['new'] ^ this['original']).bit_length()
-    )
-    infotags['tags']['eval'] = lambda this=infotags['tags']: (
-        len(this['new'] & this['original']).bit_length() * 1.5
-    )
-    infotags['title']['eval'] = lambda this=infotags['title']: (
-        len(this['new'] & this['original']).bit_length() * 2
-    )
-    infotags['plot']['eval'] = lambda this=infotags['plot']: (
-        len(this['new'] & this['original']).bit_length()
-    )
-    infotags['set']['eval'] = lambda this=infotags['set']: (
-        len(this['new'] & this['original']).bit_length() * 2
-    )
-    infotags['similarity']['eval'] = lambda this=infotags: (
-        this['genre']['eval']()
-        + this['tags']['eval']()
-        + this['title']['eval']()
-        + this['plot']['eval']()
-        + this['set']['eval']()
-    )
-
-    infotags['tags']['original'] = (
-        infotags['tags']['original']
-        | infotags['title']['original']
-        | infotags['plot']['original']
-    )
+    infotags = InfoTagComparator(original)
 
     FILTER_NOT_TITLE['value'] = original['title']
     if 'set' in original:
@@ -1292,8 +1296,7 @@ def get_similar_from_library(media_type,  # pylint: disable=too-many-locals
         FILTER_SIMILAR['or'] = [FILTER_SEARCH_SET]
     else:
         FILTER_SIMILAR['or'] = []
-
-    for genre in infotags['genre']['original']:
+    for genre in infotags.genre['original']:
         FILTER_SEARCH_GENRE['value'] = genre
         FILTER_SIMILAR['or'].append(FILTER_SEARCH_GENRE.copy())
 
@@ -1307,22 +1310,12 @@ def get_similar_from_library(media_type,  # pylint: disable=too-many-locals
     )
 
     for video in similar:
-        infotags['genre']['new'] = frozenset(video['genre'])
-        infotags['title']['new'] = frozenset(utils.tokenise(video['title']))
-        infotags['set']['new'] = frozenset(utils.tokenise(video['set'])
-                                           if 'set' in video else [])
-        infotags['plot']['new'] = frozenset(utils.tokenise(video['plot']))
-        infotags['tags']['new'] = (
-            frozenset(utils.tokenise(video['tag'], split=None))
-            | infotags['title']['new']
-            | infotags['plot']['new']
-        )
+        infotags.store(video, update=True)
 
         video['art'] = art_fallbacks(
             video.get('art'), COMMON_ART_MAP, replace=True
         )
-        infotags['similarity']['score'] = infotags['similarity']['eval']()
-        video['__similarity__'] = infotags['similarity']['score']
+        video['__similarity__'] = infotags.calc_similarity()
 
     return original, utils.merge_iterable(
         similar, sort='__similarity__', limit=1, reverse=True

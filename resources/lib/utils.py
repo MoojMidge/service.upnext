@@ -615,6 +615,8 @@ def tokenise(value,
                  'your', 'duringcreditsstinger', 'aftercreditsstinger',
                  'collection'
              })):
+    if not value:
+        return []
     tokens = split(value) if split else value
     if strip:
         tokens = set(map(strip, tokens))
