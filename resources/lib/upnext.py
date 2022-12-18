@@ -225,7 +225,7 @@ def _create_video_listitem(video,
     return listitem
 
 
-def create_episode_listitem(episode, infolabels=None, properties=None):
+def create_episode_listitem(episode, infolabels=None, properties=None):  # pylint: disable=too-many-locals
     """Create a xbmcgui.ListItem from provided episode details"""
 
     show_title = episode.get('showtitle', '')
@@ -233,23 +233,36 @@ def create_episode_listitem(episode, infolabels=None, properties=None):
     season = episode.get('season')
     episode_num = episode.get('episode', '')
     first_aired = episode.get('firstaired', '')
+    first_aired, first_aired_short = utils.localize_date(first_aired)
+    if first_aired:
+        year = first_aired.year
+        first_aired_string = str(first_aired)
+    else:
+        year = first_aired_short
+        first_aired_string = first_aired_short
 
     season_episode = (
         episode_num if season is None or episode_num == ''
         else constants.SEASON_EPISODE.format(season, episode_num)
     )
-    label_tokens = (None, show_title, season_episode, episode_title)
+    label_tokens = (
+        None,
+        show_title,
+        season_episode,
+        episode_title,
+        first_aired_short
+    )
 
     _kwargs = {
         'label': ' - '.join(
             label_tokens[token]
             for token in SETTINGS.plugin_main_label
-            if token
+            if token and label_tokens[token]
         ),
         'label2': ' - '.join(
             label_tokens[token]
             for token in SETTINGS.plugin_secondary_label
-            if token
+            if token and label_tokens[token]
         ),
     }
 
@@ -258,9 +271,9 @@ def create_episode_listitem(episode, infolabels=None, properties=None):
         'tvshowtitle': show_title,
         'season': constants.UNDEFINED if season is None else season,
         'episode': constants.UNDEFINED if episode_num == '' else episode_num,
-        'aired': first_aired,
-        'premiered': first_aired,
-        'year': utils.get_year(first_aired),
+        'aired': first_aired_string,
+        'premiered': first_aired_string,
+        'year': year,
         'mediatype': 'episode'
     }
     if infolabels:

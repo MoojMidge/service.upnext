@@ -294,6 +294,10 @@ msgctxt "#30563"
 msgid "Episode title"
 msgstr ""
 
+msgctxt "#30564"
+msgid "Episode first aired"
+msgstr ""
+
 msgctxt "#30600"
 msgid "Behaviour"
 msgstr ""
