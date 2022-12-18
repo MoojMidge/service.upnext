@@ -255,27 +255,27 @@ msgid "Widget refresh period [COLOR gray](minutes)[/COLOR]"
 msgstr ""
 
 msgctxt "#30551"
-msgid "Main label - token 1"
+msgid "Episode main label - token 1"
 msgstr ""
 
 msgctxt "#30552"
-msgid "Main label - token 2"
+msgid "Episode main label - token 2"
 msgstr ""
 
 msgctxt "#30553"
-msgid "Main label - token 3"
+msgid "Episode main label - token 3"
 msgstr ""
 
 msgctxt "#30554"
-msgid "Secondary label - token 1"
+msgid "Episode secondary label - token 1"
 msgstr ""
 
 msgctxt "#30555"
-msgid "Secondary label - token 2"
+msgid "Episode secondary label - token 2"
 msgstr ""
 
 msgctxt "#30556"
-msgid "Secondary label - token 3"
+msgid "Episode secondary label - token 3"
 msgstr ""
 
 msgctxt "#30560"
