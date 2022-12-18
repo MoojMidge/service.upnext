@@ -299,6 +299,12 @@ def create_movie_listitem(movie, infolabels=None, properties=None):
     set_id = movie.get('setid', constants.UNDEFINED)
     set_name = movie.get('set', '')
 
+    year = movie.get('year')
+    if year:
+        _kwargs = {'label': '{0} ({1})'.format(movie['title'], year)}
+    else:
+        _kwargs = None
+
     _infolabels = {
         'dbid': movie.get('movieid', constants.UNDEFINED),
         'setid': set_id,
@@ -317,7 +323,7 @@ def create_movie_listitem(movie, infolabels=None, properties=None):
     if properties:
         _properties.update(properties)
 
-    listitem = _create_video_listitem(movie, None, _infolabels, _properties)
+    listitem = _create_video_listitem(movie, _kwargs, _infolabels, _properties)
     return listitem
 
 
