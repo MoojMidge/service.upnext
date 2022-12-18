@@ -938,13 +938,16 @@ def get_details_from_library(media_type=None,
     if not detail_type:
         return None, None
 
+    if properties is None:
+        properties = detail_type['properties']
+    elif isinstance(properties, (set, frozenset)):
+        properties = detail_type['properties'] | properties
+
     result = utils.jsonrpc(
         method=detail_type['get_method'],
         params={
             detail_type['db_id']: db_id,
-            'properties': (
-                properties if properties else detail_type['properties']
-            ),
+            'properties': properties,
         }
     )
 
@@ -1160,19 +1163,24 @@ def get_videos_from_library(media_type,  # pylint: disable=too-many-arguments
     if not detail_type:
         return None
 
-    _params = {
-        'properties': (
-            properties if properties is not None
-            else detail_type['properties']
-        )
-    }
+    _params = {}
+
+    if properties is None:
+        properties = detail_type['properties']
+    elif isinstance(properties, (set, frozenset)):
+        properties = detail_type['properties'] | properties
+    _params['properties'] = properties
+
     if filters is not None:
         _params['filter'] = filters
+
     if limit is not None:
         QUERY_LIMITS['end'] = limit
         _params['limits'] = QUERY_LIMITS
+
     if sort is not None:
         _params['sort'] = sort
+
     if params is not None:
         _params.update(params)
 
