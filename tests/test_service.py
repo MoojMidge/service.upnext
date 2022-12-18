@@ -81,6 +81,8 @@ def test_widget():
         and plugin.run(['plugin://service.upnext/next_episodes', '1', ''])
         and plugin.run(['plugin://service.upnext/next_movies', '1', ''])
         and plugin.run(['plugin://service.upnext/next_media', '1', ''])
+        and plugin.run(['plugin://service.upnext/similar_movies', '1', ''])
+        and plugin.run(['plugin://service.upnext/similar_tvshows', '1', ''])
     )
     assert test_complete is True
 

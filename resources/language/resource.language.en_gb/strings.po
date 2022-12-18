@@ -145,7 +145,7 @@ msgid "UpNext Media"
 msgstr ""
 
 msgctxt "#30105"
-msgid "Watched movie recommendations"
+msgid "Watched Movie recommendations"
 msgstr ""
 
 msgctxt "#30106"
@@ -158,6 +158,10 @@ msgstr ""
 
 msgctxt "#30108"
 msgid "Because you watched \"{0}\""
+msgstr ""
+
+msgctxt "#30109"
+msgid "Watched TVShow recommendations"
 msgstr ""
 
 

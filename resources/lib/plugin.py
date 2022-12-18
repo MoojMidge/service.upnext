@@ -116,26 +116,6 @@ def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disab
     return listing
 
 
-def generate_watched_movie_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
-    movies = api.get_videos_from_library(
-        media_type='movies',
-        sort=api.SORT_LASTPLAYED,
-        filters=api.FILTER_WATCHED
-    )
-
-    listing = []
-    for movie in movies:
-        url = 'plugin://{0}/similar_movies/{1}'.format(addon_id, movie['movieid'])
-        listitem = upnext.create_movie_listitem(
-            movie,
-            infolabels={'path': url},
-            properties={'isPlayable': 'false', 'isFolder': True}
-        )
-        listing += ((url, listitem, True),)
-
-    return listing
-
-
 def generate_similar_movie_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     path = kwargs.get('__path__')
     if not path or path[-1] == 'similar_movies':
@@ -163,6 +143,84 @@ def generate_similar_movie_list(addon_handle, addon_id, **kwargs):  # pylint: di
             }
         )
         listing += ((movie['file'], listitem, False),)
+
+    return listing
+
+
+def generate_similar_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
+    path = kwargs.get('__path__')
+    if not path or path[-1] == 'similar_tvshows':
+        tvshowid = constants.UNDEFINED
+    else:
+        tvshowid = path[-1]
+
+    tvshow, tvshows = api.get_similar_from_library(
+        media_type='tvshows',
+        db_id=tvshowid,
+        unwatched_only=SETTINGS.unwatched_only
+    )
+    if tvshow:
+        title = tvshow['title']
+        label = utils.localize(constants.MORE_LIKE_THIS_STR_ID).format(title)
+        xbmcplugin.setPluginCategory(addon_handle, label)
+
+    listing = []
+    for tvshow in tvshows:
+        url = 'videodb://tvshows/titles/{0}/'.format(tvshow['tvshowid'])
+        listitem = upnext.create_tvshow_listitem(
+            tvshow,
+            infolabels={'path': url},
+            properties={
+                'searchstring': title,  # For Embruary skin integration
+                'widget': label,        # For AH2 skin integration
+                'isFolder': True
+            }
+        )
+        listing += ((url, listitem, True),)
+
+    return listing
+
+
+def generate_watched_movie_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
+    movies = api.get_videos_from_library(
+        media_type='movies',
+        sort=api.SORT_LASTPLAYED,
+        filters=api.FILTER_WATCHED
+    )
+
+    listing = []
+    for movie in movies:
+        url = 'plugin://{0}/similar_movies/{1}'.format(
+            addon_id, movie['movieid']
+        )
+        listitem = upnext.create_movie_listitem(
+            movie,
+            infolabels={'path': url},
+            properties={'isPlayable': 'false', 'isFolder': True}
+        )
+        listing += ((url, listitem, True),)
+
+    return listing
+
+
+def generate_watched_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
+    tvshows = api.get_videos_from_library(
+        media_type='tvshows',
+        sort=api.SORT_LASTPLAYED,
+        filters=api.FILTER_WATCHED
+    )
+
+    listing = []
+    for tvshow in tvshows:
+        url = 'plugin://{0}/similar_tvshows/{1}'.format(
+            addon_id, tvshow['tvshowid']
+        )
+        listitem = upnext.create_tvshow_listitem(
+            tvshow,
+            infolabels={'path': url},
+            properties={'isPlayable': 'false', 'isFolder': True}
+        )
+        listing += ((url, listitem, True),)
 
     return listing
 
@@ -265,6 +323,8 @@ PLUGIN_CONTENT = {
             'next_episodes',
             'next_movies',
             'next_media',
+            'watched_tvshows',
+            'similar_tvshows',
             'watched_movies',
             'similar_movies',
             'settings',
@@ -293,6 +353,23 @@ PLUGIN_CONTENT = {
         },
         'content_type': 'videos',
         'handler': generate_next_media_list,
+    },
+    'watched_tvshows': {
+        'label': utils.localize(constants.WATCHED_TVSHOWS_STR_ID),
+        'art': {
+            'icon': 'DefaultTVShows.png'
+        },
+        'content_type': 'movies',
+        'handler': generate_watched_tvshows_list,
+    },
+    'similar_tvshows': {
+        'label': utils.localize(constants.MORE_LIKE_TVSHOWS_STR_ID),
+        'art': {
+            'icon': 'DefaultTVShows.png'
+        },
+        'content_type': 'movies',
+        'handler': generate_similar_tvshows_list,
+        'params': constants.WIDGET_RELOAD_PARAM_STRING
     },
     'watched_movies': {
         'label': utils.localize(constants.WATCHED_MOVIES_STR_ID),

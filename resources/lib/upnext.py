@@ -327,12 +327,35 @@ def create_movie_listitem(movie, infolabels=None, properties=None):
     return listitem
 
 
+def create_tvshow_listitem(tvshow, infolabels=None, properties=None):
+    """Create a xbmcgui.ListItem from provided tvshow details"""
+
+    year = tvshow.get('year')
+    if year:
+        _kwargs = {'label': '{0} ({1})'.format(tvshow['title'], year)}
+    else:
+        _kwargs = None
+
+    _infolabels = {
+        'dbid': tvshow.get('tvshowid', constants.UNDEFINED),
+        'mediatype': 'tvshow'
+    }
+    if infolabels:
+        _infolabels.update(infolabels)
+
+    listitem = _create_video_listitem(tvshow, _kwargs, _infolabels, properties)
+    return listitem
+
+
 def create_listitem(item, infolabels=None, properties=None):
     """Create a xbmcgui.ListItem from provided item_details dict"""
 
     media_type = item.get('media_type')
     if 'details' in item:
         item = item['details']
+
+    if media_type == 'tvshow' or 'watchedepisodes' in item:
+        return create_tvshow_listitem(item, infolabels, properties)
 
     if media_type == 'episode' or 'tvshowid' in item:
         return create_episode_listitem(item, infolabels, properties)
