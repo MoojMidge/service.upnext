@@ -54,6 +54,7 @@ TVSHOW_PROPERTIES = frozenset({
     # 'ratings',  # Not used, slow
     # 'userrating',  # Not used
     # 'votes',  # Not used
+    # 'file',  # Not used
     'genre',
     'episode',
     'season',
@@ -110,18 +111,26 @@ MOVIE_PROPERTIES = frozenset({
     'premiered',
     # 'uniqueid',  # Not used, slow
 })
-MOVIE_ART_MAP = {
+COMMON_ART_MAP = {
     'thumb': ('poster', ),
     'icon': ('poster', ),
 }
 
-RECOMMENDATION_PROPERTIES = frozenset({
-    'title',
-    'genre',
-    'plot',
-    'set',
-    'tag'
-})
+RECOMMENDATION_PROPERTIES = {
+    'movies': frozenset({
+        'title',
+        'genre',
+        'plot',
+        'set',
+        'tag'
+    }),
+    'tvshows': frozenset({
+        'title',
+        'genre',
+        'plot',
+        'tag'
+    })
+}
 
 PLAYER_PLAYLIST = {
     'video': xbmc.PLAYLIST_VIDEO,  # 1
@@ -935,6 +944,8 @@ def get_details_from_library(media_type=None,
         return None, None
 
     detail_type = JSON_MAP.get(media_type)
+    if 'db_id' not in detail_type:
+        detail_type = JSON_MAP.get(media_type[:-1])
     if not detail_type:
         return None, None
 
@@ -1142,7 +1153,7 @@ def get_upnext_movies_from_library(limit=25,
         upnext_movie['lastplayed'] = movie['lastplayed']
 
         upnext_movie['art'] = art_fallbacks(
-            upnext_movie.get('art'), MOVIE_ART_MAP, replace=True
+            upnext_movie.get('art'), COMMON_ART_MAP, replace=True
         )
 
         upnext_movies.append(upnext_movie)
@@ -1195,95 +1206,124 @@ def get_videos_from_library(media_type,  # pylint: disable=too-many-arguments
     return videos
 
 
-def get_similar_movies_from_library(limit=25,  # pylint: disable=too-many-locals
-                                    movieid=constants.UNDEFINED,
-                                    unwatched_only=False,
-                                    loose_match=True):
-    """Function to search by movieid for similar movies from Kodi library"""
+def get_similar_from_library(media_type,  # pylint: disable=too-many-locals
+                             limit=25,
+                             db_id=constants.UNDEFINED,
+                             unwatched_only=False):
+    """Function to search by db_id for similar videos from Kodi library"""
 
-    if movieid == constants.UNDEFINED or movieid is None:
+    if db_id == constants.UNDEFINED or db_id is None:
         original = get_videos_from_library(
-            media_type='movies',
+            media_type=media_type,
             limit=1,
             sort=SORT_RANDOM,
-            properties=RECOMMENDATION_PROPERTIES,
+            properties=RECOMMENDATION_PROPERTIES[media_type],
             filters=FILTER_WATCHED
         )
     else:
         original, _ = get_details_from_library(
-            media_type='movie',
-            db_id=int(movieid),
-            properties=RECOMMENDATION_PROPERTIES
+            media_type=media_type,
+            db_id=int(db_id),
+            properties=RECOMMENDATION_PROPERTIES[media_type]
         )
 
     if not original:
         return None, []
 
-    movie_genres = frozenset(original['genre'])
-    movie_tags = frozenset(utils.tokenise(original['tag'], split=False))
-    movie_title = frozenset(utils.tokenise(original['title']))
-    movie_set = frozenset(utils.tokenise(original['set']))
+    infotags = {
+        'genre': {
+            'original': frozenset(original['genre']),
+            'new': frozenset(),
+        },
+        'tags': {
+            'original': frozenset(utils.tokenise(original['tag'], split=None)),
+            'new': frozenset(),
+        },
+        'title': {
+            'original': frozenset(utils.tokenise(original['title'])),
+            'new': frozenset(),
+        },
+        'plot': {
+            'original': frozenset(utils.tokenise(original['plot'])),
+            'new': frozenset(),
+        },
+        'set': {
+            'original': frozenset(utils.tokenise(original['set'])
+                                  if 'set' in original else []),
+            'new': frozenset(),
+        },
+        'similarity': {
+            'score': 0
+        }
+    }
+    infotags['genre']['eval'] = lambda this=infotags['genre']: (
+        (len(this['original'] ^ this['new']) - 1).bit_length()
+        - len(this['new'] ^ this['original']).bit_length()
+    )
+    infotags['tags']['eval'] = lambda this=infotags['tags']: (
+        len(this['new'] & this['original']).bit_length() * 1.5
+    )
+    infotags['title']['eval'] = lambda this=infotags['title']: (
+        len(this['new'] & this['original']).bit_length() * 2
+    )
+    infotags['plot']['eval'] = lambda this=infotags['plot']: (
+        len(this['new'] & this['original']).bit_length()
+    )
+    infotags['set']['eval'] = lambda this=infotags['set']: (
+        len(this['new'] & this['original']).bit_length() * 2
+    )
+    infotags['similarity']['eval'] = lambda this=infotags: (
+        this['genre']['eval']()
+        + this['tags']['eval']()
+        + this['title']['eval']()
+        + this['plot']['eval']()
+        + this['set']['eval']()
+    )
 
-    if not movie_tags or loose_match:
-        loose_match = True
-        movie_tags = (movie_tags | movie_title |
-                      frozenset(utils.tokenise(original['plot'])))
-    elif len(movie_genres) == 1:
-        loose_match = True
+    infotags['tags']['original'] = (
+        infotags['tags']['original']
+        | infotags['title']['original']
+        | infotags['plot']['original']
+    )
 
     FILTER_NOT_TITLE['value'] = original['title']
-    FILTER_SEARCH_SET['value'] = original['set'] or constants.UNDEFINED_STR
-    FILTER_SIMILAR['or'] = FILTER_SIMILAR['or'][:1]
+    if 'set' in original:
+        FILTER_SEARCH_SET['value'] = original['set'] or constants.UNDEFINED_STR
+        FILTER_SIMILAR['or'] = [FILTER_SEARCH_SET]
+    else:
+        FILTER_SIMILAR['or'] = []
 
-    for genre in movie_genres:
+    for genre in infotags['genre']['original']:
         FILTER_SEARCH_GENRE['value'] = genre
         FILTER_SIMILAR['or'].append(FILTER_SEARCH_GENRE.copy())
 
-    similar_movies = get_videos_from_library(
-        media_type='movies',
+    similar = get_videos_from_library(
+        media_type=media_type,
         limit=None,
-        properties=(MOVIE_PROPERTIES | RECOMMENDATION_PROPERTIES),
+        properties=RECOMMENDATION_PROPERTIES[media_type],
         sort=SORT_RANDOM,
         filters=(FILTER_UNWATCHED_SIMILAR_NOT_SAME if unwatched_only
                  else FILTER_SIMILAR_NOT_SAME)
     )
 
-    recommended_movies = []
-    for similar in similar_movies:
-        similar_genres = frozenset(similar['genre'])
-        rank_genre = (
-            (len(movie_genres & similar_genres) - 1).bit_length()
-            - len(similar_genres ^ movie_genres).bit_length()
-        )
-        if not loose_match and rank_genre < -1:
-            continue
-
-        similar_tags = frozenset(utils.tokenise(similar['tag'], split=False))
-        similar_title = frozenset(utils.tokenise(similar['title']))
-        similar_set = frozenset(utils.tokenise(similar['set']))
-
-        if not similar_tags or loose_match:
-            similar_plot = frozenset(utils.tokenise(similar['plot']))
-            similar_tags = similar_tags | similar_title | similar_plot
-            rank_plot = len(similar_plot & movie_tags).bit_length()
-        else:
-            rank_plot = 0
-
-        rank = (
-            len(similar_title & movie_title).bit_length() * 2
-            + len(similar_set & movie_set).bit_length() * 2
-            + len(similar_tags & movie_tags).bit_length() * 1.5
-            + rank_genre
-            + rank_plot
+    for video in similar:
+        infotags['genre']['new'] = frozenset(video['genre'])
+        infotags['title']['new'] = frozenset(utils.tokenise(video['title']))
+        infotags['set']['new'] = frozenset(utils.tokenise(video['set'])
+                                           if 'set' in video else [])
+        infotags['plot']['new'] = frozenset(utils.tokenise(video['plot']))
+        infotags['tags']['new'] = (
+            frozenset(utils.tokenise(video['tag'], split=None))
+            | infotags['title']['new']
+            | infotags['plot']['new']
         )
 
-        if loose_match or rank >= 1:
-            similar['art'] = art_fallbacks(
-                similar.get('art'), MOVIE_ART_MAP, replace=True
-            )
-            similar['__rank__'] = rank
-            recommended_movies.append(similar)
+        video['art'] = art_fallbacks(
+            video.get('art'), COMMON_ART_MAP, replace=True
+        )
+        infotags['similarity']['score'] = infotags['similarity']['eval']()
+        video['__similarity__'] = infotags['similarity']['score']
 
     return original, utils.merge_iterable(
-        recommended_movies, sort='__rank__', limit=1, reverse=True
+        similar, sort='__similarity__', limit=1, reverse=True
     )[:limit]

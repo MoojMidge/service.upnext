@@ -143,7 +143,7 @@ class UpNextPopup(xbmcgui.WindowXMLDialog, object):
                     art = constants.NO_SPOILER_ART
             elif media_type == 'movie':
                 art = api.art_fallbacks(
-                    details.get('art'), api.MOVIE_ART_MAP, replace=True
+                    details.get('art'), api.COMMON_ART_MAP, replace=True
                 )
             else:
                 art = details.get('art')

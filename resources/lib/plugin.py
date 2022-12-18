@@ -143,8 +143,9 @@ def generate_similar_movie_list(addon_handle, addon_id, **kwargs):  # pylint: di
     else:
         movieid = path[-1]
 
-    movie, movies = api.get_similar_movies_from_library(
-        movieid=movieid,
+    movie, movies = api.get_similar_from_library(
+        media_type='movies',
+        db_id=movieid,
         unwatched_only=SETTINGS.unwatched_only
     )
     if movie:
@@ -157,7 +158,7 @@ def generate_similar_movie_list(addon_handle, addon_id, **kwargs):  # pylint: di
         listitem = upnext.create_movie_listitem(
             movie,
             properties={
-                'searchstring': title,  # For Emburary skin integration
+                'searchstring': title,  # For Embruary skin integration
                 'widget': label         # For AH2 skin integration
             }
         )
