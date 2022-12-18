@@ -40,7 +40,7 @@ def generate_library_plugin_data(current_item, addon_id, state=None):
     upnext_info = {
         'current_video': upnext.create_listitem(current_item),
         'next_video': upnext.create_listitem(next_item),
-        'play_url': 'plugin://{0}/play/?dbtype={1}&dbid={2}'.format(
+        'play_url': 'plugin://{0}/play/?db_type={1}&db_id={2}'.format(
             addon_id, media_type, next_item['db_id']
         )
     }
@@ -191,13 +191,13 @@ def parse_plugin_url(url):
 
 
 def play_media(addon_handle, addon_id, **kwargs):
-    dbtype = kwargs.get('dbtype', [''])[0]
-    dbid = int(kwargs.get('dbid', [constants.UNDEFINED])[0])
+    db_type = kwargs.get('db_type', [''])[0]
+    db_id = int(kwargs.get('db_id', [constants.UNDEFINED])[0])
 
-    if dbtype and dbid != constants.UNDEFINED:
-        current_video = api.get_from_library(media_type=dbtype, db_id=dbid)
+    if db_type and db_id != constants.UNDEFINED:
+        current_video = api.get_from_library(media_type=db_type, db_id=db_id)
         current_item = utils.create_item_details(
-            current_video, 'library', dbtype
+            current_video, 'library', db_type
         )
     else:
         current_item = None

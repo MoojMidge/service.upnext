@@ -36,7 +36,7 @@ def test_plugin():
     test_complete = plugin.run([
         'plugin://service.upnext/play',
         '1',
-        '?dbtype=episode&dbid={0}'.format(dbid)
+        '?db_type=episode&db_id={0}'.format(dbid)
     ])
     assert test_complete is True
 
@@ -61,7 +61,7 @@ def test_movie_plugin():
 
     upnext_info = {
         'current_video': upnext.create_listitem(current_item),
-        'play_url': 'plugin://{0}/play/?dbtype={1}&dbid={2}'.format(
+        'play_url': 'plugin://{0}/play/?db_type={1}&db_id={2}'.format(
             1, dbtype, next_item['db_id']
         )
     }
