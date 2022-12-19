@@ -743,6 +743,8 @@ def get_next_episode_from_library(episode=constants.UNDEFINED,
             utils.LOGWARNING)
         return episode
 
+    log('Current episode and tvshow from library: {0}'.format(episode))
+
     (path, filename) = os.path.split(episode['file'])
     FILTER_NOT_FILE['value'] = filename
     FILTER_NOT_PATH['value'] = path
@@ -773,6 +775,8 @@ def get_next_episode_from_library(episode=constants.UNDEFINED,
 
     filters = {'and': filters}
 
+    log('Current filters for next episode from library: {0}'.format(filters))
+
     result = get_videos_from_library(
         media_type='episodes',
         limit=1,
@@ -780,6 +784,8 @@ def get_next_episode_from_library(episode=constants.UNDEFINED,
         filters=filters,
         params={'tvshowid': episode.get('tvshowid', constants.UNDEFINED)}
     )
+
+    log('Next episode result from library: {0}'.format(result))
 
     if not result:
         log('No next episode found in library')
