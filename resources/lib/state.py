@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, unicode_literals
 from settings import SETTINGS
 import api
 import constants
+import upnext
 import utils
 
 
@@ -252,6 +253,27 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         else:
             new_video = None
             source = None
+
+        if not new_video and SETTINGS.enable_tmdbhelper_fallback:
+            details = api.get_now_playing(
+                properties=(
+                    api.MOVIE_PROPERTIES if media_type == 'movie' else
+                    api.EPISODE_PROPERTIES
+                ) | {'mediapath'},
+                retry=SETTINGS.api_retry_attempts
+            )
+            if (details.get('mediapath', '').startswith('plugin://')
+                    and details.get('showtitle')
+                    and utils.get_int(details, 'season')
+                    != utils.get_int(details, 'episode')
+                    != constants.UNDEFINED):
+                upnext.send_signal(
+                    sender='UpNext.TMDBHelper',
+                    upnext_info={
+                        'current_video': details,
+                        'play_url': '__generate__'
+                    }
+                )
 
         if new_video and source:
             new_item = utils.create_item_details(

@@ -34,6 +34,7 @@
 		"enableQueue": "true",
 		"enableResume": "false",
 		"enableStillWatching": "true",
+        "enableTMDBHelper": "true",
 		"includeWatched": "false",
 		"logLevel": 2,
 		"markWatched": 1,

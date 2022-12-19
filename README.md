@@ -14,7 +14,8 @@ Personal fork of service.upnext (commits are often untested and cause addon to b
 - More skin/popup setting (position, colour)
 - More addon settings (mark as watched, play/resume next, queuing)
 - More developer options (improved logging, integrated simulation mode for testing)
-- Improved compatibility with playlists, plugins, and other non-library media (plugins still require modification to integrate with UpNext, alternatively can just use playlists)
+- Improved compatibility with playlists, plugins, and other non-library media
+- Experimental use of TheMovieDb Helper players for automatic integration with any plugin that has a player
 - Built-in methods to simplify plugin integration
 
 Changelog: [changelog.txt](changelog.txt)

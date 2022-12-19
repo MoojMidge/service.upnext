@@ -422,6 +422,10 @@ msgctxt "#30707"
 msgid "Enable UpNext queue [COLOR gray](use playlist to queue and play next video)[/COLOR]"
 msgstr ""
 
+msgctxt "#30708"
+msgid "Use TheMovieDb Helper for plugin integration fallback"
+msgstr ""
+
 msgctxt "#30730"
 msgid "Additional detector settings"
 msgstr ""

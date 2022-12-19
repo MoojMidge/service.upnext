@@ -507,6 +507,14 @@
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
+                <setting id="enableTMDBHelper" type="boolean" label="30708" help="">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+                    <dependencies>
+                        <dependency type="enable" on="property" name="infobool">System.HasAddon(plugin.video.themoviedb.helper)</dependency>
+                    </dependencies>
+				</setting>
 			</group>
 			<group id="additionalDetectorSettings" label="30730">
 				<setting id="detectorSavePath" type="path" label="30731" help="">
