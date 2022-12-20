@@ -3,7 +3,6 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-
 ADDON_ID = 'service.upnext'
 
 UNDEFINED = -1

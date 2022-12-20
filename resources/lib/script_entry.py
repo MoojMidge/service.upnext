@@ -3,8 +3,9 @@
 """This is the UpNext script entry point"""
 
 from __future__ import absolute_import, division, unicode_literals
-import sys
-import script
 
+import sys
+
+import script
 
 script.run(sys.argv)

@@ -4,16 +4,12 @@
 
 # pylint: disable=invalid-name,missing-docstring
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, unicode_literals
+
 import unittest
+
 import AddonSignals
-from resources.lib import utils
-
-xbmc = __import__('xbmc')
-xbmcaddon = __import__('xbmcaddon')
-xbmcgui = __import__('xbmcgui')
-xbmcvfs = __import__('xbmcvfs')
-
+import utils
 
 SKIP_TEST_ALL = False
 SKIP_TEST_ENCODING = False

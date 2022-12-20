@@ -2,10 +2,18 @@
 # GNU General Public License v2.0 (see COPYING or https://www.gnu.org/licenses/gpl-2.0.txt)
 """UpNext detector tests"""
 
-from __future__ import absolute_import, division, unicode_literals
-from PIL import Image
-import detector
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
+import os
+
+from PIL import Image
+
+import detector
 
 SKIP_TEST_ALL = False
 SKIP_TEST_REP_HASH = False
@@ -230,7 +238,7 @@ def test_hash_compare():  # pylint: disable=too-many-locals,too-many-statements
         assert True
         return
 
-    test_image_path = 'tests/images/'
+    test_image_path = os.path.dirname(os.path.abspath(__file__)) + '/images/'
     match_level = 85
     matches = 0
     false_positives = 0

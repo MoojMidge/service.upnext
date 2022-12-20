@@ -3,21 +3,24 @@
 """Implements helper functions used elsewhere in the addon"""
 
 from __future__ import absolute_import, division, unicode_literals
+
 import base64
 import binascii
-from itertools import chain
 import json
+import sys
+import threading
+from itertools import chain
 from operator import itemgetter
 from re import compile as re_compile
 from string import punctuation
-import sys
-import threading
+
 import dateutil.parser
+
+import constants
+import statichelper
 import xbmc
 import xbmcaddon
 import xbmcgui
-import constants
-import statichelper
 
 
 class Profiler(object):

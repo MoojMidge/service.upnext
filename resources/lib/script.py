@@ -3,15 +3,17 @@
 """This is the actual UpNext script"""
 
 from __future__ import absolute_import, division, unicode_literals
+
 from random import choice as randchoice
-import xbmcaddon
-from settings import SETTINGS
+
 import dummydata
 import monitor
-import popuphandler
 import player
+import popuphandler
 import state
 import utils
+import xbmcaddon
+from settings import SETTINGS
 
 
 def test_popup(popup_type, simple_style=False):

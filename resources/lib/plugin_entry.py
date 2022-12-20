@@ -3,8 +3,9 @@
 """This is the UpNext plugin entry point"""
 
 from __future__ import absolute_import, division, unicode_literals
-import sys
-import plugin
 
+import sys
+
+import plugin
 
 plugin.run(sys.argv)

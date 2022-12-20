@@ -3,8 +3,10 @@
 """Implements file helper functions used elsewhere in the addon"""
 
 from __future__ import absolute_import, division, unicode_literals
+
 import errno
 import os.path
+
 import xbmc
 import xbmcvfs
 

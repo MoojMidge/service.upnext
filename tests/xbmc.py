@@ -5,20 +5,32 @@
 
 # pylint: disable=invalid-name,no-self-use
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-import os
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
 import json
+import os
 import random
 import sys
 import threading
-from time import sleep as time_sleep
 from datetime import datetime
+from time import sleep as time_sleep
 from weakref import WeakValueDictionary
+
 import dateutil.parser
-from xbmcextra import global_settings, import_language, __KODI_MATRIX__, __KODI_NEXUS__
+
 from dummydata import LIBRARY
 from statichelper import to_unicode
-
+from xbmcextra import (
+    __KODI_MATRIX__,
+    __KODI_NEXUS__,
+    global_settings,
+    import_language,
+)
 
 if __KODI_MATRIX__:
     LOGDEBUG = 0
@@ -59,12 +71,12 @@ PLAYLIST_MUSIC = 0
 PLAYLIST_VIDEO = 1
 _PLAYLIST_TYPE = random.randint(PLAYLIST_MUSIC, PLAYLIST_VIDEO)
 _PLAYER_TYPES = [
-    [dict(type='audio', playerid=PLAYLIST_MUSIC)],
-    [dict(type='video', playerid=PLAYLIST_VIDEO)],
+    [{'type': 'audio', 'playerid': PLAYLIST_MUSIC}],
+    [{'type': 'video', 'playerid': PLAYLIST_VIDEO}],
 ]
 _PLAYLIST = {
-    PLAYLIST_MUSIC: dict(position=0, playlist=[dict(file='dummy')]),
-    PLAYLIST_VIDEO: dict(position=0, playlist=[dict(file='dummy')]),
+    PLAYLIST_MUSIC: {'position': 0, 'playlist': [{'file': 'dummy'}]},
+    PLAYLIST_VIDEO: {'position': 0, 'playlist': [{'file': 'dummy'}]},
 }
 
 _INFO_LABELS = {
@@ -574,57 +586,57 @@ def _filter_walker(haystacks, needles):
 
 def _application_getproperties(params):
     if params.get('properties') == ['version']:
-        return json.dumps(dict(
-            id=1,
-            jsonrpc='2.0',
-            result={'version': {'major': (
+        return json.dumps({
+            'id': 1,
+            'jsonrpc': '2.0',
+            'result': {'version': {'major': (
                 20 if __KODI_NEXUS__
                 else 19 if __KODI_MATRIX__
                 else 18
             )}}
-        ))
+        })
     return False
 
 
 def _settings_getsettingvalue(params):
     key = params.get('setting')
-    return json.dumps(dict(
-        id=1,
-        jsonrpc='2.0',
-        result=dict(value=_GLOBAL_SETTINGS.get(key))
-    ))
+    return json.dumps({
+        'id': 1,
+        'jsonrpc': '2.0',
+        'result': {'value': _GLOBAL_SETTINGS.get(key)}
+    })
 
 
 def _player_getactiveplayers(params):  # pylint: disable=unused-argument
-    return json.dumps(dict(
-        id=1,
-        jsonrpc='2.0',
-        result=_PLAYER_TYPES[_PLAYLIST_TYPE]
-    ))
+    return json.dumps({
+        'id': 1,
+        'jsonrpc': '2.0',
+        'result': _PLAYER_TYPES[_PLAYLIST_TYPE]
+    })
 
 
 def _player_getproperties(params):
     if params.get('properties') == ['speed']:
-        return json.dumps(dict(
-            id=1,
-            jsonrpc='2.0',
-            result=dict(speed=random.randint(0, 1))
-        ))
+        return json.dumps({
+            'id': 1,
+            'jsonrpc': '2.0',
+            'result': {'speed': random.randint(0, 1)}
+        })
     if params.get('properties') == ['playlistid']:
-        return json.dumps(dict(
-            id=1,
-            jsonrpc='2.0',
-            result=dict(playlistid=_PLAYLIST_TYPE)
-        ))
+        return json.dumps({
+            'id': 1,
+            'jsonrpc': '2.0',
+            'result': {'playlistid': _PLAYLIST_TYPE}
+        })
     return False
 
 
 def _player_getitem(params):  # pylint: disable=unused-argument
-    return json.dumps(dict(
-        id=1,
-        jsonrpc='2.0',
-        result=dict(item=LIBRARY['episodes'][0])
-    ))
+    return json.dumps({
+        'id': 1,
+        'jsonrpc': '2.0',
+        'result': {'item': LIBRARY['episodes'][0]}
+    })
 
 
 def _videolibrary_gettvshows(params):
@@ -640,11 +652,11 @@ def _videolibrary_gettvshows(params):
 
     tvshowid = LIBRARY['tvshows'].get(filter_value, {}).get('tvshowid')
 
-    return json.dumps(dict(
-        id=1,
-        jsonrpc='2.0',
-        result=dict(tvshows=[dict(tvshowid=tvshowid)])
-    ))
+    return json.dumps({
+        'id': 1,
+        'jsonrpc': '2.0',
+        'result': {'tvshows': [{'tvshowid': tvshowid}]}
+    })
 
 
 def _videolibrary_getepisodes(params):
@@ -707,11 +719,11 @@ def _videolibrary_getepisodes(params):
             end = len(episodes)
         episodes = episodes[start:end]
 
-    return json.dumps(dict(
-        id=1,
-        jsonrpc='2.0',
-        result=dict(episodes=episodes)
-    ))
+    return json.dumps({
+        'id': 1,
+        'jsonrpc': '2.0',
+        'result': {'episodes': episodes}
+    })
 
 
 def _videolibrary_getmovies(params):
@@ -762,11 +774,11 @@ def _videolibrary_getmovies(params):
             end = len(movies)
         movies = movies[start:end]
 
-    return json.dumps(dict(
-        id=1,
-        jsonrpc='2.0',
-        result=dict(movies=movies)
-    ))
+    return json.dumps({
+        'id': 1,
+        'jsonrpc': '2.0',
+        'result': {'movies': movies}
+    })
 
 
 def _videolibrary_getmoviedetails(params):
@@ -779,11 +791,11 @@ def _videolibrary_getmoviedetails(params):
         if movie['movieid'] == movieid
     ]
 
-    return json.dumps(dict(
-        id=1,
-        jsonrpc='2.0',
-        result=dict(moviedetails=movies[0] if movies else {})
-    ))
+    return json.dumps({
+        'id': 1,
+        'jsonrpc': '2.0',
+        'result': {'moviedetails': movies[0] if movies else {}}
+    })
 
 
 def _videolibrary_getepisodedetails(params):
@@ -796,11 +808,11 @@ def _videolibrary_getepisodedetails(params):
         if episode['episodeid'] == episodeid
     ]
 
-    return json.dumps(dict(
-        id=1,
-        jsonrpc='2.0',
-        result=dict(episodedetails=episodes[0] if episodes else {})
-    ))
+    return json.dumps({
+        'id': 1,
+        'jsonrpc': '2.0',
+        'result': {'episodedetails': episodes[0] if episodes else {}}
+    })
 
 
 def _videolibrary_gettvshowdetails(params):
@@ -813,11 +825,11 @@ def _videolibrary_gettvshowdetails(params):
         if details['tvshowid'] == tvshowid
     ]
 
-    return json.dumps(dict(
-        id=1,
-        jsonrpc='2.0',
-        result=dict(tvshowdetails=tvshows[0] if tvshows else {})
-    ))
+    return json.dumps({
+        'id': 1,
+        'jsonrpc': '2.0',
+        'result': {'tvshowdetails': tvshows[0] if tvshows else {}}
+    })
 
 
 def _jsonrpc_notifyall(params):
@@ -965,20 +977,20 @@ def executeJSONRPC(jsonrpccommand):
 
     return_val = method(params) if callable(method) else False
     if return_val is True:
-        return json.dumps(dict(
-            id=1,
-            jsonrpc='2.0',
-            result='OK'
-        ))
+        return json.dumps({
+            'id': 1,
+            'jsonrpc': '2.0',
+            'result': 'OK'
+        })
     if return_val:
         return return_val
 
-    log("executeJSONRPC does not implement method '{method}'".format(**command), LOGERROR)
-    return json.dumps(dict(
-        id=1,
-        jsonrpc='2.0',
-        error=dict(code=-1, message='Not implemented')
-    ))
+    log('executeJSONRPC does not implement method "{method}"'.format(**command), LOGERROR)
+    return json.dumps({
+        'id': 1,
+        'jsonrpc': '2.0',
+        'error': {'code': -1, 'message': 'Not implemented'}
+    })
 
 
 def getCondVisibility(string):

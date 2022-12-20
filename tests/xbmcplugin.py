@@ -5,8 +5,14 @@
 
 # pylint: disable=invalid-name,unused-argument
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-from xbmc import log, LOGINFO, LOGFATAL
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
+from xbmc import LOGFATAL, LOGINFO, log
 from xbmcextra import kodi_to_ansi, uri_to_path
 
 try:  # Python 3

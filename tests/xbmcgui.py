@@ -5,10 +5,17 @@
 
 # pylint: disable=invalid-name,too-many-arguments,unused-argument
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
 from random import randint
+
 from xbmc import InfoTagVideo
-from xbmcextra import kodi_to_ansi, __KODI_MATRIX__
+from xbmcextra import __KODI_MATRIX__, kodi_to_ansi
 
 ACTION_NAV_BACK = 92
 ACTION_STOP = 13

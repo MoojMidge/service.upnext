@@ -3,9 +3,9 @@
 """Implements image manipulation and filtering helper functions"""
 
 from __future__ import absolute_import, division, unicode_literals
+
 from PIL import Image, ImageChops, ImageDraw, ImageFilter
 from settings import SETTINGS
-
 
 _PRECOMPUTED = {
     '_STACK': [],

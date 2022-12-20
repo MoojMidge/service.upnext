@@ -3,19 +3,27 @@
 """This is the actual UpNext plugin handler"""
 
 from __future__ import absolute_import, division, unicode_literals
+
 from posixpath import split as posix_split
-import xbmcgui
-import xbmcplugin
+
 import api
 import constants
-from settings import SETTINGS
 import upnext
 import utils
+import xbmcgui
+import xbmcplugin
+from settings import SETTINGS
 
 try:
     from urllib.parse import parse_qs, urlparse
 except ImportError:
     from urlparse import parse_qs, urlparse
+
+
+def log(msg, level=utils.LOGDEBUG):
+    """Log wrapper"""
+
+    utils.log(msg, name=__name__, level=level)
 
 
 def generate_library_plugin_data(current_item, addon_id, state=None):

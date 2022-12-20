@@ -4,11 +4,12 @@
    playlist"""
 
 from __future__ import absolute_import, division, unicode_literals
+
 import os.path
-import xbmc
+
 import constants
 import utils
-
+import xbmc
 
 EPISODE_PROPERTIES = frozenset({
     'title',
@@ -543,10 +544,8 @@ def get_from_playlist(position, properties, unwatched_only=False):
     # Get first unwatched item in the list of playlist entries
     if unwatched_only and items:
         position_offset, item = next(
-            (
-                (idx, item) for idx, item in enumerate(items)
-                if utils.get_int(item, 'playcount') < 1
-            ),
+            ((idx, item) for idx, item in enumerate(items)
+             if utils.get_int(item, 'playcount') < 1),
             (0, None)
         )
         position += position_offset

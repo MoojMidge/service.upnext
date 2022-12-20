@@ -3,12 +3,14 @@
 """Implements helper functions for video plugins to interact with UpNext"""
 
 from __future__ import absolute_import, division, unicode_literals
+
 from collections import deque
+
+import constants
+import utils
 import xbmc
 import xbmcgui
 from settings import SETTINGS
-import constants
-import utils
 
 try:
     from urllib.parse import urlencode

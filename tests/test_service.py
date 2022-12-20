@@ -3,13 +3,13 @@
 """UpNext script and service tests"""
 
 from __future__ import absolute_import, division, unicode_literals
+
 import api
 import dummydata
 import plugin
 import script
 import upnext
 import utils
-
 
 SKIP_TEST_ALL = False
 SKIP_TEST_POPUP = False

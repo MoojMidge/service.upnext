@@ -2,12 +2,14 @@
 # GNU General Public License v2.0 (see COPYING or https://www.gnu.org/licenses/gpl-2.0.txt)
 
 from __future__ import absolute_import, division, unicode_literals
+
 import datetime
-import xbmcgui
+
 import api
 import constants
 import statichelper
 import utils
+import xbmcgui
 
 
 class UpNextPopup(xbmcgui.WindowXMLDialog, object):

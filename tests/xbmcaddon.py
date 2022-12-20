@@ -5,9 +5,16 @@
 
 # pylint: disable=invalid-name
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, unicode_literals
+
 from xbmc import getLocalizedString
-from xbmcextra import ADDON_INFO, ADDON_ID, addon_settings, global_settings, import_language
+from xbmcextra import (
+    ADDON_ID,
+    ADDON_INFO,
+    addon_settings,
+    global_settings,
+    import_language,
+)
 
 GLOBAL_SETTINGS = global_settings()
 ADDON_SETTINGS = addon_settings()
@@ -23,7 +30,14 @@ class Addon(object):
 
     def getAddonInfo(self, key):
         ''' A working implementation for the xbmcaddon Addon class getAddonInfo() method '''
-        stub_info = dict(id=self.id, name=self.id, version='2.3.4', type='kodi.inputstream', profile='special://userdata', path='special://userdata')
+        stub_info = {
+            'id': self.id,
+            'name': self.id,
+            'version': '2.3.4',
+            'type': 'kodi.inputstream',
+            'profile': 'special://userdata',
+            'path': 'special://userdata'
+        }
         # Add stub_info values to ADDON_INFO when missing (e.g. path and profile)
         addon_info = dict(stub_info, **ADDON_INFO)
         return addon_info.get(self.id, stub_info).get(key)

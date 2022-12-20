@@ -2,14 +2,17 @@
 # GNU General Public License v2.0 (see COPYING or https://www.gnu.org/licenses/gpl-2.0.txt)
 
 from __future__ import absolute_import, division, unicode_literals
+
 import json
 import timeit
-import xbmc
-from settings import SETTINGS
+
 import constants
 import file_utils
 import image_utils
 import utils
+import xbmc
+from settings import SETTINGS
+
 try:
     import queue
 except ImportError:

@@ -5,13 +5,19 @@
 
 # pylint: disable=invalid-name
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
 import io
 import os
 import sys
 import xml.etree.ElementTree as ET
-import polib
 
+import polib
 
 _version_info = sys.version_info
 __KODI_LEIA__ = _version_info.major < 3
@@ -49,11 +55,11 @@ def uri_to_path(uri):
 
 def read_addon_xml(path):
     ''' Parse the addon.xml and return an info dictionary '''
-    info = dict(
-        path='./',  # '/storage/.kodi/addons/service.upnext',
-        profile='special://userdata',  # 'special://profile/addon_data/service.upnext/',
-        type='xbmc.python.pluginsource',
-    )
+    info = {
+        'path': './',  # '/storage/.kodi/addons/service.upnext',
+        'profile': 'special://userdata',  # 'special://profile/addon_data/service.upnext/',
+        'type': 'xbmc.python.pluginsource',
+    }
 
     tree = ET.parse(_addon_directory + path)
     root = tree.getroot()

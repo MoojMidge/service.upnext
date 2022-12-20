@@ -3,12 +3,12 @@
 """Implements UpNext simulation mode functions used for runtime testing UpNext"""
 
 from __future__ import absolute_import, division, unicode_literals
-from settings import SETTINGS
+
 import constants
 import plugin
 import upnext
 import utils
-
+from settings import SETTINGS
 
 _EVENT_TRIGGERED = {
     'playback': False,
