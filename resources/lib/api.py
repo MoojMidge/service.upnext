@@ -314,15 +314,8 @@ FILTER_UNWATCHED_UPNEXT_MOVIE = {
     ]
 }
 
-FILTER_SEARCH_GENRE = {
-    'field': 'genre',
-    'operator': 'is',
-    'value': constants.UNDEFINED_STR
-}
 FILTER_SIMILAR = {
-    'or': [
-        FILTER_SEARCH_SET
-    ]
+    'or': []
 }
 FILTER_SIMILAR_NOT_SAME = {
     'and': [
@@ -1288,16 +1281,20 @@ def get_similar_from_library(media_type,  # pylint: disable=too-many-locals
         return None, []
 
     infotags = InfoTagComparator(original)
+    if not (infotags.genre['original'] or infotags.set['original']):
+        return original, []
 
     FILTER_NOT_TITLE['value'] = original['title']
+    FILTER_SIMILAR['or'] = [
+        {
+            'field': 'genre',
+            'operator': 'is',
+            'value': genre
+        } for genre in infotags.genre['original']
+    ]
     if 'set' in original:
         FILTER_SEARCH_SET['value'] = original['set'] or constants.UNDEFINED_STR
-        FILTER_SIMILAR['or'] = [FILTER_SEARCH_SET]
-    else:
-        FILTER_SIMILAR['or'] = []
-    for genre in infotags.genre['original']:
-        FILTER_SEARCH_GENRE['value'] = genre
-        FILTER_SIMILAR['or'].append(FILTER_SEARCH_GENRE.copy())
+        FILTER_SIMILAR['or'].append(FILTER_SEARCH_SET)
 
     similar = get_videos_from_library(
         media_type=media_type,
