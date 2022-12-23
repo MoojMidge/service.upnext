@@ -14,7 +14,7 @@ from operator import itemgetter
 from re import compile as re_compile
 from string import punctuation
 
-import dateutil.parser
+from dateutil.parser import parse as dateutil_parse
 
 import constants
 import statichelper
@@ -440,10 +440,21 @@ def get_year(date_string):
     parse"""
 
     try:
-        date_object = dateutil.parser.parse(date_string)
+        date_object = dateutil_parse(date_string)
         return date_object.year
     except ValueError:
         return date_string
+
+
+def iso_datetime(date_string, separator=str(' ')):
+    """Parse arbitrary date string and output in YYYY-MM-DD hh:mm:ss format"""
+
+    try:
+        date_object = dateutil_parse(date_string).replace(microsecond=0)
+    except ValueError:
+        return date_string
+
+    return date_object.isoformat(separator)
 
 
 def localize_date(date_string):
@@ -452,7 +463,7 @@ def localize_date(date_string):
     date_format = xbmc.getRegion('dateshort')
 
     try:
-        date_object = dateutil.parser.parse(date_string)
+        date_object = dateutil_parse(date_string)
     except ValueError:
         return None, date_string
 
