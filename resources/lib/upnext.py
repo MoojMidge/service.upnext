@@ -15,7 +15,7 @@ from settings import SETTINGS
 try:
     from urllib.parse import urlencode
 except ImportError:
-    from urlparse import urlencode
+    from urllib import urlencode
 
 
 def log(msg, level=utils.LOGWARNING):
