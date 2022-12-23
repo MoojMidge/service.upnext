@@ -194,12 +194,12 @@ FILTER_NOT_TITLE = {
 }
 FILTER_NOT_FILE = {
     'field': 'filename',
-    'operator': 'isnot',
+    'operator': 'doesnotcontain',
     'value': constants.UNDEFINED_STR
 }
 FILTER_NOT_PATH = {
     'field': 'path',
-    'operator': 'isnot',
+    'operator': 'doesnotcontain',
     'value': constants.UNDEFINED_STR
 }
 FILTER_NOT_FILEPATH = {
@@ -765,7 +765,7 @@ def get_next_episode_from_library(episode=constants.UNDEFINED,
         sort = SORT_RANDOM
     elif next_season:
         sort = SORT_DATE
-        FILTER_NEXT_AIRED['value'] = episode['firstaired']
+        FILTER_NEXT_AIRED['value'] = utils.iso_datetime(episode['firstaired'])
         filters.append(FILTER_NEXT_AIRED)
     else:
         sort = SORT_EPISODE
@@ -1062,7 +1062,9 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
         else:
             FILTER_THIS_SEASON['value'] = str(episode['season'])
             FILTER_NEXT_EPISODE['value'] = str(episode['episode'])
-            FILTER_NEXT_AIRED['value'] = episode['firstaired']
+            FILTER_NEXT_AIRED['value'] = utils.iso_datetime(
+                episode['firstaired']
+            )
 
             upnext_episode = get_videos_from_library(
                 media_type='episodes',
