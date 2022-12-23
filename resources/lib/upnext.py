@@ -213,7 +213,7 @@ def _create_video_listitem(video,
         info_tag = listitem.getVideoInfoTag()
         _set_info.info_tag = info_tag
         info_tag.setResumePoint(
-            time=resume.get('position', 0), totalTime=resume.get('total', 0)
+            time=resume.get('position', 0), totaltime=resume.get('total', 0)
         )
         # Consume iterator
         deque(map(_set_info, _infolabels.items()), maxlen=0)

@@ -467,9 +467,9 @@ class InfoTagVideo(object):  # pylint: disable=too-many-public-methods
     def setDuration(self, value):
         self._tags['duration'] = value
 
-    def setResumePoint(self, time, totalTime=0):
+    def setResumePoint(self, time, totaltime=0):
         self._tags['resumetime'] = time
-        self._tags['resumetimetotal'] = totalTime
+        self._tags['resumetimetotal'] = totaltime
 
     def setPremiered(self, value):
         self._tags['premiered'] = value
