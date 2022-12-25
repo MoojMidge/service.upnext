@@ -1,4 +1,11 @@
 ## Releases
+### v2.0.13+dev.0 (2022-12-25)
+- Added experimental support for TMDBHelper players
+- Fix for Kodi Nexus API parameter name changes
+- Speed up similar video widgets
+- Fix for movie widgets not showing all movies without movie set details
+- Workarounds for Jellyfin video database issues
+
 ### v2.0.12+dev.0 (2022-12-18)
 - Added additional tvshow widgets:
   - More like this...
