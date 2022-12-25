@@ -1117,14 +1117,13 @@ def get_upnext_movies_from_library(limit=25,
     upnext_movies = []
     sets = set()
     for movie in movies:
-        setid = movie['setid']
-        if setid in sets:
+        setid = movie['setid'] or constants.UNDEFINED
+        if setid != constants.UNDEFINED and setid in sets:
             continue
 
         if movie['resume']['position']:
             upnext_movie = movie
-        elif (movie_sets
-              and movie['setid'] and movie['setid'] != constants.UNDEFINED):
+        elif movie_sets and setid != constants.UNDEFINED:
             FILTER_SEARCH_SET['value'] = movie['set']
             FILTER_NEXT_MOVIE['value'] = str(movie['year'])
 
