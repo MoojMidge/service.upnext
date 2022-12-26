@@ -420,8 +420,9 @@ def queue_next_item(data=None, item=None):
     """Function to add next video to the UpNext queue"""
 
     next_item = (
-        {'file': data['play_url']} if data and 'play_url' in data
-        else get_item_id(item)
+        get_item_id(item) if not data
+        else {'file': data['play_url']} if 'play_url' in data
+        else None
     )
 
     if next_item:
