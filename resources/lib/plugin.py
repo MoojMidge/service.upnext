@@ -62,14 +62,14 @@ def generate_listing(addon_handle, addon_id, items):  # pylint: disable=unused-a
         if not content:
             continue
 
-        url = 'plugin://{0}/{1}{2}'.format(addon_id, item, content.get('params', ''))
+        path = 'plugin://{0}/{1}{2}'.format(addon_id, item, content.get('params', ''))
         listitem = xbmcgui.ListItem(
-            label=content.get('label', ''), path=url, offscreen=True
+            label=content.get('label', ''), path=path, offscreen=True
         )
         if 'art' in content:
             listitem.setArt(content.get('art'))
 
-        listing += ((url, listitem, True),)
+        listing += ((path, listitem, True),)
 
     return listing
 
@@ -124,8 +124,9 @@ def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disab
     return listing
 
 
-def generate_similar_movie_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
+def generate_similar_movies_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     path = kwargs.get('__path__')
+
     if not path or path[-1] == 'similar_movies':
         movieid = constants.UNDEFINED
     else:
@@ -157,6 +158,7 @@ def generate_similar_movie_list(addon_handle, addon_id, **kwargs):  # pylint: di
 
 def generate_similar_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     path = kwargs.get('__path__')
+
     if not path or path[-1] == 'similar_tvshows':
         tvshowid = constants.UNDEFINED
     else:
@@ -174,22 +176,21 @@ def generate_similar_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: 
 
     listing = []
     for tvshow in tvshows:
-        url = 'videodb://tvshows/titles/{0}/'.format(tvshow['tvshowid'])
+        path = 'videodb://tvshows/titles/{0}/'.format(tvshow['tvshowid'])
         listitem = upnext.create_tvshow_listitem(
             tvshow,
-            infolabels={'path': url},
             properties={
                 'searchstring': title,  # For Embruary skin integration
                 'widget': label,        # For AH2 skin integration
                 'isFolder': True
             }
         )
-        listing += ((url, listitem, True),)
+        listing += ((path, listitem, True),)
 
     return listing
 
 
-def generate_watched_movie_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
+def generate_watched_movies_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     movies = api.get_videos_from_library(
         media_type='movies',
         sort=api.SORT_LASTPLAYED,
@@ -198,15 +199,14 @@ def generate_watched_movie_list(addon_handle, addon_id, **kwargs):  # pylint: di
 
     listing = []
     for movie in movies:
-        url = 'plugin://{0}/similar_movies/{1}'.format(
+        path = 'plugin://{0}/similar_movies/{1}'.format(
             addon_id, movie['movieid']
         )
         listitem = upnext.create_movie_listitem(
             movie,
-            infolabels={'path': url},
             properties={'isPlayable': 'false', 'isFolder': True}
         )
-        listing += ((url, listitem, True),)
+        listing += ((path, listitem, True),)
 
     return listing
 
@@ -220,15 +220,14 @@ def generate_watched_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: 
 
     listing = []
     for tvshow in tvshows:
-        url = 'plugin://{0}/similar_tvshows/{1}'.format(
+        path = 'plugin://{0}/similar_tvshows/{1}'.format(
             addon_id, tvshow['tvshowid']
         )
         listitem = upnext.create_tvshow_listitem(
             tvshow,
-            infolabels={'path': url},
             properties={'isPlayable': 'false', 'isFolder': True}
         )
-        listing += ((url, listitem, True),)
+        listing += ((path, listitem, True),)
 
     return listing
 
@@ -385,7 +384,7 @@ PLUGIN_CONTENT = {
             'icon': 'DefaultMovies.png'
         },
         'content_type': 'movies',
-        'handler': generate_watched_movie_list,
+        'handler': generate_watched_movies_list,
     },
     'similar_movies': {
         'label': utils.localize(constants.MORE_LIKE_MOVIES_STR_ID),
@@ -393,7 +392,7 @@ PLUGIN_CONTENT = {
             'icon': 'DefaultMovies.png'
         },
         'content_type': 'movies',
-        'handler': generate_similar_movie_list,
+        'handler': generate_similar_movies_list,
         'params': constants.WIDGET_RELOAD_PARAM_STRING
     },
     'settings': {

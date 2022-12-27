@@ -55,7 +55,7 @@ TVSHOW_PROPERTIES = frozenset({
     # 'ratings',  # Not used, slow
     # 'userrating',  # Not used
     # 'votes',  # Not used
-    # 'file',  # Not used
+    'file',
     'genre',
     'episode',
     'season',
