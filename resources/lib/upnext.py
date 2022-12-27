@@ -232,7 +232,8 @@ def _create_video_listitem(video,
     return listitem
 
 
-def create_episode_listitem(episode, infolabels=None, properties=None):  # pylint: disable=too-many-locals
+def create_episode_listitem(episode,  # pylint: disable=too-many-locals
+                            kwargs=None, infolabels=None, properties=None):
     """Create a xbmcgui.ListItem from provided episode details"""
 
     show_title = episode.get('showtitle', '')
@@ -272,6 +273,8 @@ def create_episode_listitem(episode, infolabels=None, properties=None):  # pylin
             if token and label_tokens[token]
         ),
     }
+    if kwargs:
+        _kwargs.update(kwargs)
 
     _infolabels = {
         'dbid': episode.get('episodeid', constants.UNDEFINED),
@@ -300,17 +303,18 @@ def create_episode_listitem(episode, infolabels=None, properties=None):  # pylin
     return listitem
 
 
-def create_movie_listitem(movie, infolabels=None, properties=None):
+def create_movie_listitem(movie,
+                          kwargs=None, infolabels=None, properties=None):
     """Create a xbmcgui.ListItem from provided movie details"""
 
     set_id = movie.get('setid', constants.UNDEFINED)
     set_name = movie.get('set', '')
 
     year = movie.get('year')
-    if year:
-        _kwargs = {'label': '{0} ({1})'.format(movie['title'], year)}
-    else:
-        _kwargs = None
+    _kwargs = ({'label': '{0} ({1})'.format(movie['title'], year)} if year
+               else {})
+    if kwargs:
+        _kwargs.update(kwargs)
 
     _infolabels = {
         'dbid': movie.get('movieid', constants.UNDEFINED),
@@ -334,14 +338,15 @@ def create_movie_listitem(movie, infolabels=None, properties=None):
     return listitem
 
 
-def create_tvshow_listitem(tvshow, infolabels=None, properties=None):
+def create_tvshow_listitem(tvshow,
+                           kwargs=None, infolabels=None, properties=None):
     """Create a xbmcgui.ListItem from provided tvshow details"""
 
     year = tvshow.get('year')
-    if year:
-        _kwargs = {'label': '{0} ({1})'.format(tvshow['title'], year)}
-    else:
-        _kwargs = None
+    _kwargs = ({'label': '{0} ({1})'.format(tvshow['title'], year)} if year
+               else {})
+    if kwargs:
+        _kwargs.update(kwargs)
 
     _infolabels = {
         'dbid': tvshow.get('tvshowid', constants.UNDEFINED),
@@ -354,7 +359,7 @@ def create_tvshow_listitem(tvshow, infolabels=None, properties=None):
     return listitem
 
 
-def create_listitem(item, infolabels=None, properties=None):
+def create_listitem(item, kwargs=None, infolabels=None, properties=None):
     """Create a xbmcgui.ListItem from provided item_details dict"""
 
     media_type = item.get('media_type')
@@ -362,13 +367,13 @@ def create_listitem(item, infolabels=None, properties=None):
         item = item['details']
 
     if media_type == 'tvshow' or 'watchedepisodes' in item:
-        return create_tvshow_listitem(item, infolabels, properties)
+        return create_tvshow_listitem(item, kwargs, infolabels, properties)
 
     if media_type == 'episode' or 'tvshowid' in item:
-        return create_episode_listitem(item, infolabels, properties)
+        return create_episode_listitem(item, kwargs, infolabels, properties)
 
     if media_type == 'movie' or 'setid' in item:
-        return create_movie_listitem(item, infolabels, properties)
+        return create_movie_listitem(item, kwargs, infolabels, properties)
 
     return None
 
