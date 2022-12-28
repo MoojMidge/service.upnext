@@ -280,27 +280,27 @@ def generate_watched_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
     return listing
 
 
-def generate_similar_media_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument, too-many-locals
+def generate_similar_media_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     path = kwargs.get('__path__')
-    similar_list_generators = ['movies', 'tvshows']
+    similar_list = ['movies', 'tvshows']
 
     if not path or path[-1] == 'similar_media':
         db_id = constants.UNDEFINED
-        randshuffle(similar_list_generators)
+        randshuffle(similar_list)
     else:
-        if similar_list_generators[0] != path[-2]:
-            similar_list_generators.reverse()
+        if similar_list[0] != path[-2]:
+            similar_list.reverse()
         db_id = path[-1]
 
-    original, similar_videos_1 = api.get_similar_from_library(
-        media_type=similar_list_generators[0],
+    original, similar_list[0] = api.get_similar_from_library(
+        media_type=similar_list[0],
         limit=SETTINGS.widget_list_limit,
         db_id=db_id,
         unwatched_only=SETTINGS.unwatched_only,
         sort=False
     )
-    original, similar_videos_2 = api.get_similar_from_library(
-        media_type=similar_list_generators[1],
+    original, similar_list[1] = api.get_similar_from_library(
+        media_type=similar_list[1],
         limit=SETTINGS.widget_list_limit,
         original=original,
         unwatched_only=SETTINGS.unwatched_only,
@@ -312,7 +312,7 @@ def generate_similar_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
         xbmcplugin.setPluginCategory(addon_handle, label)
 
     videos = utils.merge_iterable(
-        similar_videos_1, similar_videos_2,
+        similar_list[0], similar_list[1],
         sort='__similarity__', limit=1, reverse=True
     )[:SETTINGS.widget_list_limit]
 
