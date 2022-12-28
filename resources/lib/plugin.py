@@ -75,21 +75,6 @@ def generate_listing(addon_handle, addon_id, items):  # pylint: disable=unused-a
     return listing
 
 
-def generate_next_episodes_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
-    episodes = api.get_upnext_episodes_from_library(
-        limit=SETTINGS.widget_list_limit,
-        next_season=SETTINGS.next_season,
-        unwatched_only=SETTINGS.unwatched_only
-    )
-
-    listing = []
-    for episode in episodes:
-        listitem = upnext.create_episode_listitem(episode)
-        listing += ((episode['file'], listitem, False),)
-
-    return listing
-
-
 def generate_next_movies_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     movies = api.get_upnext_movies_from_library(
         limit=SETTINGS.widget_list_limit,
@@ -105,26 +90,24 @@ def generate_next_movies_list(addon_handle, addon_id, **kwargs):  # pylint: disa
     return listing
 
 
-def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
-    episodes = api.get_upnext_episodes_from_library(
+def generate_watched_movies_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
+    movies = api.get_videos_from_library(
+        media_type='movies',
         limit=SETTINGS.widget_list_limit,
-        next_season=SETTINGS.next_season,
-        unwatched_only=SETTINGS.unwatched_only
+        sort=api.SORT_LASTPLAYED,
+        filters=api.FILTER_WATCHED
     )
-    movies = api.get_upnext_movies_from_library(
-        limit=SETTINGS.widget_list_limit,
-        movie_sets=SETTINGS.enable_movieset,
-        unwatched_only=SETTINGS.unwatched_only
-    )
-
-    videos = utils.merge_iterable(
-        episodes, movies, sort='lastplayed', reverse=True
-    )[:SETTINGS.widget_list_limit]
 
     listing = []
-    for video in videos:
-        listitem = upnext.create_listitem(video)
-        listing += ((video['file'], listitem, False),)
+    for movie in movies:
+        path = 'plugin://{0}/similar_movies/{1}'.format(
+            addon_id, movie['movieid']
+        )
+        listitem = upnext.create_movie_listitem(
+            movie,
+            properties={'isPlayable': 'false', 'isFolder': True}
+        )
+        listing += ((path, listitem, True),)
 
     return listing
 
@@ -162,6 +145,43 @@ def generate_similar_movies_list(addon_handle, addon_id, **kwargs):  # pylint: d
     return listing
 
 
+def generate_next_episodes_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
+    episodes = api.get_upnext_episodes_from_library(
+        limit=SETTINGS.widget_list_limit,
+        next_season=SETTINGS.next_season,
+        unwatched_only=SETTINGS.unwatched_only
+    )
+
+    listing = []
+    for episode in episodes:
+        listitem = upnext.create_episode_listitem(episode)
+        listing += ((episode['file'], listitem, False),)
+
+    return listing
+
+
+def generate_watched_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
+    tvshows = api.get_videos_from_library(
+        media_type='tvshows',
+        limit=SETTINGS.widget_list_limit,
+        sort=api.SORT_LASTPLAYED,
+        filters=api.FILTER_WATCHED
+    )
+
+    listing = []
+    for tvshow in tvshows:
+        path = 'plugin://{0}/similar_tvshows/{1}'.format(
+            addon_id, tvshow['tvshowid']
+        )
+        listitem = upnext.create_tvshow_listitem(
+            tvshow,
+            properties={'isPlayable': 'false', 'isFolder': True}
+        )
+        listing += ((path, listitem, True),)
+
+    return listing
+
+
 def generate_similar_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     path = kwargs.get('__path__')
 
@@ -191,6 +211,69 @@ def generate_similar_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: 
                 'widget': label,        # For AH2 skin integration
                 'isFolder': True
             }
+        )
+        listing += ((path, listitem, True),)
+
+    return listing
+
+
+def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
+    episodes = api.get_upnext_episodes_from_library(
+        limit=SETTINGS.widget_list_limit,
+        next_season=SETTINGS.next_season,
+        unwatched_only=SETTINGS.unwatched_only
+    )
+    movies = api.get_upnext_movies_from_library(
+        limit=SETTINGS.widget_list_limit,
+        movie_sets=SETTINGS.enable_movieset,
+        unwatched_only=SETTINGS.unwatched_only
+    )
+
+    videos = utils.merge_iterable(
+        episodes, movies, sort='lastplayed', reverse=True
+    )[:SETTINGS.widget_list_limit]
+
+    listing = []
+    for video in videos:
+        listitem = upnext.create_listitem(video)
+        listing += ((video['file'], listitem, False),)
+
+    return listing
+
+
+def generate_watched_media_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
+    movies = api.get_videos_from_library(
+        media_type='movies',
+        limit=SETTINGS.widget_list_limit,
+        sort=api.SORT_LASTPLAYED,
+        filters=api.FILTER_WATCHED
+    )
+    tvshows = api.get_videos_from_library(
+        media_type='tvshows',
+        limit=SETTINGS.widget_list_limit,
+        sort=api.SORT_LASTPLAYED,
+        filters=api.FILTER_WATCHED
+    )
+
+    videos = utils.merge_iterable(
+        movies, tvshows, sort='lastplayed', reverse=True
+    )[:SETTINGS.widget_list_limit]
+
+    listing = []
+    for video in videos:
+        if 'tvshowid' in video:
+            listitem = upnext.create_tvshow_listitem
+            path = 'plugin://{0}/similar_media/tvshows/{1}'.format(
+                addon_id, video['tvshowid']
+            )
+        else:
+            listitem = upnext.create_movie_listitem
+            path = 'plugin://{0}/similar_media/movies/{1}'.format(
+                addon_id, video['movieid']
+            )
+        listitem = listitem(
+            video,
+            properties={'isPlayable': 'false', 'isFolder': True}
         )
         listing += ((path, listitem, True),)
 
@@ -252,89 +335,6 @@ def generate_similar_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
             }
         )
         listing += ((path, listitem, is_folder),)
-
-    return listing
-
-
-def generate_watched_movies_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
-    movies = api.get_videos_from_library(
-        media_type='movies',
-        limit=SETTINGS.widget_list_limit,
-        sort=api.SORT_LASTPLAYED,
-        filters=api.FILTER_WATCHED
-    )
-
-    listing = []
-    for movie in movies:
-        path = 'plugin://{0}/similar_movies/{1}'.format(
-            addon_id, movie['movieid']
-        )
-        listitem = upnext.create_movie_listitem(
-            movie,
-            properties={'isPlayable': 'false', 'isFolder': True}
-        )
-        listing += ((path, listitem, True),)
-
-    return listing
-
-
-def generate_watched_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
-    tvshows = api.get_videos_from_library(
-        media_type='tvshows',
-        limit=SETTINGS.widget_list_limit,
-        sort=api.SORT_LASTPLAYED,
-        filters=api.FILTER_WATCHED
-    )
-
-    listing = []
-    for tvshow in tvshows:
-        path = 'plugin://{0}/similar_tvshows/{1}'.format(
-            addon_id, tvshow['tvshowid']
-        )
-        listitem = upnext.create_tvshow_listitem(
-            tvshow,
-            properties={'isPlayable': 'false', 'isFolder': True}
-        )
-        listing += ((path, listitem, True),)
-
-    return listing
-
-
-def generate_watched_media_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
-    movies = api.get_videos_from_library(
-        media_type='movies',
-        limit=SETTINGS.widget_list_limit,
-        sort=api.SORT_LASTPLAYED,
-        filters=api.FILTER_WATCHED
-    )
-    tvshows = api.get_videos_from_library(
-        media_type='tvshows',
-        limit=SETTINGS.widget_list_limit,
-        sort=api.SORT_LASTPLAYED,
-        filters=api.FILTER_WATCHED
-    )
-
-    videos = utils.merge_iterable(
-        movies, tvshows, sort='lastplayed', reverse=True
-    )[:SETTINGS.widget_list_limit]
-
-    listing = []
-    for video in videos:
-        if 'tvshowid' in video:
-            listitem = upnext.create_tvshow_listitem
-            path = 'plugin://{0}/similar_media/tvshows/{1}'.format(
-                addon_id, video['tvshowid']
-            )
-        else:
-            listitem = upnext.create_movie_listitem
-            path = 'plugin://{0}/similar_media/movies/{1}'.format(
-                addon_id, video['movieid']
-            )
-        listitem = listitem(
-            video,
-            properties={'isPlayable': 'false', 'isFolder': True}
-        )
-        listing += ((path, listitem, True),)
 
     return listing
 
@@ -434,16 +434,37 @@ PLUGIN_CONTENT = {
         'label': utils.localize(constants.PLUGIN_HOME_STR_ID),
         'content_type': 'files',
         'items': [
+            'movie_widgets',
+            'tvshow_widgets',
+            'media_widgets',
+            'settings',
+        ],
+    },
+    'tvshow_widgets': {
+        'label': utils.localize(constants.PLUGIN_TVSHOWS_STR_ID),
+        'content_type': 'files',
+        'items': [
             'next_episodes',
-            'next_movies',
-            'next_media',
             'watched_tvshows',
             'similar_tvshows',
+        ],
+    },
+    'movie_widgets': {
+        'label': utils.localize(constants.PLUGIN_MOVIES_STR_ID),
+        'content_type': 'files',
+        'items': [
+            'next_movies',
             'watched_movies',
             'similar_movies',
+        ],
+    },
+    'media_widgets': {
+        'label': utils.localize(constants.PLUGIN_MEDIA_STR_ID),
+        'content_type': 'files',
+        'items': [
+            'next_media',
             'watched_media',
             'similar_media',
-            'settings',
         ],
     },
     'next_episodes': {

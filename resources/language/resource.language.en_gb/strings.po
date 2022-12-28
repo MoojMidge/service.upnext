@@ -133,42 +133,54 @@ msgid "Settings"
 msgstr ""
 
 msgctxt "#30102"
-msgid "UpNext Episodes"
+msgid "Movie widgets"
 msgstr ""
 
 msgctxt "#30103"
-msgid "UpNext Movies"
+msgid "TVShow widgets"
 msgstr ""
 
 msgctxt "#30104"
-msgid "UpNext Media"
-msgstr ""
-
-msgctxt "#30105"
-msgid "Watched Movie recommendations"
-msgstr ""
-
-msgctxt "#30106"
-msgid "More like this... (Watched Movies)"
-msgstr ""
-
-msgctxt "#30107"
-msgid "More like this... (Watched TVShows)"
+msgid "Combined widgets"
 msgstr ""
 
 msgctxt "#30108"
 msgid "Because you watched \"{0}\""
 msgstr ""
 
-msgctxt "#30109"
-msgid "Watched TVShow recommendations"
-msgstr ""
-
 msgctxt "#30110"
-msgid "Watched Media recommendations"
+msgid "UpNext Episodes"
 msgstr ""
 
 msgctxt "#30111"
+msgid "Watched TVShow recommendations"
+msgstr ""
+
+msgctxt "#30112"
+msgid "More like this... (Watched TVShows)"
+msgstr ""
+
+msgctxt "#30120"
+msgid "UpNext Movies"
+msgstr ""
+
+msgctxt "#30121"
+msgid "Watched Movie recommendations"
+msgstr ""
+
+msgctxt "#30122"
+msgid "More like this... (Watched Movies)"
+msgstr ""
+
+msgctxt "#30130"
+msgid "UpNext Media"
+msgstr ""
+
+msgctxt "#30131"
+msgid "Watched Media recommendations"
+msgstr ""
+
+msgctxt "#30132"
 msgid "More like this... (Watched Media)"
 msgstr ""
 
