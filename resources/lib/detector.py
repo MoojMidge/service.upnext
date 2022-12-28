@@ -378,7 +378,7 @@ class UpNextDetector(object):
 
         # Check whether each pixel is equal
         bits_eq = sum(map(cls._eq_biased, baseline_hash, compare_hash))
-        bits_xor = map(cls._xor, baseline_hash, compare_hash)
+        bits_xor = tuple(map(cls._xor, baseline_hash, compare_hash))
         bits_xor_baseline = sum(map(cls._and, bits_xor, baseline_hash))
         bits_xor_compare = sum(map(cls._and, bits_xor, compare_hash))
 
