@@ -1162,7 +1162,8 @@ def get_videos_from_library(media_type,  # pylint: disable=too-many-arguments
                             sort=None,
                             properties=None,
                             filters=None,
-                            params=None):
+                            params=None,
+                            process_art=False):
     """Function to get videos from Kodi library"""
 
     detail_type = JSON_MAP.get(media_type)
@@ -1195,6 +1196,9 @@ def get_videos_from_library(media_type,  # pylint: disable=too-many-arguments
         params=_params
     )
     videos = videos.get('result', {}).get(detail_type['result'], [])
+
+    if process_art:
+        utils.modify_iterable(art_fallbacks, videos)
 
     if videos and limit == 1:
         return videos[0]
