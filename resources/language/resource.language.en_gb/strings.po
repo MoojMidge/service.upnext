@@ -39,7 +39,7 @@ msgid "Still there?"
 msgstr ""
 
 msgctxt "#30032"
-msgid "Next item in playlist"
+msgid ""
 msgstr ""
 
 msgctxt "#30033"
@@ -71,11 +71,11 @@ msgid ""
 msgstr ""
 
 msgctxt "#30040"
-msgid "Play next video automatically"
+msgid "Play"
 msgstr ""
 
 msgctxt "#30041"
-msgid "Stop playback at end of video"
+msgid "Stop"
 msgstr ""
 
 msgctxt "#30042"
@@ -164,6 +164,14 @@ msgctxt "#30109"
 msgid "Watched TVShow recommendations"
 msgstr ""
 
+msgctxt "#30110"
+msgid "Watched Media recommendations"
+msgstr ""
+
+msgctxt "#30111"
+msgid "More like this... (Watched Media)"
+msgstr ""
+
 
 ### SETTINGS
 msgctxt "#30500"
@@ -175,7 +183,7 @@ msgid "Popup display"
 msgstr ""
 
 msgctxt "#30502"
-msgid "Skin customisation [COLOR gray](requires skin integration)[/COLOR]"
+msgid "Skin customisation"
 msgstr ""
 
 msgctxt "#30503"
@@ -250,12 +258,20 @@ msgctxt "#30520"
 msgid "Colour selection"
 msgstr ""
 
+msgctxt "#30530"
+msgid "Requires Kodi skin integration, or selection of default UpNext skin"
+msgstr ""
+
 msgctxt "#30540"
 msgid "Widget and Plugin Listings"
 msgstr ""
 
-msgctxt "#30541"
-msgid "Widget refresh period [COLOR gray](minutes)[/COLOR]"
+msgctxt "#30542"
+msgid "Widget list limit"
+msgstr ""
+
+msgctxt "#30544"
+msgid "Widget refresh period"
 msgstr ""
 
 msgctxt "#30551"
@@ -311,19 +327,27 @@ msgid "Playback"
 msgstr ""
 
 msgctxt "#30603"
-msgid "Default action after UpNext popup is shown"
+msgid "Default popup action"
+msgstr ""
+
+msgctxt "#30604"
+msgid "Default action is automatically taken when popup closes and no user input is received"
 msgstr ""
 
 msgctxt "#30605"
-msgid "Previously watched videos"
+msgid ""
 msgstr ""
 
 msgctxt "#30606"
-msgid "Check if still watching [COLOR gray](stops auto playback if not still watching)[/COLOR]"
+msgid "Check if still watching"
 msgstr ""
 
 msgctxt "#30607"
-msgid "Videos to play before checking if still watching"
+msgid "Stops automatic playback if user input is not received after the configured number of videos are automatically played"
+msgstr ""
+
+msgctxt "#30608"
+msgid "{0:d} videos automatically played"
 msgstr ""
 
 msgctxt "#30609"
@@ -331,7 +355,7 @@ msgid "When credits time is known (e.g. Netflix) or detected"
 msgstr ""
 
 msgctxt "#30611"
-msgid "Delay before default action is taken (in seconds)"
+msgid "Delay before default action is taken"
 msgstr ""
 
 msgctxt "#30613"
@@ -339,7 +363,7 @@ msgid "When credits time is unknown (e.g. local media, other)"
 msgstr ""
 
 msgctxt "#30615"
-msgid "Customise popup time (in seconds) by video length"
+msgid "Customise popup time by video length"
 msgstr ""
 
 msgctxt "#30617"
@@ -371,26 +395,50 @@ msgid "Auto-detect end credits"
 msgstr ""
 
 msgctxt "#30631"
-msgid "Detection window [COLOR gray](seconds/hr prior to popup appearing by time)[/COLOR]"
+msgid "Detection window"
+msgstr ""
+
+msgctxt "#30632"
+msgid "Detection will start prior to popup appearing within an adjustable window based on video runtime"
+msgstr ""
+
+msgctxt "#30633"
+msgid "{0:d} sec/hr of runtime"
+msgstr ""
+
+msgctxt "#30634"
+msgid "Mark as watched"
+msgstr ""
+
+msgctxt "#30635"
+msgid "Forced on to mark just watched video as watched. Forced off to mark just watched video as unwatched. Disabled to allow Kodi to handle marking as watched"
+msgstr ""
+
+msgctxt "#30636"
+msgid "Auto resume"
+msgstr ""
+
+msgctxt "#30637"
+msgid "Automatically try to resume on next video playback. Disable to play next video from start"
 msgstr ""
 
 msgctxt "#30640"
 msgid "Next selection"
 msgstr ""
 
-msgctxt "#30641"
-msgid "Override mark as watched when UpNext popup is shown"
-msgstr ""
-
 msgctxt "#30642"
-msgid "Resume playback where possible [COLOR gray](disable to play next video from start)[/COLOR]"
-msgstr ""
-
-msgctxt "#30643"
-msgid "Next special or season"
+msgid "Previously watched videos"
 msgstr ""
 
 msgctxt "#30644"
+msgid "Next special or season"
+msgstr ""
+
+msgctxt "#30646"
+msgid "Next item in playlist"
+msgstr ""
+
+msgctxt "#30648"
 msgid "Next movie in movie set"
 msgstr ""
 
@@ -419,11 +467,19 @@ msgid "Kodi JSON-RPC retry attempts"
 msgstr ""
 
 msgctxt "#30707"
-msgid "Enable UpNext queue [COLOR gray](use playlist to queue and play next video)[/COLOR]"
+msgid "Enable UpNext queue"
 msgstr ""
 
 msgctxt "#30708"
-msgid "Use TheMovieDb Helper for plugin integration fallback"
+msgid "Use internal Kodi playlist to queue and play next video"
+msgstr ""
+
+msgctxt "#30709"
+msgid "Enable TMDbHelper integration"
+msgstr ""
+
+msgctxt "#30710"
+msgid "Use TheMovieDb Helper players for plugin integration fallback"
 msgstr ""
 
 msgctxt "#30730"
@@ -435,19 +491,19 @@ msgid "Detector storage location"
 msgstr ""
 
 msgctxt "#30732"
-msgid "Number of threads to use"
+msgid "Detector thread limit"
 msgstr ""
 
 msgctxt "#30733"
-msgid "Data processing limit (kB/frame) [COLOR gray](higher is more accurate, slower)[/COLOR]"
+msgid "Detector data limit"
 msgstr ""
 
 msgctxt "#30734"
-msgid "Enable filtering to detect end credits"
+msgid "Detector additional filtering"
 msgstr ""
 
 msgctxt "#30735"
-msgid "Image resize method"
+msgid "Detector resize method"
 msgstr ""
 
 msgctxt "#30736"
@@ -475,19 +531,47 @@ msgid "Lanczos"
 msgstr ""
 
 msgctxt "#30742"
-msgid "Detection match threshold [COLOR gray](% similarity)[/COLOR]"
+msgid "Detector similarity threshold"
 msgstr ""
 
 msgctxt "#30743"
-msgid "Max significance for match [COLOR gray](% of areas with significant content)[/COLOR]"
+msgid "Detector significance limit"
 msgstr ""
 
 msgctxt "#30744"
-msgid "Min number of matches required for detection"
+msgid "Detector match threshold"
 msgstr ""
 
 msgctxt "#30745"
-msgid "Max number of mismatches before match count is reset"
+msgid "Detector mismatch limit"
+msgstr ""
+
+msgctxt "#30750"
+msgid "Location where detected end credit details are stored for comparison with next videos"
+msgstr ""
+
+msgctxt "#30751"
+msgid "Amount of image data captured per frame of video. Increasing the data limit requires increased processing and can disrupt playback on slower devices"
+msgstr ""
+
+msgctxt "#30752"
+msgid "Enables additional image processing and filtering to significantly improve end credit detection. Can disrupt playback on slower devices."
+msgstr ""
+
+msgctxt "#30753"
+msgid "End credits will be matched if percentage similarity of captured image data exceeds this threshold"
+msgstr ""
+
+msgctxt "#30754"
+msgid "End credits will not be matched if the percentage of the captured image data that is identified as being significant exceeds this limit"
+msgstr ""
+
+msgctxt "#30755"
+msgid "Mininum number of matches required for end credits to be detected"
+msgstr ""
+
+msgctxt "#30756"
+msgid "Maximum number of mismatches before end credit match count is reset"
 msgstr ""
 
 msgctxt "#30800"
@@ -519,23 +603,43 @@ msgid "Test UpNext operation"
 msgstr ""
 
 msgctxt "#30815"
-msgid "Enable simulation mode"
+msgid "Simulation mode"
+msgstr ""
+
+msgctxt "#30816"
+msgid "Enables configurable simulation of internal Kodi and UpNext operation"
 msgstr ""
 
 msgctxt "#30817"
-msgid "Auto seek after playback starts"
+msgid "Simulation seek"
+msgstr ""
+
+msgctxt "#30818"
+msgid "Auto seek after playback starts to reduce testing time and avoid having to manually seek to end of video"
 msgstr ""
 
 msgctxt "#30819"
-msgid "Force popup cue point"
+msgid "Simulation cue"
+msgstr ""
+
+msgctxt "#30820"
+msgid "Force creation of popup cue point that is used when end credit detail are detected or provided by video plugin"
 msgstr ""
 
 msgctxt "#30821"
-msgid "Force use plugin data and playback method"
+msgid "Simulation plugin"
+msgstr ""
+
+msgctxt "#30822"
+msgid "Force use of auto-generated plugin data and playback method when playing Kodi library content"
 msgstr ""
 
 msgctxt "#30823"
 msgid "Additional developer settings"
+msgstr ""
+
+msgctxt "#30824"
+msgid "Detector debug"
 msgstr ""
 
 msgctxt "#30825"
@@ -543,9 +647,17 @@ msgid "Enable detector debug logging and profiling"
 msgstr ""
 
 msgctxt "#30826"
+msgid "Detector image debug"
+msgstr ""
+
+msgctxt "#30827"
 msgid "Enable saving detector debug image output"
 msgstr ""
 
 msgctxt "#30830"
-msgid "Re-trigger a playback start event on addon start"
+msgid "Simulation trigger"
+msgstr ""
+
+msgctxt "#30831"
+msgid "Re-trigger a simulated playback start event on addon start"
 msgstr ""

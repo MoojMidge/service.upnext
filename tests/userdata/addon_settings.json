@@ -58,6 +58,7 @@
 		"startTrigger": "true",
 		"stopAfterClose": "true",
 		"trackerMode": 2,
-        "widgetRefreshPeriod": "10"
+        "widgetListLimit": 25,
+        "widgetRefreshPeriod": 10
 	}
 }
