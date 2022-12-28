@@ -368,8 +368,10 @@ def log(msg, level=utils.LOGDEBUG):
     utils.log(msg, name=__name__, level=level)
 
 
-def art_fallbacks(art, art_map, replace=False):
-    if not art or not art_map:
+def art_fallbacks(item=None, art=None, art_map=COMMON_ART_MAP, replace=True):  # pylint: disable=dangerous-default-value
+    if item:
+        art = item.get('art')
+    if not art:
         return {}
 
     art_types = frozenset(art.keys())
@@ -380,6 +382,9 @@ def art_fallbacks(art, art_map, replace=False):
             if art_substitute in art_types:
                 art[art_type] = art[art_substitute]
                 break
+
+    if item:
+        item['art'] = art
     return art
 
 
@@ -1076,9 +1081,7 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
         # Restore current episode lastplayed for sorting of next-up episode
         upnext_episode['lastplayed'] = episode['lastplayed']
 
-        upnext_episode['art'] = art_fallbacks(
-            upnext_episode.get('art'), EPISODE_ART_MAP
-        )
+        art_fallbacks(upnext_episode, art_map=EPISODE_ART_MAP, replace=False)
 
         upnext_episodes.append(upnext_episode)
         tvshows.add(tvshowid)
@@ -1146,9 +1149,7 @@ def get_upnext_movies_from_library(limit=25,
         # Restore current movie lastplayed for sorting of next-up movie
         upnext_movie['lastplayed'] = movie['lastplayed']
 
-        upnext_movie['art'] = art_fallbacks(
-            upnext_movie.get('art'), COMMON_ART_MAP, replace=True
-        )
+        art_fallbacks(upnext_movie)
 
         upnext_movies.append(upnext_movie)
         sets.add(setid)
@@ -1314,9 +1315,7 @@ def get_similar_from_library(media_type,    # pylint: disable=too-many-arguments
     for video in similar:
         infotags.store(video, update=True)
 
-        video['art'] = art_fallbacks(
-            video.get('art'), COMMON_ART_MAP, replace=True
-        )
+        art_fallbacks(video)
         video['__similarity__'] = infotags.calc_similarity()
 
     if sort:

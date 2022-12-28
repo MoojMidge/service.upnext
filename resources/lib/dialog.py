@@ -136,19 +136,16 @@ class UpNextPopup(xbmcgui.WindowXMLDialog, object):
                 'videolibrary.showunwatchedplots'
             ) if utils.supports_python_api(18) else constants.DEFAULT_SPOILERS
 
+            art = details.get('art')
             if media_type == 'episode':
                 if constants.UNWATCHED_EPISODE_THUMB in show_spoilers:
                     art = api.art_fallbacks(
-                        details.get('art'), api.EPISODE_ART_MAP
+                        art=art, art_map=api.EPISODE_ART_MAP, replace=False
                     )
                 else:
                     art = constants.NO_SPOILER_ART
             elif media_type == 'movie':
-                art = api.art_fallbacks(
-                    details.get('art'), api.COMMON_ART_MAP, replace=True
-                )
-            else:
-                art = details.get('art')
+                art = api.art_fallbacks(art=art)
 
             self.setProperty('fanart', art.get('fanart', ''))
             self.setProperty('landscape', art.get('landscape', ''))
