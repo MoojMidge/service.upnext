@@ -4,8 +4,6 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-from collections import deque
-
 import constants
 import utils
 import xbmc
@@ -215,8 +213,7 @@ def _create_video_listitem(video,
         info_tag.setResumePoint(
             time=resume.get('position', 0), totaltime=resume.get('total', 0)
         )
-        # Consume iterator
-        deque(map(_set_info, _infolabels.items()), maxlen=0)
+        utils.modify_iterable(_set_info, _infolabels.items())
     else:
         listitem.setInfo(type='Video', infoLabels=_infolabels)
 

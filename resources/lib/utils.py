@@ -637,3 +637,12 @@ def tokenise(value,
     if remove:
         tokens = tokens - remove
     return tokens
+
+
+if supports_python_api(19):
+    from collections import deque
+
+    def modify_iterable(function, sequence):
+        deque(map(function, sequence), maxlen=0)
+else:
+    modify_iterable = map  # pylint: disable=invalid-name
