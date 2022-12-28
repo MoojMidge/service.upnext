@@ -5,6 +5,7 @@
 from __future__ import absolute_import, division, unicode_literals
 
 from posixpath import split as posix_split
+from random import shuffle as randshuffle
 
 import api
 import constants
@@ -196,6 +197,65 @@ def generate_similar_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: 
     return listing
 
 
+def generate_similar_media_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument, too-many-locals
+    path = kwargs.get('__path__')
+    similar_list_generators = ['movies', 'tvshows']
+
+    if not path or path[-1] == 'similar_media':
+        db_id = constants.UNDEFINED
+        randshuffle(similar_list_generators)
+    else:
+        if similar_list_generators[0] != path[-2]:
+            similar_list_generators.reverse()
+        db_id = path[-1]
+
+    original, similar_videos_1 = api.get_similar_from_library(
+        media_type=similar_list_generators[0],
+        limit=SETTINGS.widget_list_limit,
+        db_id=db_id,
+        unwatched_only=SETTINGS.unwatched_only,
+        sort=False
+    )
+    original, similar_videos_2 = api.get_similar_from_library(
+        media_type=similar_list_generators[1],
+        limit=SETTINGS.widget_list_limit,
+        original=original,
+        unwatched_only=SETTINGS.unwatched_only,
+        sort=False
+    )
+    if original:
+        title = original['title']
+        label = utils.localize(constants.MORE_LIKE_THIS_STR_ID).format(title)
+        xbmcplugin.setPluginCategory(addon_handle, label)
+
+    videos = utils.merge_iterable(
+        similar_videos_1, similar_videos_2,
+        sort='__similarity__', limit=1, reverse=True
+    )[:SETTINGS.widget_list_limit]
+
+    listing = []
+    for video in videos:
+        if 'tvshowid' in video:
+            listitem = upnext.create_tvshow_listitem
+            path = 'videodb://tvshows/titles/{0}/'.format(video['tvshowid'])
+            is_folder = True
+        else:
+            listitem = upnext.create_movie_listitem
+            path = video['file']
+            is_folder = False
+        listitem = listitem(
+            video,
+            properties={
+                'searchstring': title,  # For Embruary skin integration
+                'widget': label,        # For AH2 skin integration
+                'isFolder': is_folder
+            }
+        )
+        listing += ((path, listitem, is_folder),)
+
+    return listing
+
+
 def generate_watched_movies_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     movies = api.get_videos_from_library(
         media_type='movies',
@@ -233,6 +293,45 @@ def generate_watched_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: 
         )
         listitem = upnext.create_tvshow_listitem(
             tvshow,
+            properties={'isPlayable': 'false', 'isFolder': True}
+        )
+        listing += ((path, listitem, True),)
+
+    return listing
+
+
+def generate_watched_media_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
+    movies = api.get_videos_from_library(
+        media_type='movies',
+        limit=SETTINGS.widget_list_limit,
+        sort=api.SORT_LASTPLAYED,
+        filters=api.FILTER_WATCHED
+    )
+    tvshows = api.get_videos_from_library(
+        media_type='tvshows',
+        limit=SETTINGS.widget_list_limit,
+        sort=api.SORT_LASTPLAYED,
+        filters=api.FILTER_WATCHED
+    )
+
+    videos = utils.merge_iterable(
+        movies, tvshows, sort='lastplayed', reverse=True
+    )[:SETTINGS.widget_list_limit]
+
+    listing = []
+    for video in videos:
+        if 'tvshowid' in video:
+            listitem = upnext.create_tvshow_listitem
+            path = 'plugin://{0}/similar_media/tvshows/{1}'.format(
+                addon_id, video['tvshowid']
+            )
+        else:
+            listitem = upnext.create_movie_listitem
+            path = 'plugin://{0}/similar_media/movies/{1}'.format(
+                addon_id, video['movieid']
+            )
+        listitem = listitem(
+            video,
             properties={'isPlayable': 'false', 'isFolder': True}
         )
         listing += ((path, listitem, True),)
@@ -342,6 +441,8 @@ PLUGIN_CONTENT = {
             'similar_tvshows',
             'watched_movies',
             'similar_movies',
+            'watched_media',
+            'similar_media',
             'settings',
         ],
     },
@@ -401,6 +502,23 @@ PLUGIN_CONTENT = {
         },
         'content_type': 'movies',
         'handler': generate_similar_movies_list,
+        'params': constants.WIDGET_RELOAD_PARAM_STRING
+    },
+    'watched_media': {
+        'label': utils.localize(constants.WATCHED_MEDIA_STR_ID),
+        'art': {
+            'icon': 'DefaultVideo.png'
+        },
+        'content_type': 'videos',
+        'handler': generate_watched_media_list,
+    },
+    'similar_media': {
+        'label': utils.localize(constants.MORE_LIKE_MEDIA_STR_ID),
+        'art': {
+            'icon': 'DefaultVideo.png'
+        },
+        'content_type': 'videos',
+        'handler': generate_similar_media_list,
         'params': constants.WIDGET_RELOAD_PARAM_STRING
     },
     'settings': {

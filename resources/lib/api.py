@@ -1258,13 +1258,17 @@ class InfoTagComparator(object):
         return self.similarity
 
 
-def get_similar_from_library(media_type,  # pylint: disable=too-many-locals
+def get_similar_from_library(media_type,    # pylint: disable=too-many-arguments, too-many-locals
                              limit=25,
+                             original=None,
                              db_id=constants.UNDEFINED,
-                             unwatched_only=False):
+                             unwatched_only=False,
+                             sort=True):
     """Function to search by db_id for similar videos from Kodi library"""
 
-    if db_id == constants.UNDEFINED or db_id is None:
+    if original:
+        pass
+    elif db_id == constants.UNDEFINED or db_id is None:
         original = get_videos_from_library(
             media_type=media_type,
             limit=1,
@@ -1294,7 +1298,7 @@ def get_similar_from_library(media_type,  # pylint: disable=too-many-locals
             'value': genre
         } for genre in infotags.genre['original']
     ]
-    if 'set' in original:
+    if 'set' in original and media_type == 'movies':
         FILTER_SEARCH_SET['value'] = original['set'] or constants.UNDEFINED_STR
         FILTER_SIMILAR['or'].append(FILTER_SEARCH_SET)
 
@@ -1315,6 +1319,8 @@ def get_similar_from_library(media_type,  # pylint: disable=too-many-locals
         )
         video['__similarity__'] = infotags.calc_similarity()
 
-    return original, utils.merge_iterable(
-        similar, sort='__similarity__', limit=1, reverse=True
-    )[:limit]
+    if sort:
+        return original, utils.merge_iterable(
+            similar, sort='__similarity__', limit=1, reverse=True
+        )[:limit]
+    return original, similar
