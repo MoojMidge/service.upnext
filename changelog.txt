@@ -1,4 +1,17 @@
 ## Releases
+### v2.0.14+dev.0 (2022-12-29)
+- Fix bug with plugin play_info integration
+- Update settings and help text
+- New setting for number of items to show in widgets
+- Add new combined movie and tvshow widgets:
+  - More like this...
+    - shows movies and tvshows similar to randomly selected watched video
+  - Watched media recommendations
+    - displays recently watched movies and tvshows
+    - opens list of similar movies and tvshows when a watched video is selected
+- Re-organise widgets by media type (movies / tvshows / combined)
+- Minor misc bug fixes and tidy ups
+
 ### v2.0.13+dev.0 (2022-12-25)
 - Added experimental support for TMDBHelper players
 - Fix for Kodi Nexus API parameter name changes
