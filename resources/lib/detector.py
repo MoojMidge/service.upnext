@@ -72,7 +72,7 @@ class UpNextHashStore(object):
             return False
 
         # Playlist with no episode details
-        if for_saving and self.group_name.startswith(constants.MIXED_PLAYLIST):
+        if for_saving and self.group_name == constants.MIXED_PLAYLIST:
             return False
 
         # No new episode details, assume current hashes are still valid

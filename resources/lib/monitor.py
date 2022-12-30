@@ -99,7 +99,7 @@ class UpNextMonitor(xbmc.Monitor, object):
             return
 
         if utils.get_property('PseudoTVRunning') == 'True':
-            self.log('Skip video check: PsuedoTV detected')
+            self.log('Skip video check: PseudoTV detected')
             return
 
         if self.player.isExternalPlayer():
