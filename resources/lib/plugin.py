@@ -247,14 +247,12 @@ def generate_watched_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
         limit=SETTINGS.widget_list_limit,
         sort=api.SORT_LASTPLAYED,
         filters=api.FILTER_WATCHED,
-        process_art=True,
     )
     tvshows = api.get_videos_from_library(
         media_type='tvshows',
         limit=SETTINGS.widget_list_limit,
         sort=api.SORT_LASTPLAYED,
         filters=api.FILTER_WATCHED,
-        process_art=True,
     )
 
     videos = utils.merge_iterable(
