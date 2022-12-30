@@ -540,17 +540,19 @@ def get_from_playlist(position, properties, unwatched_only=False):
     )
     items = result.get('result', {}).get('items')
 
+    if not items:
+        item = None
     # Get first unwatched item in the list of playlist entries
-    if unwatched_only and items:
-        position_offset, item = next(
-            ((idx, item) for idx, item in enumerate(items)
-             if utils.get_int(item, 'playcount') < 1),
-            (0, None)
-        )
-        position += position_offset
+    elif unwatched_only:
+        for position_offset, item in enumerate(items):
+            if utils.get_int(item, 'playcount') < 1:
+                position += position_offset
+                break
+        else:
+            item = None
     # Or just get the first item in the list of playlist entries
     else:
-        item = items[0] if items else None
+        item = items[0]
 
     # Don't check if item is an episode, just use it if it is there
     if not item:  # item.get('type') != 'episode':
@@ -635,17 +637,11 @@ def get_playerid(retry=3):
         _CACHE['playerid'] = None
         return None
 
-    result = [
-        player for player in result
-        if player.get('type', 'video') in PLAYER_PLAYLIST
-    ]
-
-    playerid = (
-        utils.get_int(result[0], 'playerid') if result
-        else constants.UNDEFINED
-    )
-
-    if playerid == constants.UNDEFINED:
+    for player in result:
+        if player.get('type', 'video') in PLAYER_PLAYLIST:
+            playerid = utils.get_int(player, 'playerid')
+            break
+    else:
         log('No active player', utils.LOGWARNING)
         _CACHE['playerid'] = None
         return None
