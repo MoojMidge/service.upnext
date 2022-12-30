@@ -255,27 +255,6 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             new_video = None
             source = None
 
-        if not new_video and SETTINGS.enable_tmdbhelper_fallback:
-            details = api.get_now_playing(
-                properties=(
-                    api.MOVIE_PROPERTIES if media_type == 'movie' else
-                    api.EPISODE_PROPERTIES
-                ) | {'mediapath'},
-                retry=SETTINGS.api_retry_attempts
-            )
-            if (details.get('mediapath', '').startswith('plugin://')
-                    and details.get('showtitle')
-                    and utils.get_int(details, 'season')
-                    != utils.get_int(details, 'episode')
-                    != constants.UNDEFINED):
-                upnext.send_signal(
-                    sender='UpNext.TMDBHelper',
-                    upnext_info={
-                        'current_video': details,
-                        'play_url': '__generate__'
-                    }
-                )
-
         if new_video and source:
             new_item = utils.create_item_details(
                 new_video, source, media_type, playlist_position
@@ -322,7 +301,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         current_video = api.get_now_playing(
             properties=(
                 api.MOVIE_PROPERTIES if media_type == 'movie' else
-                api.EPISODE_PROPERTIES
+                api.EPISODE_PROPERTIES | {'mediapath'}
             ),
             retry=SETTINGS.api_retry_attempts
         )
@@ -335,10 +314,27 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
                 else None
             )
 
+        title = current_video.get('showtitle')
+        season = utils.get_int(current_video, 'season')
+        episode = utils.get_int(current_video, 'episode')
+        mediapath = current_video.get('mediapath', '')
+        if (mediapath.startswith('plugin://')
+                and SETTINGS.enable_tmdbhelper_fallback
+                and title and constants.UNDEFINED not in (season, episode)):
+            upnext.send_signal(
+                sender='UpNext.TMDBHelper',
+                upnext_info={
+                    'current_video': current_video,
+                    'play_url': None,
+                    'mediapath': mediapath,
+                }
+            )
+            return None
+
         # Get current tvshowid or search in library if detail missing
         tvshowid = current_video.get('tvshowid', constants.UNDEFINED)
         if tvshowid == constants.UNDEFINED:
-            tvshowid = api.get_tvshowid(current_video.get('showtitle'))
+            tvshowid = api.get_tvshowid(title)
 
         # Now playing show not found in library
         if tvshowid == constants.UNDEFINED:
@@ -351,11 +347,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             or utils.get_int(current_video, 'id')
         )
         if episodeid == constants.UNDEFINED:
-            episodeid = api.get_episodeid(
-                tvshowid,
-                current_video.get('season'),
-                current_video.get('episode')
-            )
+            episodeid = api.get_episodeid(tvshowid, season, episode)
         # Now playing episode not found in library
         if episodeid == constants.UNDEFINED:
             return None

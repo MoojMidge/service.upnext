@@ -378,14 +378,16 @@ def create_listitem(item, kwargs=None, infolabels=None, properties=None):
     return None
 
 
-def generate_tmdbhelper_play_url(upnext_data):
+def generate_tmdbhelper_play_url(upnext_data, mediapath=''):
     current_video = upnext_data.get('current_video')
     title = current_video.get('showtitle', '')
     season = utils.get_int(current_video, 'season')
     episode = utils.get_int(current_video, 'episode') + 1
+    addon_id, _, _ = parse_url(mediapath)
 
     query = urlencode({
         'info': 'play',
+        'play_using': addon_id,
         'tmdb_type': 'tv',
         'query': title,
         'season': season,
@@ -516,8 +518,10 @@ def send_signal(sender, upnext_info):
         upnext_data[key] = video_info
 
     upnext_data = _copy_video_details(upnext_data)
-    if upnext_data.get('play_url') == '__generate__':
-        upnext_data['play_url'] = generate_tmdbhelper_play_url(upnext_data)
+    if 'mediapath' in upnext_info:
+        upnext_data['play_url'] = generate_tmdbhelper_play_url(
+            upnext_data, upnext_info['mediapath']
+        )
 
     return utils.event(
         sender=sender,
