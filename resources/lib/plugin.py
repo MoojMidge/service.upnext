@@ -4,7 +4,6 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-from posixpath import split as posix_split
 from random import shuffle as randshuffle
 
 import api
@@ -14,11 +13,6 @@ import utils
 import xbmcgui
 import xbmcplugin
 from settings import SETTINGS
-
-try:
-    from urllib.parse import parse_qs, urlparse
-except ImportError:
-    from urlparse import parse_qs, urlparse
 
 
 def log(msg, level=utils.LOGDEBUG):
@@ -346,23 +340,6 @@ def open_settings(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-a
     return False
 
 
-def parse_plugin_url(url):
-    if not url:
-        return None, None, None
-
-    parsed_url = urlparse(url)
-    if parsed_url.scheme != 'plugin':
-        return None, None, None
-
-    addon_id = parsed_url.netloc
-    addon_path = posix_split(parsed_url.path.rstrip('/') or '/')
-    while addon_path[0] != '/':
-        addon_path = posix_split(addon_path[0]) + addon_path[1:]
-    addon_args = parse_qs(parsed_url.query, keep_blank_values=True)
-
-    return addon_id, addon_path, addon_args
-
-
 def play_media(addon_handle, addon_id, **kwargs):
     db_type = kwargs.get('db_type', [''])[0]
     db_id = int(kwargs.get('db_id', [constants.UNDEFINED])[0])
@@ -395,7 +372,7 @@ def play_media(addon_handle, addon_id, **kwargs):
 
 def run(argv):
     addon_handle = int(argv[1])
-    addon_id, addon_path, addon_args = parse_plugin_url(argv[0] + argv[2])
+    addon_id, addon_path, addon_args = upnext.parse_url(argv[0] + argv[2])
     content = PLUGIN_CONTENT.get(addon_path[1] or addon_path[0])
     if not content:
         return False

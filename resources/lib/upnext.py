@@ -4,6 +4,8 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
+from posixpath import split as posix_split
+
 import constants
 import utils
 import xbmc
@@ -11,9 +13,10 @@ import xbmcgui
 from settings import SETTINGS
 
 try:
-    from urllib.parse import urlencode
+    from urllib.parse import parse_qs, urlencode, urlparse
 except ImportError:
-    from urllib import urlencode
+    from urlparse import parse_qs, urlparse
+    from urllib import urlencode  # pylint: disable=ungrouped-imports
 
 
 def log(msg, level=utils.LOGWARNING):
@@ -394,6 +397,23 @@ def generate_tmdbhelper_play_url(upnext_data):
     )
 
     return play_url
+
+
+def parse_url(url, scheme='plugin'):
+    if not url:
+        return None, None, None
+
+    parsed_url = urlparse(url)
+    if scheme and scheme != parsed_url.scheme:
+        return None, None, None
+
+    addon_id = parsed_url.netloc
+    addon_path = posix_split(parsed_url.path.rstrip('/') or '/')
+    while addon_path[0] != '/':
+        addon_path = posix_split(addon_path[0]) + addon_path[1:]
+    addon_args = parse_qs(parsed_url.query, keep_blank_values=True)
+
+    return addon_id, addon_path, addon_args
 
 
 def send_signal(sender, upnext_info):
