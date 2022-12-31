@@ -1264,7 +1264,8 @@ def get_similar_from_library(media_type,    # pylint: disable=too-many-arguments
                              original=None,
                              db_id=constants.UNDEFINED,
                              unwatched_only=False,
-                             sort=True):
+                             sort=True,
+                             threshold=0):
     """Function to search by db_id for similar videos from Kodi library"""
 
     if original:
@@ -1320,6 +1321,6 @@ def get_similar_from_library(media_type,    # pylint: disable=too-many-arguments
 
     if sort:
         return original, utils.merge_iterable(
-            similar, sort='__similarity__', limit=1, reverse=True
+            similar, sort='__similarity__', threshold=threshold, reverse=True
         )[:limit]
     return original, similar

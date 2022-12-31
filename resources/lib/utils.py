@@ -11,7 +11,10 @@ import sys
 import threading
 from itertools import chain
 from operator import itemgetter
-from re import compile as re_compile
+from re import (
+    compile as re_compile,
+    split as re_split,
+)
 from string import punctuation
 
 from dateutil.parser import parse as dateutil_parse
@@ -603,37 +606,60 @@ def merge_iterable(*iterables, **kwargs):
     if sort:
         reverse = kwargs.get('reverse', True)
         key = None if isinstance(sort, bool) else itemgetter(sort)
-        limit = kwargs.get('limit')
+        threshold = kwargs.get('threshold')
 
-        if key and limit is not None:
-            merged = (item for item in merged if key(item) >= limit)
+        if key and threshold is not None:
+            merged = (item for item in merged if key(item) > threshold)
 
         merged = sorted(merged, key=key, reverse=reverse)
     return merged
 
 
-def strip_punctuation(value, table=dict.fromkeys(map(ord, punctuation))):  # pylint: disable=dangerous-default-value
-    length = len(value)
-    if length < 3 or (length == 3 and value.upper() != value):
+def strip_punctuation(value,  # pylint: disable=dangerous-default-value, too-many-arguments
+                      table=dict.fromkeys(map(ord, punctuation)),
+                      _frozenset=frozenset,
+                      _len=len,
+                      _punctuation=set(punctuation),
+                      _translate=str.translate,
+                      _upper=str.upper):
+
+    length = _len(value)
+    if length < 3:
         return ''
-    return value.lower().translate(table)
+    upper = _upper(value)
+    if length == 3 and value != upper:
+        return ''
+    if _punctuation & _frozenset(upper):
+        return _translate(upper, table)
+    return upper
 
 
-def tokenise(value,
-             split=re_compile(r'[_\.,]* |[\|/\\]').split,
+def tokenise(*values,  # pylint: disable=too-many-arguments
+             split=True,
              strip=strip_punctuation,
              remove=frozenset({
-                 '', 'about', 'after', 'from', 'have', 'hers', 'into', 'only',
-                 'over', 'than', 'that', 'their', 'there', 'them', 'then',
-                 'they', 'this', 'what', 'when', 'where', 'will', 'with',
-                 'your', 'duringcreditsstinger', 'aftercreditsstinger',
-                 'collection'
-             })):
-    if not value:
-        return []
-    tokens = split(value) if split else value
+                 '', 'ABOUT', 'AFTER', 'FROM', 'HAVE', 'HERS', 'INTO', 'ONLY',
+                 'OVER', 'THAN', 'THAT', 'THEIR', 'THERE', 'THEM', 'THEN',
+                 'THEY', 'THIS', 'WHAT', 'WHEN', 'WHERE', 'WILL', 'WITH',
+                 'YOUR', 'DURINGCREDITSSTINGER', 'AFTERCREDITSSTINGER',
+                 'COLLECTION'
+             }),
+             _frozenset=frozenset,
+             _map=map,
+             _split=re_compile(r'[_\.,]* |[\|/\\]').split):
+
+    tokens = _frozenset()
+    for value in values:
+        if not value:
+            continue
+        if split is True:
+            tokens = tokens | _frozenset(_split(value))
+        elif split:
+            tokens = tokens | _frozenset(re_split(split, value))
+        else:
+            tokens = tokens | _frozenset(value)
     if strip:
-        tokens = set(map(strip, tokens))
+        tokens = _frozenset(_map(strip, tokens))
     if remove:
         tokens = tokens - remove
     return tokens

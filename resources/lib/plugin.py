@@ -307,7 +307,7 @@ def generate_similar_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
 
     videos = utils.merge_iterable(
         similar_list[0], similar_list[1],
-        sort='__similarity__', limit=1, reverse=True
+        sort='__similarity__', threshold=0, reverse=True
     )[:SETTINGS.widget_list_limit]
 
     listing = []
