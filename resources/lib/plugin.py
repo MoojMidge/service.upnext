@@ -426,6 +426,9 @@ PLUGIN_CONTENT = {
     },
     'tvshow_widgets': {
         'label': utils.localize(constants.PLUGIN_TVSHOWS_STR_ID),
+        'art': {
+            'icon': 'DefaultTVShows.png'
+        },
         'content_type': 'files',
         'items': [
             'next_episodes',
@@ -435,6 +438,9 @@ PLUGIN_CONTENT = {
     },
     'movie_widgets': {
         'label': utils.localize(constants.PLUGIN_MOVIES_STR_ID),
+        'art': {
+            'icon': 'DefaultMovies.png',
+        },
         'content_type': 'files',
         'items': [
             'next_movies',
@@ -444,6 +450,9 @@ PLUGIN_CONTENT = {
     },
     'media_widgets': {
         'label': utils.localize(constants.PLUGIN_MEDIA_STR_ID),
+        'art': {
+            'icon': 'DefaultVideo.png'
+        },
         'content_type': 'files',
         'items': [
             'next_media',
