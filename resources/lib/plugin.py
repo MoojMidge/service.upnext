@@ -107,12 +107,13 @@ def generate_watched_movies_list(addon_handle, addon_id, **kwargs):  # pylint: d
 
 
 def generate_similar_movies_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
-    path = kwargs.get('__path__')
+    path = kwargs.get('__path__', ['similar_movies'])
+    last_path = path[-1]
 
-    if not path or path[-1] == 'similar_movies':
+    if last_path == 'similar_movies':
         movieid = constants.UNDEFINED
     else:
-        movieid = path[-1]
+        movieid = last_path
 
     movie, movies = api.get_similar_from_library(
         media_type='movies',
@@ -177,12 +178,13 @@ def generate_watched_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: 
 
 
 def generate_similar_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
-    path = kwargs.get('__path__')
+    path = kwargs.get('__path__', ['similar_tvshows'])
+    last_path = path[-1]
 
-    if not path or path[-1] == 'similar_tvshows':
+    if last_path == 'similar_tvshows':
         tvshowid = constants.UNDEFINED
     else:
-        tvshowid = path[-1]
+        tvshowid = last_path
 
     tvshow, tvshows = api.get_similar_from_library(
         media_type='tvshows',
@@ -267,7 +269,8 @@ def generate_watched_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
             )
         listitem = listitem(
             video,
-            properties={'isPlayable': 'false', 'isFolder': True}
+            properties={'isPlayable': 'false', 'isFolder': True},
+            infolabels={'path': path}
         )
         listing += ((path, listitem, True),)
 
@@ -275,16 +278,18 @@ def generate_watched_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
 
 
 def generate_similar_media_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
-    path = kwargs.get('__path__')
+    path = kwargs.get('__path__', ['similar_media'])
+    last_path = path[-1]
     similar_list = ['movies', 'tvshows']
 
-    if not path or path[-1] == 'similar_media':
+    if 'movies' in path:
+        db_id = constants.UNDEFINED if last_path in similar_list else last_path
+    elif 'tvshows' in path:
+        db_id = constants.UNDEFINED if last_path in similar_list else last_path
+        similar_list.reverse()
+    else:
         db_id = constants.UNDEFINED
         randshuffle(similar_list)
-    else:
-        if similar_list[0] != path[-2]:
-            similar_list.reverse()
-        db_id = path[-1]
 
     original, similar_list[0] = api.get_similar_from_library(
         media_type=similar_list[0],
