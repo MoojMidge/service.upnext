@@ -236,12 +236,13 @@ def create_episode_listitem(episode,  # pylint: disable=too-many-locals
                             kwargs=None, infolabels=None, properties=None):
     """Create a xbmcgui.ListItem from provided episode details"""
 
-    show_title = episode.get('showtitle', '')
+    episode_num = episode.get('episode')
     episode_title = episode.get('title', '')
-    season = episode.get('season')
-    episode_num = episode.get('episode', '')
     first_aired = episode.get('firstaired', '')
     first_aired, first_aired_short = utils.localize_date(first_aired)
+    season = episode.get('season')
+    show_title = episode.get('showtitle', '')
+
     if first_aired:
         year = first_aired.year
         first_aired_string = str(first_aired)
@@ -250,7 +251,8 @@ def create_episode_listitem(episode,  # pylint: disable=too-many-locals
         first_aired_string = first_aired_short
 
     season_episode = (
-        episode_num if season is None or episode_num == ''
+        '' if episode_num is None
+        else str(episode_num) if season is None
         else constants.SEASON_EPISODE.format(season, episode_num)
     )
     label_tokens = (
@@ -280,7 +282,7 @@ def create_episode_listitem(episode,  # pylint: disable=too-many-locals
         'dbid': episode.get('episodeid', constants.UNDEFINED),
         'tvshowtitle': show_title,
         'season': constants.UNDEFINED if season is None else season,
-        'episode': constants.UNDEFINED if episode_num == '' else episode_num,
+        'episode': constants.UNDEFINED if episode_num is None else episode_num,
         'aired': first_aired_string,
         'premiered': first_aired_string,
         'year': year,
@@ -309,10 +311,12 @@ def create_movie_listitem(movie,
 
     set_id = movie.get('setid', constants.UNDEFINED)
     set_name = movie.get('set', '')
-
+    title = movie.get('title', '')
     year = movie.get('year')
-    _kwargs = ({'label': '{0} ({1})'.format(movie['title'], year)} if year
-               else {})
+
+    _kwargs = {
+        'label': '{0} ({1})'.format(title, year) if year else title
+    }
     if kwargs:
         _kwargs.update(kwargs)
 
@@ -334,7 +338,9 @@ def create_movie_listitem(movie,
     if properties:
         _properties.update(properties)
 
-    listitem = _create_video_listitem(movie, _kwargs, _infolabels, _properties)
+    listitem = _create_video_listitem(
+        movie, _kwargs, _infolabels, _properties
+    )
     return listitem
 
 

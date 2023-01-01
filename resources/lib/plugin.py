@@ -57,7 +57,9 @@ def generate_listing(addon_handle, addon_id, items):  # pylint: disable=unused-a
         if not content:
             continue
 
-        path = 'plugin://{0}/{1}{2}'.format(addon_id, item, content.get('params', ''))
+        path = 'plugin://{0}/{1}{2}'.format(
+            addon_id, item, content.get('params', '')
+        )
         listitem = xbmcgui.ListItem(
             label=content.get('label', ''), path=path, offscreen=True
         )
@@ -449,14 +451,6 @@ PLUGIN_CONTENT = {
             'similar_media',
         ],
     },
-    'next_episodes': {
-        'label': utils.localize(constants.NEXT_EPISODES_STR_ID),
-        'art': {
-            'icon': 'DefaultInProgressShows.png',
-        },
-        'content_type': 'episodes',
-        'handler': generate_next_episodes_list,
-    },
     'next_movies': {
         'label': utils.localize(constants.NEXT_MOVIES_STR_ID),
         'art': {
@@ -464,6 +458,14 @@ PLUGIN_CONTENT = {
         },
         'content_type': 'movies',
         'handler': generate_next_movies_list,
+    },
+    'next_episodes': {
+        'label': utils.localize(constants.NEXT_EPISODES_STR_ID),
+        'art': {
+            'icon': 'DefaultInProgressShows.png',
+        },
+        'content_type': 'episodes',
+        'handler': generate_next_episodes_list,
     },
     'next_media': {
         'label': utils.localize(constants.NEXT_MEDIA_STR_ID),
@@ -473,23 +475,6 @@ PLUGIN_CONTENT = {
         'content_type': 'videos',
         'handler': generate_next_media_list,
     },
-    'watched_tvshows': {
-        'label': utils.localize(constants.WATCHED_TVSHOWS_STR_ID),
-        'art': {
-            'icon': 'DefaultTVShows.png'
-        },
-        'content_type': 'movies',
-        'handler': generate_watched_tvshows_list,
-    },
-    'similar_tvshows': {
-        'label': utils.localize(constants.MORE_LIKE_TVSHOWS_STR_ID),
-        'art': {
-            'icon': 'DefaultTVShows.png'
-        },
-        'content_type': 'movies',
-        'handler': generate_similar_tvshows_list,
-        'params': constants.WIDGET_RELOAD_PARAM_STRING
-    },
     'watched_movies': {
         'label': utils.localize(constants.WATCHED_MOVIES_STR_ID),
         'art': {
@@ -497,6 +482,22 @@ PLUGIN_CONTENT = {
         },
         'content_type': 'movies',
         'handler': generate_watched_movies_list,
+    },
+    'watched_tvshows': {
+        'label': utils.localize(constants.WATCHED_TVSHOWS_STR_ID),
+        'art': {
+            'icon': 'DefaultTVShows.png'
+        },
+        'content_type': 'tvshows',
+        'handler': generate_watched_tvshows_list,
+    },
+    'watched_media': {
+        'label': utils.localize(constants.WATCHED_MEDIA_STR_ID),
+        'art': {
+            'icon': 'DefaultVideo.png'
+        },
+        'content_type': 'tvshows',
+        'handler': generate_watched_media_list,
     },
     'similar_movies': {
         'label': utils.localize(constants.MORE_LIKE_MOVIES_STR_ID),
@@ -507,20 +508,21 @@ PLUGIN_CONTENT = {
         'handler': generate_similar_movies_list,
         'params': constants.WIDGET_RELOAD_PARAM_STRING
     },
-    'watched_media': {
-        'label': utils.localize(constants.WATCHED_MEDIA_STR_ID),
+    'similar_tvshows': {
+        'label': utils.localize(constants.MORE_LIKE_TVSHOWS_STR_ID),
         'art': {
-            'icon': 'DefaultVideo.png'
+            'icon': 'DefaultTVShows.png'
         },
-        'content_type': 'videos',
-        'handler': generate_watched_media_list,
+        'content_type': 'tvshows',
+        'handler': generate_similar_tvshows_list,
+        'params': constants.WIDGET_RELOAD_PARAM_STRING
     },
     'similar_media': {
         'label': utils.localize(constants.MORE_LIKE_MEDIA_STR_ID),
         'art': {
             'icon': 'DefaultVideo.png'
         },
-        'content_type': 'videos',
+        'content_type': 'tvshows',
         'handler': generate_similar_media_list,
         'params': constants.WIDGET_RELOAD_PARAM_STRING
     },
