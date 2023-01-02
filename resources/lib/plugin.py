@@ -134,7 +134,8 @@ def generate_similar_movies_list(addon_handle, addon_id, **kwargs):  # pylint: d
             movie,
             properties={
                 'searchstring': title,  # For Embruary skin integration
-                'widget': label         # For AH2 skin integration
+                'widget': label,        # For AH2 skin integration
+                'similartitle': title,  # SHS compatibility
             }
         )
         listing += ((movie['file'], listitem, False),)
@@ -207,6 +208,7 @@ def generate_similar_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: 
             properties={
                 'searchstring': title,  # For Embruary skin integration
                 'widget': label,        # For AH2 skin integration
+                'similartitle': title,  # SHS compatibility
                 'isFolder': True
             }
         )
@@ -332,6 +334,7 @@ def generate_similar_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
             properties={
                 'searchstring': title,  # For Embruary skin integration
                 'widget': label,        # For AH2 skin integration
+                'similartitle': title,  # SHS compatibility
                 'isFolder': is_folder
             }
         )
