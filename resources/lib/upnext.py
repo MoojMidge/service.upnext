@@ -348,9 +348,16 @@ def create_tvshow_listitem(tvshow,
                            kwargs=None, infolabels=None, properties=None):
     """Create a xbmcgui.ListItem from provided tvshow details"""
 
+    episode_num = tvshow.get('episode', 0)
+    title = tvshow.get('title', '')
+    watched_num = tvshow.get('watchedepisodes', 0)
+    unwatched_num = max(0, episode_num - watched_num)
+    progress = round(100 * watched_num / episode_num) if episode_num else 0
     year = tvshow.get('year')
-    _kwargs = ({'label': '{0} ({1})'.format(tvshow['title'], year)} if year
-               else {})
+
+    _kwargs = {
+        'label': '{0} ({1})'.format(title, year) if year else title
+    }
     if kwargs:
         _kwargs.update(kwargs)
 
@@ -361,7 +368,18 @@ def create_tvshow_listitem(tvshow,
     if infolabels:
         _infolabels.update(infolabels)
 
-    listitem = _create_video_listitem(tvshow, _kwargs, _infolabels, properties)
+    _properties = {
+        'totalepisodes': str(episode_num),
+        'unwatchedepisodes': str(unwatched_num),
+        'watchedepisodes': str(watched_num),
+        'watchedprogress': str(progress),
+    }
+    if properties:
+        _properties.update(properties)
+
+    listitem = _create_video_listitem(
+        tvshow, _kwargs, _infolabels, _properties
+    )
     return listitem
 
 
