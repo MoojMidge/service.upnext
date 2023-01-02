@@ -636,22 +636,20 @@ def strip_punctuation(value,  # pylint: disable=dangerous-default-value, too-man
                       table=dict.fromkeys(map(ord, punctuation)),
                       _frozenset=frozenset,
                       _len=len,
-                      _punctuation=set(punctuation),
-                      _translate=str.translate,
-                      _upper=str.upper):
+                      _punctuation=set(punctuation)):
 
     length = _len(value)
     if length < 3:
         return ''
-    upper = _upper(value)
+    upper = value.upper()
     if length == 3 and value != upper:
         return ''
     if _punctuation & _frozenset(upper):
-        return _translate(upper, table)
+        return upper.translate(table)
     return upper
 
 
-def tokenise(*values,  # pylint: disable=too-many-arguments
+def tokenise(values,  # pylint: disable=too-many-arguments
              split=True,
              strip=strip_punctuation,
              remove=frozenset({

@@ -1221,10 +1221,12 @@ class InfoTagComparator(object):  # pylint: disable=too-few-public-methods
                  _get=dict.get,
                  _tokenise=utils.tokenise):
 
-        self.fuzz = _tokenise(_get(infotags, 'plot'), _get(infotags, 'title'))
+        self.fuzz = _tokenise([
+            _get(infotags, 'plot'), _get(infotags, 'title')
+        ])
         self.genre = _frozenset(_get(infotags, 'genre', []))
-        self.set_name = _tokenise(_get(infotags, 'set'))
-        self.tag = _tokenise(_get(infotags, 'tag'), split=False)
+        self.set_name = _tokenise([_get(infotags, 'set')])
+        self.tag = _tokenise([_get(infotags, 'tag')], split=False)
         self.threshold = threshold
         self.limit = limit
 
@@ -1247,7 +1249,7 @@ class InfoTagComparator(object):  # pylint: disable=too-few-public-methods
         similarity = 0
 
         if fuzz_stored:
-            fuzz = _tokenise(_get(infotags, 'plot'), _get(infotags, 'title'))
+            fuzz = _tokenise([_get(infotags, 'plot'), _get(infotags, 'title')])
             if fuzz:
                 similarity += (
                     _len(fuzz & fuzz_stored) ** 2
@@ -1262,7 +1264,7 @@ class InfoTagComparator(object):  # pylint: disable=too-few-public-methods
                 )
 
         if set_name_stored:
-            set_name = _tokenise(_get(infotags, 'set'))
+            set_name = _tokenise([_get(infotags, 'set')])
             if set_name:
                 similarity += 1000 * (
                     _len(set_name & set_name_stored) * 2
@@ -1270,7 +1272,7 @@ class InfoTagComparator(object):  # pylint: disable=too-few-public-methods
                 )
 
         if tag_stored:
-            tag = _tokenise(_get(infotags, 'tag'), split=False)
+            tag = _tokenise([_get(infotags, 'tag')], split=False)
             if tag:
                 similarity += 2 * (
                     _bit_length(_len(tag & tag_stored))
