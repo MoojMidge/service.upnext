@@ -39,18 +39,35 @@ class Profiler(object):
         from io import StringIO as _StringIO
     from functools import wraps as _wraps
     _wraps = staticmethod(_wraps)
-    from weakref import proxy as _proxy
-    _proxy = staticmethod(_proxy)
+    from weakref import ref as _ref
+
+    class Proxy(_ref):
+        def __call__(self, *args, **kwargs):
+            return super(Profiler.Proxy, self).__call__().__call__(
+                *args, **kwargs
+            )
+
+        def __enter__(self, *args, **kwargs):
+            return super(Profiler.Proxy, self).__call__().__enter__(
+                *args, **kwargs
+            )
+
+        def __exit__(self, *args, **kwargs):
+            return super(Profiler.Proxy, self).__call__().__exit__(
+                *args, **kwargs
+            )
 
     _instances = set()
 
     def __new__(cls, *args, **kwargs):
         self = super(Profiler, cls).__new__(cls)
-        self.__init__(*args, **kwargs)
         cls._instances.add(self)
-        return self if self._profiler else cls._proxy(self)  # pylint: disable=protected-access
+        if not kwargs.get('enabled') or kwargs.get('lazy'):
+            self.__init__(*args, **kwargs)
+            return cls.Proxy(self)
+        return self
 
-    def __init__(self, enabled=True, lazy=False, name=__name__, reuse=False):
+    def __init__(self, enabled=True, lazy=True, name=__name__, reuse=False):
         self._enabled = enabled
         self._profiler = None
         self._reuse = reuse
