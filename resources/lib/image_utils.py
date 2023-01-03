@@ -80,18 +80,6 @@ def _border_mask(size, border_colour, fill_colour, *box):
     return element
 
 
-def _calc_median(vals):
-    """Method to calculate median value of a list of values by sorting and
-        indexing the list"""
-
-    num_vals = len(vals)
-    pivot = num_vals // 2
-    vals = sorted(vals)
-    if num_vals % 2:
-        return vals[pivot]
-    return (vals[pivot] + vals[pivot - 1]) / 2
-
-
 def _fade_mask(size, level_start, level_stop, steps, power, box,  # pylint: disable=too-many-arguments, too-many-locals
                _format=_FORMAT, _int=int, _max=max,
                _paste=Image.Image.paste):

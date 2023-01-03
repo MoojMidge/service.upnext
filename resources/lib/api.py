@@ -180,7 +180,7 @@ QUERY_LIMITS = {
     'end': constants.UNDEFINED
 }
 
-FILTER_SEARCH_TVSHOW = {
+FILTER_TITLE = {
     'field': 'title',
     'operator': 'is',
     'value': constants.UNDEFINED_STR
@@ -268,7 +268,7 @@ FILTER_UNWATCHED_NEXT_AIRED = {
     ]
 }
 
-FILTER_SEARCH_EPISODE = {
+FILTER_EPISODE = {
     'and': [
         FILTER_THIS_SEASON,
         FILTER_THIS_EPISODE
@@ -884,12 +884,12 @@ def get_from_library(media_type=None, db_id=constants.UNDEFINED, item=None):
 def get_tvshowid(title):
     """Function to search Kodi library for tshowid by title"""
 
-    FILTER_SEARCH_TVSHOW['value'] = title
+    FILTER_TITLE['value'] = title
     tvshow = get_videos_from_library(
         media_type='tvshows',
         limit=1,
         properties=[],
-        filters=FILTER_SEARCH_TVSHOW
+        filters=FILTER_TITLE
     )
 
     if not tvshow:
@@ -912,7 +912,7 @@ def get_episodeid(tvshowid, season, episode):
         media_type='episodes',
         limit=1,
         properties=[],
-        filters=FILTER_SEARCH_EPISODE,
+        filters=FILTER_EPISODE,
         params={'tvshowid': tvshowid}
     )
 
@@ -1050,10 +1050,10 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
     )
 
     upnext_episodes = []
-    tvshows = set()
+    tvshow_index = set()
     for episode in episodes:
         tvshowid = episode['tvshowid']
-        if tvshowid in tvshows:
+        if tvshowid in tvshow_index:
             continue
 
         if episode['resume']['position']:
@@ -1074,7 +1074,7 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
             )
 
             if not upnext_episode:
-                tvshows.add(tvshowid)
+                tvshow_index.add(tvshowid)
                 continue
 
         # Restore current episode lastplayed for sorting of next-up episode
@@ -1083,7 +1083,7 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
         art_fallbacks(upnext_episode, art_map=EPISODE_ART_MAP, replace=False)
 
         upnext_episodes.append(upnext_episode)
-        tvshows.add(tvshowid)
+        tvshow_index.add(tvshowid)
 
     return upnext_episodes
 
@@ -1120,10 +1120,10 @@ def get_upnext_movies_from_library(limit=25,
     )
 
     upnext_movies = []
-    sets = set()
+    set_index = set()
     for movie in movies:
         setid = movie['setid'] or constants.UNDEFINED
-        if setid != constants.UNDEFINED and setid in sets:
+        if setid != constants.UNDEFINED and setid in set_index:
             continue
 
         if movie['resume']['position']:
@@ -1140,7 +1140,7 @@ def get_upnext_movies_from_library(limit=25,
             )
 
             if not upnext_movie:
-                sets.add(setid)
+                set_index.add(setid)
                 continue
         else:
             continue
@@ -1151,7 +1151,7 @@ def get_upnext_movies_from_library(limit=25,
         art_fallbacks(upnext_movie)
 
         upnext_movies.append(upnext_movie)
-        sets.add(setid)
+        set_index.add(setid)
 
     return upnext_movies
 
@@ -1161,8 +1161,7 @@ def get_videos_from_library(media_type,  # pylint: disable=too-many-arguments
                             sort=None,
                             properties=None,
                             filters=None,
-                            params=None,
-                            process_art=False):
+                            params=None):
     """Function to get videos from Kodi library"""
 
     detail_type = JSON_MAP.get(media_type)
@@ -1197,9 +1196,6 @@ def get_videos_from_library(media_type,  # pylint: disable=too-many-arguments
         params=_params
     )
     videos = videos.get('result', {}).get(detail_type['result'], [])
-
-    if process_art:
-        utils.modify_iterable(art_fallbacks, videos)
 
     if videos and limit == 1:
         return videos[0]
