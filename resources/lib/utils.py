@@ -626,7 +626,7 @@ def merge_iterable(*iterables, **kwargs):
         threshold = kwargs.get('threshold')
 
         if key and threshold is not None:
-            merged = (item for item in merged if key(item) > threshold)
+            merged = (item for item in merged if key(item) >= threshold)
 
         merged = sorted(merged, key=key, reverse=reverse)
     return merged

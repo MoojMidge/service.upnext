@@ -119,17 +119,15 @@ COMMON_ART_MAP = {
 
 RECOMMENDATION_PROPERTIES = {
     'movies': frozenset({
-        'title',
-        'genre',
-        'plot',
-        'set',
-        'tag'
+        'director',
+        'writer',
     }),
-    'tvshows': frozenset({
-        'title',
-        'genre',
-        'plot',
-        'tag'
+    'tvshows': frozenset(),
+    'cast': frozenset({
+        'cast',  # Slow
+    }),
+    'tag': frozenset({
+        'tag',  # Slow
     })
 }
 
@@ -290,11 +288,30 @@ FILTER_UNWATCHED_UPNEXT_EPISODE = {
     ]
 }
 
-FILTER_SEARCH_SET = {
+FILTER_GENRE = {
+    'field': 'genre',
+    'operator': 'is',
+    'value': constants.UNDEFINED_STR
+}
+FILTER_UNWATCHED_GENRE = {
+    'and': [
+        FILTER_UNWATCHED,
+        FILTER_GENRE
+    ]
+}
+
+FILTER_SET = {
     'field': 'set',
     'operator': 'is',
     'value': constants.UNDEFINED_STR
 }
+FILTER_UNWATCHED_SET = {
+    'and': [
+        FILTER_UNWATCHED,
+        FILTER_SET
+    ]
+}
+
 FILTER_NEXT_MOVIE = {
     'field': 'year',
     'operator': 'after',
@@ -302,32 +319,15 @@ FILTER_NEXT_MOVIE = {
 }
 FILTER_UPNEXT_MOVIE = {
     'and': [
-        FILTER_SEARCH_SET,
+        FILTER_SET,
         FILTER_NEXT_MOVIE
     ]
 }
 FILTER_UNWATCHED_UPNEXT_MOVIE = {
     'and': [
         FILTER_UNWATCHED,
-        FILTER_SEARCH_SET,
+        FILTER_SET,
         FILTER_NEXT_MOVIE
-    ]
-}
-
-FILTER_SIMILAR = {
-    'or': []
-}
-FILTER_SIMILAR_NOT_SAME = {
-    'and': [
-        FILTER_NOT_TITLE,
-        FILTER_SIMILAR
-    ]
-}
-FILTER_UNWATCHED_SIMILAR_NOT_SAME = {
-    'and': [
-        FILTER_UNWATCHED,
-        FILTER_NOT_TITLE,
-        FILTER_SIMILAR
     ]
 }
 
@@ -818,8 +818,8 @@ def get_next_movie_from_library(movie=constants.UNDEFINED,
     FILTER_NOT_PATH['value'] = path
     filters = [FILTER_NOT_FILEPATH]
 
-    FILTER_SEARCH_SET['value'] = movie['set']
-    filters.append(FILTER_SEARCH_SET)
+    FILTER_SET['value'] = movie['set']
+    filters.append(FILTER_SET)
 
     if unwatched_only:
         filters.append(FILTER_UNWATCHED)
@@ -1129,7 +1129,7 @@ def get_upnext_movies_from_library(limit=25,
         if movie['resume']['position']:
             upnext_movie = movie
         elif movie_sets and setid != constants.UNDEFINED:
-            FILTER_SEARCH_SET['value'] = movie['set']
+            FILTER_SET['value'] = movie['set']
             FILTER_NEXT_MOVIE['value'] = str(movie['year'])
 
             upnext_movie = get_videos_from_library(
@@ -1206,40 +1206,55 @@ def get_videos_from_library(media_type,  # pylint: disable=too-many-arguments
     return videos
 
 
-class InfoTagComparator(object):  # pylint: disable=too-few-public-methods
+class InfoTagComparator(object):
     __slots__ = (
+        'cast_crew',
         'fuzz',
         'genre',
         'set_name',
         'tag',
+        'count',
         'limit',
         'threshold',
     )
 
-    def __init__(self, infotags, threshold=0, limit=25,  # pylint: disable=too-many-arguments
+    def __init__(self, infotags, threshold=0, limit=constants.UNDEFINED,  # pylint: disable=too-many-arguments
                  _frozenset=frozenset,
                  _get=dict.get,
                  _tokenise=utils.tokenise):
 
+        self.cast_crew = (
+            _frozenset(cast['name'] for cast in _get(infotags, 'cast', [])
+                       if cast['order'] <= 5)
+            | _frozenset(_get(infotags, 'director', []))
+            | _frozenset(_get(infotags, 'writer', []))
+        )
         self.fuzz = _tokenise([
             _get(infotags, 'plot'), _get(infotags, 'title')
         ])
         self.genre = _frozenset(_get(infotags, 'genre', []))
         self.set_name = _tokenise([_get(infotags, 'set')])
         self.tag = _tokenise([_get(infotags, 'tag')], split=False)
-        self.threshold = threshold
+
+        self.count = 0
         self.limit = limit
+        self.threshold = threshold
+
+    def reset_limit(self, limit=None):
+        self.count = 0
+        if limit is not None:
+            self.limit = limit
 
     def compare(self, infotags,  # pylint: disable=too-many-arguments
-                _bit_length=int.bit_length,
                 _frozenset=frozenset,
                 _get=dict.get,
                 _len=len,
                 _tokenise=utils.tokenise):
 
-        if self.limit <= 0:
+        if self.count >= self.limit >= 0:
             return None
 
+        cast_crew_stored = self.cast_crew
         fuzz_stored = self.fuzz
         genre_stored = self.genre
         set_name_stored = self.set_name
@@ -1248,52 +1263,94 @@ class InfoTagComparator(object):  # pylint: disable=too-few-public-methods
 
         similarity = 0
 
+        if cast_crew_stored:
+            cast_crew = (
+                _frozenset(cast['name'] for cast in _get(infotags, 'cast', [])
+                           if cast['order'] <= 5)
+                | _frozenset(_get(infotags, 'director', []))
+                | _frozenset(_get(infotags, 'writer', []))
+            )
+            if cast_crew:
+                similarity += 5 * (
+                    _len(cast_crew & cast_crew_stored)
+                    / len(cast_crew | cast_crew_stored)
+                )
+
         if fuzz_stored:
             fuzz = _tokenise([_get(infotags, 'plot'), _get(infotags, 'title')])
             if fuzz:
-                similarity += (
-                    _len(fuzz & fuzz_stored) ** 2
-                )
+                similarity += 10 * min(1, (
+                    2 * _len(fuzz & fuzz_stored) ** 2
+                    / len(fuzz | fuzz_stored)
+                ))
 
         if genre_stored:
             genre = _frozenset(_get(infotags, 'genre', []))
             if genre:
-                similarity += 2 * (
-                    _bit_length(_len(genre & genre_stored))
-                    - _len(genre ^ genre_stored)
+                similarity += 10 * (
+                    _len(genre & genre_stored)
+                    / _len(genre | genre_stored)
                 )
 
         if set_name_stored:
             set_name = _tokenise([_get(infotags, 'set')])
             if set_name:
-                similarity += 1000 * (
-                    _len(set_name & set_name_stored) * 2
-                    - _len(set_name - set_name_stored)
+                similarity += 10 * (
+                    _len(set_name & set_name_stored)
+                    / _len(set_name | set_name_stored)
                 )
 
         if tag_stored:
             tag = _tokenise([_get(infotags, 'tag')], split=False)
             if tag:
-                similarity += 2 * (
-                    _bit_length(_len(tag & tag_stored))
-                )
+                similarity += 5 * min(1, (
+                    2 * _len(tag & tag_stored) ** 2
+                    / _len(tag | tag_stored)
+                ))
 
+        similarity = round(similarity, 2)
         infotags['__similarity__'] = similarity
 
-        if similarity > threshold:
-            self.limit -= 1
+        if similarity >= threshold:
+            self.count += 1
             return similarity
         return threshold
 
 
-def get_similar_from_library(media_type,  # pylint: disable=too-many-arguments, too-many-locals, too-many-branches
+def get_similar_from_library(media_type,  # pylint: disable=too-many-arguments, too-many-locals, too-many-statements, too-many-branches
                              limit=25,
                              original=None,
                              db_id=constants.UNDEFINED,
                              unwatched_only=False,
-                             sort=True,
-                             threshold=0):
+                             use_cast=False,
+                             use_tag=False,
+                             sort=True):
     """Function to search by db_id for similar videos from Kodi library"""
+
+    threshold = 7
+    chunk_size = limit * 10
+
+    if use_cast and use_tag:
+        properties = (
+            RECOMMENDATION_PROPERTIES[media_type]
+            | RECOMMENDATION_PROPERTIES['cast']
+            | RECOMMENDATION_PROPERTIES['tag']
+        )
+        threshold += 1
+    elif use_cast:
+        properties = (
+            RECOMMENDATION_PROPERTIES[media_type]
+            | RECOMMENDATION_PROPERTIES['cast']
+        )
+    elif use_tag:
+        properties = (
+            RECOMMENDATION_PROPERTIES[media_type]
+            | RECOMMENDATION_PROPERTIES['tag']
+        )
+        threshold += 1
+    else:
+        chunk_size = 0
+        properties = RECOMMENDATION_PROPERTIES[media_type]
 
     if original:
         pass
@@ -1302,65 +1359,90 @@ def get_similar_from_library(media_type,  # pylint: disable=too-many-arguments, 
             media_type=media_type,
             limit=1,
             sort=SORT_RANDOM,
-            properties=RECOMMENDATION_PROPERTIES[media_type],
+            properties=properties,
             filters=FILTER_WATCHED
         )
     else:
         original, _ = get_details_from_library(
             media_type=media_type,
             db_id=int(db_id),
-            properties=RECOMMENDATION_PROPERTIES[media_type]
+            properties=properties
         )
 
     if not original:
         return None, []
 
     infotags = InfoTagComparator(original, threshold=threshold, limit=limit)
-    if not (infotags.genre or infotags.set_name):
-        return original, []
-
-    FILTER_NOT_TITLE['value'] = original['title']
-    FILTER_SIMILAR['or'] = [{
-        'field': 'genre',
-        'operator': 'is',
-        'value': genre
-    } for genre in infotags.genre]
-    if infotags.set_name and media_type == 'movies':
-        FILTER_SEARCH_SET['value'] = original['set']
-        FILTER_SIMILAR['or'].append(FILTER_SEARCH_SET)
-
     selected = []
-    chunk_size = limit * 10
+    video_index = set()
+
+    id_name = 'movieid' if media_type == 'movies' else 'tvshowid'
+    if id_name in original:
+        video_index.add(original[id_name])
+
+    if infotags.set_name and media_type == 'movies':
+        FILTER_SET['value'] = original['set']
+        similar = get_videos_from_library(
+            media_type=media_type,
+            limit=None,
+            sort=SORT_YEAR,
+            filters=(FILTER_UNWATCHED_SET if unwatched_only
+                     else FILTER_SET)
+        )
+        for video in similar:
+            dbid = video[id_name]
+            if dbid in video_index:
+                continue
+            video_index.add(dbid)
+            art_fallbacks(video)
+            video['__similarity__'] = 40
+            selected.append(video)
+    else:
+        threshold -= 2
+
+    if not infotags.genre:
+        return original, selected
+
     chunk_limit = {
         'start': 0,
         'end': chunk_size
     }
-    while True:
-        similar = get_videos_from_library(
-            media_type=media_type,
-            limit=chunk_limit,
-            sort=SORT_RATING,
-            properties=RECOMMENDATION_PROPERTIES[media_type],
-            filters=(FILTER_UNWATCHED_SIMILAR_NOT_SAME if unwatched_only
-                     else FILTER_SIMILAR_NOT_SAME)
-        )
 
-        idx = 0
-        for idx, video in enumerate(similar):
-            similarity = infotags.compare(video)
-            if similarity is None:
-                break
-            if similarity:
-                art_fallbacks(video)
-        else:
-            selected.extend(similar)
-            if idx != chunk_size - 1:
-                break
-            chunk_limit['start'] += chunk_size
-            chunk_limit['end'] += chunk_size
-            continue
-        selected.extend(similar[:idx])
-        break
+    for genre in infotags.genre:
+        FILTER_GENRE['value'] = genre
+
+        while True:
+            similar = get_videos_from_library(
+                media_type=media_type,
+                limit=chunk_limit,
+                sort=SORT_RATING,
+                properties=properties,
+                filters=(FILTER_UNWATCHED_GENRE if unwatched_only
+                         else FILTER_GENRE)
+            )
+
+            for video in similar:
+                dbid = video[id_name]
+                if dbid in video_index:
+                    continue
+                similarity = infotags.compare(video)
+                video_index.add(dbid)
+                if similarity is None:
+                    break
+                if similarity:
+                    art_fallbacks(video)
+                    selected.append(video)
+            else:
+                if not chunk_size or len(similar) != chunk_size - 1:
+                    break
+                chunk_limit['start'] += chunk_size
+                chunk_limit['end'] += chunk_size
+                continue
+            break
+
+        chunk_limit['start'] = 0
+        chunk_limit['end'] = chunk_size
+        infotags.reset_limit()
 
     if sort:
         return original, utils.merge_iterable(
