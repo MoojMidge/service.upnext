@@ -58,9 +58,12 @@ class UpNextSettings(object):
         'skin_popup',
         'start_delay',
         'start_trigger',
+        'unwatched_only',
+        'widget_enable_cast',
+        'widget_enable_tags',
         'widget_list_limit',
         'widget_refresh_period',
-        'unwatched_only',
+        'widget_unwatched_only',
     )
 
     def __init__(self):
@@ -180,6 +183,10 @@ class UpNextSettings(object):
         self.widget_refresh_period = (
             60 * self.get_int('widgetRefreshPeriod', default=10)
         )
+
+        self.widget_enable_cast = self.get_bool('widgetEnableCast')
+        self.widget_enable_tags = self.get_bool('widgetEnableTags')
+        self.widget_unwatched_only = not self.get_bool('widgetIncludeWatched')
 
         self.plugin_main_label = (
             self.get_int('pluginMainLabelToken1'),

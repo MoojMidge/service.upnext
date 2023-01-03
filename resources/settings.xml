@@ -155,6 +155,21 @@
                         <formatlabel>14044</formatlabel>
                     </control>
                 </setting>
+                <setting id="widgetEnableCast" type="boolean" label="30546" help="30548">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+                <setting id="widgetEnableTags" type="boolean" label="30547" help="30548">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+                <setting id="widgetIncludeWatched" type="boolean" label="30549" help="">
+					<level>0</level>
+					<default>True</default>
+					<control type="toggle"/>
+				</setting>
                 <setting id="pluginMainLabelToken1" type="integer" label="30551" help="">
                     <level>0</level>
                     <default>1</default>

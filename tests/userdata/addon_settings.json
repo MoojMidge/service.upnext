@@ -58,6 +58,9 @@
 		"startTrigger": "true",
 		"stopAfterClose": "true",
 		"trackerMode": 2,
+        "widgetEnableCast": "false",
+        "widgetEnableTags": "false",
+        "widgetIncludeWatched": "true",
         "widgetListLimit": 25,
         "widgetRefreshPeriod": 10
 	}

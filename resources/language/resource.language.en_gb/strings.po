@@ -286,6 +286,22 @@ msgctxt "#30544"
 msgid "Widget refresh period"
 msgstr ""
 
+msgctxt "#30546"
+msgid "Recommendation widgets use cast and crew"
+msgstr ""
+
+msgctxt "#30547"
+msgid "Recommendation widgets use tags"
+msgstr ""
+
+msgctxt "#30548"
+msgid "Querying the Kodi video database for cast or tags will slow down loading of recommendation widgets"
+msgstr ""
+
+msgctxt "#30549"
+msgid "Recommendation widgets include watched videos"
+msgstr ""
+
 msgctxt "#30551"
 msgid "Episode main label - token 1"
 msgstr ""

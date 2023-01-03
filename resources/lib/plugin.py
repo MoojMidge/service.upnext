@@ -121,7 +121,9 @@ def generate_similar_movies_list(addon_handle, addon_id, **kwargs):  # pylint: d
         media_type='movies',
         limit=SETTINGS.widget_list_limit,
         db_id=movieid,
-        unwatched_only=SETTINGS.unwatched_only
+        unwatched_only=SETTINGS.widget_unwatched_only,
+        use_cast=SETTINGS.widget_enable_cast,
+        use_tag=SETTINGS.widget_enable_tags,
     )
     if movie:
         title = movie['title']
@@ -193,7 +195,9 @@ def generate_similar_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: 
         media_type='tvshows',
         limit=SETTINGS.widget_list_limit,
         db_id=tvshowid,
-        unwatched_only=SETTINGS.unwatched_only
+        unwatched_only=SETTINGS.widget_unwatched_only,
+        use_cast=SETTINGS.widget_enable_cast,
+        use_tag=SETTINGS.widget_enable_tags,
     )
     if tvshow:
         title = tvshow['title']
@@ -299,14 +303,18 @@ def generate_similar_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
         media_type=similar_list[0],
         limit=SETTINGS.widget_list_limit,
         db_id=db_id,
-        unwatched_only=SETTINGS.unwatched_only,
+        unwatched_only=SETTINGS.widget_unwatched_only,
+        use_cast=SETTINGS.widget_enable_cast,
+        use_tag=SETTINGS.widget_enable_tags,
         sort=False
     )
     original, similar_list[1] = api.get_similar_from_library(
         media_type=similar_list[1],
         limit=SETTINGS.widget_list_limit,
         original=original,
-        unwatched_only=SETTINGS.unwatched_only,
+        unwatched_only=SETTINGS.widget_unwatched_only,
+        use_cast=SETTINGS.widget_enable_cast,
+        use_tag=SETTINGS.widget_enable_tags,
         sort=False
     )
     if original:
