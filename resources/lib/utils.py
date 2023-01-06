@@ -197,16 +197,22 @@ def abort_requested():
     return xbmc.Monitor().abortRequested()
 
 
-def jsonrpc(**kwargs):
+def jsonrpc(batch=None, **kwargs):
     """Perform JSONRPC calls"""
 
-    response = not kwargs.pop('no_response', False)
-    if response and 'id' not in kwargs:
-        kwargs.update(id=0)
-    if 'jsonrpc' not in kwargs:
-        kwargs.update(jsonrpc='2.0')
-    result = xbmc.executeJSONRPC(json.dumps(kwargs, default=tuple))
-    return json.loads(result) if response else result
+    if not batch and not kwargs:
+        return None
+
+    do_response = False
+    for request_id, kwargs in enumerate(batch or (kwargs, )):
+        do_response = (not kwargs.pop('no_response', False)) or do_response
+        if do_response and 'id' not in kwargs:
+            kwargs['id'] = request_id
+        kwargs['jsonrpc'] = '2.0'
+
+    request = json.dumps(batch or kwargs, default=tuple)
+    response = xbmc.executeJSONRPC(request)
+    return json.loads(response) if do_response else None
 
 
 def get_addon(addon_id=None, retry_attempts=3):
