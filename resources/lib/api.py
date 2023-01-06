@@ -1204,10 +1204,7 @@ class InfoTagComparator(object):
         'threshold',
     )
 
-    from re import (
-        compile as re_compile,
-        split as re_split,
-    )
+    from re import compile
     from string import punctuation
 
     K_CAST_CREW = 10
@@ -1217,20 +1214,55 @@ class InfoTagComparator(object):
     K_TAGS = 12.5
     MAX_SIMILARITY = K_CAST_CREW + K_FUZZ + K_GENRES + K_SET_NAME + K_TAGS
 
+    IGNORE_WORDS = frozenset({
+        '',
+        'ABOUT',
+        'AFTER',
+        'FROM',
+        'HAVE',
+        'HERS',
+        'INTO',
+        'ONLY',
+        'OVER',
+        'THAN',
+        'THAT',
+        'THEIR',
+        'THERE',
+        'THEM',
+        'THEN',
+        'THEY',
+        'THIS',
+        'WHAT',
+        'WHEN',
+        'WHERE',
+        'WILL',
+        'WITH',
+        'YOUR',
+        'COLLECTION',
+        'DURINGCREDITSSTINGER',
+        'AFTERCREDITSSTINGER',
+    })
+    PUNCTUATION = frozenset(punctuation)
+    PUNCTUATION_TRANSLATION_TABLE = dict.fromkeys(map(ord, punctuation))
+    del punctuation
+
+    _token_split = staticmethod(compile(r'[_\.,]* |[\|/\\]').split)
+    del compile
+
     def __init__(self, infotags, limit=constants.UNDEFINED,
-                 _frozenset=frozenset,
+                 _set=set,
                  _get=dict.get):
 
         self.cast_crew = (
-            _frozenset(cast['name'] for cast in _get(infotags, 'cast', [])
-                       if cast['order'] <= 5)
-            | _frozenset(_get(infotags, 'director', []))
-            | _frozenset(_get(infotags, 'writer', []))
+            _set(cast['name'] for cast in _get(infotags, 'cast', [])
+                 if cast['order'] <= 5)
+            | _set(_get(infotags, 'director', []))
+            | _set(_get(infotags, 'writer', []))
         )
         self.fuzz = self.tokenise([
             _get(infotags, 'plot'), _get(infotags, 'title')
         ])
-        self.genres = _frozenset(_get(infotags, 'genre', []))
+        self.genres = _set(_get(infotags, 'genre', []))
         self.set_name = self.tokenise([_get(infotags, 'set')])
         self.tags = self.tokenise([_get(infotags, 'tag')], split=False)
 
@@ -1248,7 +1280,7 @@ class InfoTagComparator(object):
         )
 
     def compare(self, infotags,  # pylint: disable=too-many-arguments, too-many-branches, too-many-locals
-                _frozenset=frozenset,
+                _set=set,
                 _get=dict.get,
                 _len=len,
                 _min=min):
@@ -1262,7 +1294,7 @@ class InfoTagComparator(object):
         limit = self.limit
         threshold = self.threshold
 
-        genres = _frozenset(_get(infotags, 'genre', []))
+        genres = _set(_get(infotags, 'genre', []))
         if not genres:
             return 0
 
@@ -1273,10 +1305,10 @@ class InfoTagComparator(object):
 
         if cast_crew_stored:
             cast_crew = (
-                _frozenset(cast['name'] for cast in _get(infotags, 'cast', [])
-                           if cast['order'] <= 5)
-                | _frozenset(_get(infotags, 'director', []))
-                | _frozenset(_get(infotags, 'writer', []))
+                _set(cast['name'] for cast in _get(infotags, 'cast', [])
+                     if cast['order'] <= 5)
+                | _set(_get(infotags, 'director', []))
+                | _set(_get(infotags, 'writer', []))
             )
             if cast_crew:
                 similarity += self.K_CAST_CREW * (
@@ -1330,53 +1362,34 @@ class InfoTagComparator(object):
         return 0
 
     @classmethod
-    def strip_punctuation(cls, value,  # pylint: disable=dangerous-default-value, too-many-arguments
-                          table=dict.fromkeys(map(ord, punctuation)),
-                          _frozenset=frozenset,
-                          _len=len,
-                          _punctuation=set(punctuation)):
+    def tokenise(cls, values, split=_token_split,  # pylint: disable=too-many-arguments,
+                 _empty=frozenset((None, )),
+                 _len=len,
+                 _set=set,
+                 _translate=str.translate,
+                 _upper=str.upper):
 
-        length = _len(value)
-        if length < 3:
-            return ''
-        upper = value.upper()
-        if length == 3 and value != upper:
-            return ''
-        if _punctuation & _frozenset(upper):
-            return upper.translate(table)
-        return upper
+        if split:
+            tokens = _set()
+            for value in values:
+                if value:
+                    tokens |= _set(split(value))
+        else:
+            tokens = _set(values) - _empty
 
-    @classmethod
-    def tokenise(cls, values,  # pylint: disable=too-many-arguments
-                 split=True,
-                 strip=True,
-                 remove=frozenset({
-                     '', 'ABOUT', 'AFTER', 'FROM', 'HAVE', 'HERS', 'INTO',
-                     'ONLY', 'OVER', 'THAN', 'THAT', 'THEIR', 'THERE', 'THEM',
-                     'THEN', 'THEY', 'THIS', 'WHAT', 'WHEN', 'WHERE', 'WILL',
-                     'WITH', 'YOUR', 'COLLECTION',
-                     'DURINGCREDITSSTINGER', 'AFTERCREDITSSTINGER',
-                 }),
-                 _frozenset=frozenset,
-                 _map=map,
-                 _split=re_compile(r'[_\.,]* |[\|/\\]').split):
-
-        tokens = _frozenset()
-        for value in values:
-            if not value:
+        processed_tokens = _set()
+        for token in tokens:
+            length = _len(token)
+            if length < 3:
                 continue
-            if split is True:
-                tokens = tokens | _frozenset(_split(value))
-            elif split:
-                tokens = tokens | _frozenset(cls.re_split(split, value))
-            else:
-                tokens = tokens | _frozenset(value)
-        if strip:
-            tokens = _frozenset(_map(cls.strip_punctuation, tokens))
-        if remove:
-            tokens = tokens - remove
-        return tokens
+            upper = _upper(token)
+            if length == 3 and token != upper:
+                continue
+            if cls.PUNCTUATION & _set(upper):
+                upper = _translate(upper, cls.PUNCTUATION_TRANSLATION_TABLE)
+            processed_tokens.add(upper)
 
+        return processed_tokens - cls.IGNORE_WORDS
 
 def get_similar_from_library(media_type,  # pylint: disable=too-many-arguments, too-many-locals, too-many-statements, too-many-branches
                              limit=25,
@@ -1481,15 +1494,14 @@ def get_similar_from_library(media_type,  # pylint: disable=too-many-arguments, 
             if similarity is None:
                 break
             if similarity:
-                video['__similarity__'] = similarity
                 art_fallbacks(video)
+                video['__similarity__'] = similarity
                 selected.append(video)
         else:
-            if not chunk_size or len(similar) != chunk_size:
-                break
-            chunk_limit['start'] += chunk_size
-            chunk_limit['end'] += chunk_size
-            continue
+            if chunk_size and len(similar) == chunk_size:
+                chunk_limit['start'] += chunk_size
+                chunk_limit['end'] += chunk_size
+                continue
         break
 
     if sort:
