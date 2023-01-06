@@ -627,14 +627,14 @@ def merge_iterable(*iterables, **kwargs):
 
     merged = chain.from_iterable(iterables)
     if sort:
-        reverse = kwargs.get('reverse', True)
+        descending = kwargs.get('ascending', True)
         key = None if isinstance(sort, bool) else itemgetter(sort)
         threshold = kwargs.get('threshold')
 
         if key and threshold is not None:
-            merged = (item for item in merged if key(item) >= threshold)
+            merged = (item for item in merged if key(item) > threshold)
 
-        merged = sorted(merged, key=key, reverse=reverse)
+        merged = sorted(merged, key=key, reverse=descending)
     return merged
 
 

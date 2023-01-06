@@ -1045,9 +1045,7 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
         filters=filters[1]
     )
 
-    episodes = utils.merge_iterable(
-        inprogress, watched, sort='lastplayed', reverse=True
-    )
+    episodes = utils.merge_iterable(inprogress, watched, sort='lastplayed')
 
     upnext_episodes = []
     tvshow_index = set()
@@ -1108,9 +1106,7 @@ def get_upnext_movies_from_library(limit=25,
             filters=FILTER_WATCHED
         )
 
-        movies = utils.merge_iterable(
-            inprogress, watched, sort='lastplayed', reverse=True
-        )
+        movies = utils.merge_iterable(inprogress, watched, sort='lastplayed')
     else:
         movies = inprogress
 
@@ -1442,6 +1438,6 @@ def get_similar_from_library(media_type,  # pylint: disable=too-many-arguments, 
 
     if sort:
         return original, utils.merge_iterable(
-            selected, sort='__similarity__', threshold=threshold, reverse=True
+            selected, sort='__similarity__'
         )[:limit]
     return original, selected

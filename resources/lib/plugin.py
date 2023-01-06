@@ -234,7 +234,7 @@ def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disab
     )
 
     videos = utils.merge_iterable(
-        episodes, movies, sort='lastplayed', reverse=True
+        episodes, movies, sort='lastplayed'
     )[:SETTINGS.widget_list_limit]
 
     listing = []
@@ -260,7 +260,7 @@ def generate_watched_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
     )
 
     videos = utils.merge_iterable(
-        movies, tvshows, sort='lastplayed', reverse=True
+        movies, tvshows, sort='lastplayed'
     )[:SETTINGS.widget_list_limit]
 
     listing = []
@@ -323,8 +323,7 @@ def generate_similar_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
         xbmcplugin.setPluginCategory(addon_handle, label)
 
     videos = utils.merge_iterable(
-        similar_list[0], similar_list[1],
-        sort='__similarity__', reverse=True
+        similar_list[0], similar_list[1], sort='__similarity__'
     )[:SETTINGS.widget_list_limit]
 
     listing = []
