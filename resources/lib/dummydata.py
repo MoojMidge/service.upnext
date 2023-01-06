@@ -10,19 +10,49 @@ import constants
 LIBRARY = {
     'tvshows': {
         'Game of Thrones': {
+            'title': '',
             'tvshowid': constants.UNDEFINED,
+            'playcount': 0,
+            'lastplayed': '',
+            'episode': 0,
+            'watchedepisodes': 0,
+            'genre': ['Action', 'Adventure', 'Drama', 'Fantasy'],
         },
         'Breaking Bad': {
+            'title': '',
             'tvshowid': constants.UNDEFINED,
+            'playcount': 0,
+            'lastplayed': '',
+            'episode': 0,
+            'watchedepisodes': 0,
+            'genre': ['Crime', 'Drama', 'Thriller'],
         },
         'The Mandalorian': {
+            'title': '',
             'tvshowid': constants.UNDEFINED,
+            'playcount': 1,
+            'lastplayed': '',
+            'episode': 0,
+            'watchedepisodes': 0,
+            'genre': ['Action', 'Adventure', 'Fantasy', 'Science Fiction'],
         },
         'The Handmaid\'s Tale': {
+            'title': '',
             'tvshowid': constants.UNDEFINED,
+            'playcount': 0,
+            'lastplayed': '',
+            'episode': 0,
+            'watchedepisodes': 0,
+            'genre': ['Drama', 'Science Fiction', 'Thriller'],
         },
         'Mad Men': {
+            'title': '',
             'tvshowid': constants.UNDEFINED,
+            'playcount': 1,
+            'lastplayed': '',
+            'episode': 0,
+            'watchedepisodes': 0,
+            'genre': ['Drama'],
         }
     },
     'episodes': [
@@ -135,9 +165,11 @@ LIBRARY = {
     ],
     'sets': {
         'The Avengers Collection': {
+            'title': '',
             'setid': constants.UNDEFINED,
         },
         'The Lord of the Rings Collection': {
+            'title': '',
             'setid': constants.UNDEFINED,
         }
     },
@@ -165,7 +197,8 @@ LIBRARY = {
             'premiered': '2012-04-25',
             'year': 2012,
             'runtime': 8580,
-            'file': 'file://media/movies/The Avengers (2012)/The Avengers (2012).mkv'
+            'file': 'file://media/movies/The Avengers (2012)/The Avengers (2012).mkv',
+            'genre': ['Action', 'Adventure', 'Science Fiction'],
         },
         {
             'movieid': constants.UNDEFINED,
@@ -182,14 +215,15 @@ LIBRARY = {
             'playcount': 1,
             'lastplayed': '2015-06-01 22:00:00',
             'resume': {
-                'position': 0,
+                'position': 3000,
                 'total': 8460,
             },
             'rating': 7.3,
             'premiered': '2015-04-22',
             'year': 2015,
             'runtime': 8460,
-            'file': 'file://media/movies/Avengers - Age of Ultron (2015)/Avengers - Age of Ultron (2015).mkv'
+            'file': 'file://media/movies/Avengers - Age of Ultron (2015)/Avengers - Age of Ultron (2015).mkv',
+            'genre': ['Action', 'Adventure', 'Science Fiction'],
         },
         {
             'movieid': constants.UNDEFINED,
@@ -213,7 +247,8 @@ LIBRARY = {
             'premiered': '2018-04-25',
             'year': 2018,
             'runtime': 8940,
-            'file': 'file://media/movies/Avengers - Infinity War (2018)/Avengers - Infinity War (2018).mkv'
+            'file': 'file://media/movies/Avengers - Infinity War (2018)/Avengers - Infinity War (2018).mkv',
+            'genre': ['Action', 'Adventure', 'Science Fiction'],
         },
         {
             'movieid': constants.UNDEFINED,
@@ -237,7 +272,8 @@ LIBRARY = {
             'premiered': '2019-04-24',
             'year': 2019,
             'runtime': 10860,
-            'file': 'file://media/movies/Avengers - Endgame (2019)/Avengers - Endgame (2019).mkv'
+            'file': 'file://media/movies/Avengers - Endgame (2019)/Avengers - Endgame (2019).mkv',
+            'genre': ['Action', 'Adventure', 'Science Fiction'],
         },
     ]
 }
@@ -257,6 +293,7 @@ def update_library_ids():
             tvshow_id = randint(min_id, max_id)
         tvshow_ids.append(tvshow_id)
         LIBRARY['tvshows'][tvshow]['tvshowid'] = tvshow_id
+        LIBRARY['tvshows'][tvshow]['title'] = tvshow
 
     for idx, episode in enumerate(LIBRARY['episodes'], start=1):
         min_id = idx * 10
@@ -268,6 +305,15 @@ def update_library_ids():
         episode['episodeid'] = episode_id
 
         tvshow = LIBRARY['tvshows'].get(episode['showtitle'], {})
+        tvshow['episode'] += 1
+        if episode['playcount']:
+            tvshow['watchedepisodes'] += 1
+        if tvshow['episode'] == tvshow['watchedepisodes']:
+            tvshow['playcount'] = 1
+        else:
+            tvshow['playcount'] = 0
+        if episode['lastplayed'] > tvshow['lastplayed']:
+            tvshow['lastplayed'] = episode['lastplayed']
         episode['tvshowid'] = tvshow.get('tvshowid', constants.UNDEFINED)
 
     for idx, _set in enumerate(LIBRARY['sets'], start=1):
@@ -278,6 +324,7 @@ def update_library_ids():
             set_id = randint(min_id, max_id)
         set_ids.append(set_id)
         LIBRARY['sets'][_set]['setid'] = set_id
+        LIBRARY['sets'][_set]['title'] = _set
 
     for idx, movie in enumerate(LIBRARY['movies'], start=1):
         min_id = idx * 10

@@ -640,22 +640,55 @@ def _player_getitem(params):  # pylint: disable=unused-argument
 
 
 def _videolibrary_gettvshows(params):
-    tvshow_filter = params.get('filter')
-    if not tvshow_filter:
+    filters = params.get('filter')
+    # sort = params.get('sort')
+    limits = params.get('limits')
+
+    if not filters:
         return False
 
-    filter_field = tvshow_filter.get('field')
-    filter_operator = tvshow_filter.get('operator')
-    filter_value = tvshow_filter.get('value')
-    if filter_field != 'title' or filter_operator != 'is':
+    filters, _ = _filter_walker(
+        filters,
+        ['title', 'playcount', 'inprogress', 'genre']
+    )
+    title = filters.get('title')
+    watched = filters.get('playcount', {'operator': 'greaterthan', 'value': -1})
+    inprogress = filters.get('inprogress')
+    genres = filters.get('genre', {})
+
+    tvshows = []
+    if title:
+        tvshows = [
+            tvshow for tvshow in LIBRARY['tvshows'].values()
+            if tvshow.get('title', '') == title.get('value')
+        ]
+    elif inprogress:
+        tvshows = [
+            tvshow for tvshow in LIBRARY['tvshows'].values()
+            if tvshow.get('playcount', 0) < 1
+            and tvshow.get('watchedepisodes', 0) < tvshow.get('episode', 0)
+        ]
+    elif watched:
+        tvshows = [
+            tvshow for tvshow in LIBRARY['tvshows'].values()
+            if (watched.get('operator') == 'greaterthan' and tvshow.get('playcount', 0) > int(watched.get('value'))
+                or watched.get('operator') == 'lessthan' and tvshow.get('playcount', 0) < int(watched.get('value')))
+            and (not genres.get('value') or not set(genres.get('value')).isdisjoint(tvshow.get('genre', [])))
+        ]
+    else:
         return False
 
-    tvshowid = LIBRARY['tvshows'].get(filter_value, {}).get('tvshowid')
+    if limits and tvshows:
+        start = limits['start']
+        end = limits['end']
+        if end == -1:
+            end = len(tvshows)
+        tvshows = tvshows[start:end]
 
     return json.dumps({
         'id': 1,
         'jsonrpc': '2.0',
-        'result': {'tvshows': [{'tvshowid': tvshowid}]}
+        'result': {'tvshows': tvshows}
     })
 
 
@@ -683,29 +716,29 @@ def _videolibrary_getepisodes(params):
         if watched is not None and watched.get('operator') == 'greaterthan':
             episodes = [
                 episode for episode in LIBRARY['episodes']
-                if episode['playcount'] > int(watched.get('value'))
+                if episode.get('playcount', 0) > int(watched.get('value'))
             ]
         elif inprogress is not None:
             episodes = [
                 episode for episode in LIBRARY['episodes']
-                if episode['resume']['position'] > 0
-                and episode['playcount'] < 1
+                if episode.get('resume', {}).get('position', 0) > 0
+                and episode.get('playcount', 0) < 1
             ]
     elif season is not None and episode_number is not None:
         episodes = [
             episode for episode in LIBRARY['episodes']
-            if episode['tvshowid'] == tvshowid
-            and episode['season'] == int(season.get('value'))
-            and episode['episode'] >= int(episode_number.get('value'))
+            if episode.get('tvshowid', -1) == tvshowid
+            and episode.get('season', -1) == int(season.get('value'))
+            and episode.get('episode', -1) >= int(episode_number.get('value'))
         ]
         if episodes and episode_number.get('operator') == 'greaterthan':
             episodes = episodes[1:]
     elif air_date:
         episodes = [
             episode for episode in LIBRARY['episodes']
-            if episode['tvshowid'] == tvshowid
-            and (dateutil.parser.parse(episode['firstaired'])
-                 >= dateutil.parser.parse(air_date.get('value')))
+            if episode.get('tvshowid', -1) == tvshowid
+            and (dateutil.parser.parse(episode.get('firstaired', ''))
+                 >= dateutil.parser.parse(air_date.get('value', '')))
         ]
         if episodes and air_date.get('operator') == 'after':
             episodes = episodes[1:]
@@ -736,36 +769,44 @@ def _videolibrary_getmovies(params):
 
     filters, _ = _filter_walker(
         filters,
-        ['set', 'year', 'playcount', 'inprogress']
+        ['set', 'year', 'playcount', 'inprogress', 'genre']
     )
     _set = filters.get('set')
     year = filters.get('year')
-    watched = filters.get('playcount')
+    watched = filters.get('playcount', {'operator': 'greaterthan', 'value': -1})
     inprogress = filters.get('inprogress')
+    genres = filters.get('genre', {})
 
     movies = []
-    if _set is None:
-        if watched is not None and watched.get('operator') == 'greaterthan':
+    if not _set:
+        if inprogress:
             movies = [
                 movie for movie in LIBRARY['movies']
-                if movie['playcount'] > int(watched.get('value'))
+                if movie.get('resume', {}).get('position', 0) > 0
+                and movie.get('playcount', 0) < 1
             ]
-        elif inprogress is not None:
+        elif watched:
             movies = [
                 movie for movie in LIBRARY['movies']
-                if movie['resume']['position'] > 0
-                and movie['playcount'] < 1
+                if (watched.get('operator') == 'greaterthan' and movie.get('playcount', 0) > int(watched.get('value'))
+                    or watched.get('operator') == 'lessthan' and movie.get('playcount', 0) < int(watched.get('value')))
+                and (not genres.get('value') or not set(genres.get('value')).isdisjoint(movie.get('genre', [])))
             ]
-    elif _set is not None and year is not None:
+        else:
+            return False
+    elif year:
         movies = [
             movie for movie in LIBRARY['movies']
-            if movie['set'] == _set.get('value')
-            and movie['year'] >= int(year.get('value'))
+            if movie.get('set', '') == _set.get('value')
+            and movie.get('year', 0) >= int(year.get('value'))
         ]
         if movies and year.get('operator') == 'after':
             movies = movies[1:]
     else:
-        return False
+        movies = [
+            movie for movie in LIBRARY['movies']
+            if movie.get('set', '') == _set.get('value')
+        ]
 
     if limits and movies:
         start = limits['start']

@@ -13,9 +13,9 @@ import utils
 
 SKIP_TEST_ALL = False
 SKIP_TEST_POPUP = False
-SKIP_TEST_OVERALL = False
 SKIP_TEST_PLUGIN = False
 SKIP_TEST_WIDGET = False
+SKIP_TEST_OVERALL = False
 
 
 def test_popup():
