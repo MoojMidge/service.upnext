@@ -1206,6 +1206,12 @@ class InfoTagComparator(object):
 
     from re import compile as re_compile
     from string import punctuation as string_punctuation
+    try:
+        from string import upper as _str_upper  # pylint: disable=ungrouped-imports
+        _str_translate = unicode.translate  # noqa: F821; pylint: disable=undefined-variable,useless-suppression
+    except (ImportError, NameError):
+        _str_translate = str.translate
+        _str_upper = str.upper
 
     K_CAST_CREW = 10
     K_FUZZ = 7.5
@@ -1366,8 +1372,8 @@ class InfoTagComparator(object):
                  _empty=frozenset((None, )),
                  _len=len,
                  _set=set,
-                 _translate=str.translate,
-                 _upper=str.upper):
+                 _translate=_str_translate,
+                 _upper=_str_upper):
 
         if split:
             tokens = _set()
