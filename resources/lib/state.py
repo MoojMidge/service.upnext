@@ -232,7 +232,8 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             self.popup_time, self.total_time, self.popup_cue
         ), utils.LOGINFO)
 
-    def process_now_playing(self, playlist_position, plugin_type, media_type):
+    def process_now_playing(self, playlist_position, plugin_type, play_info):
+        media_type = play_info.get('media_type')
         if plugin_type:
             new_video = self._get_plugin_now_playing(media_type)
             source = constants.PLUGIN_TYPES[plugin_type]
@@ -248,7 +249,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             source = 'playlist'
 
         elif media_type in ('episode', 'movie'):
-            new_video = self._get_library_now_playing(media_type)
+            new_video = self._get_library_now_playing(play_info)
             source = 'library'
 
         else:
@@ -297,7 +298,8 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         return current_video
 
     @staticmethod
-    def _get_library_now_playing(media_type):
+    def _get_library_now_playing(play_info):
+        media_type = play_info.get('media_type')
         current_video = api.get_now_playing(
             properties=(
                 api.MOVIE_PROPERTIES if media_type == 'movie' else
@@ -313,6 +315,12 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
                 current_video if utils.get_int(current_video, 'setid') > 0
                 else None
             )
+
+        play_item = play_info.get('item')
+        for detail_name, detail_value in play_item.items():
+            if current_video.get(detail_name) != detail_value:
+                current_video.update(play_item)
+                break
 
         title = current_video.get('showtitle')
         season = utils.get_int(current_video, 'season')
@@ -367,15 +375,20 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             return plugin_type
         return None
 
-    def set_plugin_data(self, data, encoding='base64'):
-        if data:
-            self.log('Plugin data: {0}'.format(data))
+    def set_plugin_data(self, plugin_data):
+        if not plugin_data:
+            self.data = None
+            self.encoding = None
+            return
 
-            # Map to new data structure
-            if 'current_episode' in data:
-                data['current_video'] = data.pop('current_episode')
-            if 'next_episode' in data:
-                data['next_video'] = data.pop('next_episode')
+        data, encoding = plugin_data
+        self.log('Plugin data: {0}'.format(data))
+
+        # Map to new data structure
+        if 'current_episode' in data:
+            data['current_video'] = data.pop('current_episode')
+        if 'next_episode' in data:
+            data['next_video'] = data.pop('next_episode')
 
         self.data = data
-        self.encoding = encoding
+        self.encoding = encoding or 'base64'

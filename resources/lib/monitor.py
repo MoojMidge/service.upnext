@@ -59,9 +59,9 @@ class UpNextMonitor(xbmc.Monitor, object):
     def log(cls, msg, level=utils.LOGDEBUG):
         utils.log(msg, name=cls.__name__, level=level)
 
-    def _check_video(self, data=None, encoding=None):  # pylint: disable=too-many-return-statements
+    def _check_video(self, plugin_data=None, player_data=None):  # pylint: disable=too-many-return-statements
         # Only process one start at a time unless plugin data has been received
-        if self.state.starting and not data:
+        if self.state.starting and not plugin_data:
             return
         # Increment starting counter
         self.state.starting += 1
@@ -77,12 +77,12 @@ class UpNextMonitor(xbmc.Monitor, object):
 
         # Get video details, exit if no video playing
         api.cache_invalidate()
-        playback = self._get_playback_details(use_infolabel=True)
-        if not playback:
+        play_info = self._get_playback_details(player_data, use_infolabel=True)
+        if not play_info:
             self.log('Skip video check: nothing playing', utils.LOGWARNING)
             self.state.starting = 0
             return
-        self.log('Playing: {media_type} - {file}'.format(**playback))
+        self.log('Playing: {item} - {file}'.format(**play_info))
 
         # Exit if starting counter has been reset or new start detected or
         # starting state has been reset by playback error/end/stop
@@ -91,9 +91,9 @@ class UpNextMonitor(xbmc.Monitor, object):
             return
         self.state.starting = 0
 
-        if (playback['file'].startswith((
+        if (play_info['file'].startswith((
                 'bluray://', 'dvd://', 'udf://', 'iso9660://', 'cdda://'))
-                or playback['file'].endswith((
+                or play_info['file'].endswith((
                     '.bdmv', '.iso', '.ifo'))):
             self.log('Skip video check: Blu-ray/DVD/CD playing')
             return
@@ -115,14 +115,14 @@ class UpNextMonitor(xbmc.Monitor, object):
         # Exit if UpNext movie set handling has not been enabled
         if (not playlist_remaining
                 and not SETTINGS.enable_movieset
-                and playback['media_type'] == 'movie'):
+                and play_info['media_type'] == 'movie'):
             self.log('Skip video check: movie set handling not enabled')
             return
 
         # Use new plugin data if provided or erase old plugin data.
         # Note this may cause played in a row count to reset incorrectly if
         # playlist of mixed non-plugin and plugin content is used
-        self.state.set_plugin_data(data, encoding)
+        self.state.set_plugin_data(plugin_data)
         plugin_type = self.state.get_plugin_type(playlist_remaining)
 
         # Start tracking if UpNext can handle the currently playing video
@@ -130,14 +130,14 @@ class UpNextMonitor(xbmc.Monitor, object):
         now_playing_item = self.state.process_now_playing(
             playlist_position if playlist_remaining else None,
             plugin_type,
-            playback['media_type']
+            play_info
         )
         if now_playing_item and now_playing_item['details']:
-            self.state.set_tracking(playback['file'])
+            self.state.set_tracking(play_info['file'])
             self.state.reset_queue()
 
             # Store popup time and check if cue point was provided
-            self.state.set_popup_time(playback['duration'])
+            self.state.set_popup_time(play_info['duration'])
 
             # Handle sim mode functionality and notification
             skip_tracking = simulation.handle_sim_mode(
@@ -170,7 +170,7 @@ class UpNextMonitor(xbmc.Monitor, object):
         # Restart tracking if previously enabled
         self._start_tracking()
 
-    def _event_handler_player_start(self, **_kwargs):
+    def _event_handler_player_start(self, **kwargs):
         # Delay event handler execution to allow events to queue up
         self.waitForAbort(1)
         # Clear queue to stop processing additional queued events
@@ -189,8 +189,9 @@ class UpNextMonitor(xbmc.Monitor, object):
             self.state.reset_item()
         self.state.playing_next = False
 
+        data, _ = utils.decode_data(serialised_json=kwargs.get('data'))
         # Check whether UpNext can start tracking
-        self._check_video()
+        self._check_video(player_data=data)
 
     def _event_handler_player_stop(self, **_kwargs):
         # Delay event handler execution to allow events to queue up
@@ -284,16 +285,28 @@ class UpNextMonitor(xbmc.Monitor, object):
         decoded_data.update(id='{0}_play_action'.format(sender))
 
         # Initial processing of data to start tracking
-        self._check_video(decoded_data, encoding)
+        self._check_video(plugin_data=(decoded_data, encoding))
 
-    def _get_playback_details(self, use_infolabel=False):
+    def _get_playback_details(self, player_data=None, use_infolabel=False):
+        if player_data:
+            item_details = player_data.get('item', {})
+            player_details = player_data.get('player')
+        else:
+            item_details = {}
+            player_details = None
+
         with self.player as check_fail:
             playback = {
+                'playerid': (player_details.get('playerid') if player_details
+                             else None),
                 'file': self.player.getPlayingFile(),
-                'media_type': self.player.get_media_type(),
+                'item': item_details,
+                'media_type': (item_details.get('type') if item_details
+                               else self.player.get_media_type()),
+                'speed': (player_details.get('speed') if player_details
+                          else self.player.get_speed()),
                 'time': self.player.getTime(use_infolabel),
-                'speed': self.player.get_speed(),
-                'duration': self.player.getTotalTime(use_infolabel)
+                'duration': self.player.getTotalTime(use_infolabel),
             }
             check_fail = False
         if check_fail:
