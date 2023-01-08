@@ -876,7 +876,7 @@ class UpNextDetector(object):
         if stored_timestamp and not SETTINGS.detector_debug:
             self.log('Stored credits timestamp found')
             self.state.set_detected_popup_time(stored_timestamp)
-            utils.event('upnext_credits_detected')
+            utils.event('upnext_credits_detected', internal=True)
             return
 
         # Otherwise run the detector in a new thread
@@ -961,4 +961,4 @@ class UpNextDetector(object):
             self.hash_index['detected_at'] = self.hash_index['current']
             self.hashes.timestamps[self.hashes.group_idx] = play_time
             self.state.set_detected_popup_time(play_time)
-            utils.event('upnext_credits_detected')
+            utils.event('upnext_credits_detected', internal=True)

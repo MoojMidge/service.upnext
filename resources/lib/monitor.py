@@ -388,7 +388,7 @@ class UpNextMonitor(xbmc.Monitor, object):
             # Reset popup time, restart tracking, and trigger a new popup
             self.state.set_popup_time(playback['duration'])
             self.state.set_tracking(playback['file'])
-            utils.event('upnext_trigger')
+            utils.event('upnext_trigger', internal=True)
             return
 
         # Store hashes and timestamp for current video
@@ -494,7 +494,7 @@ class UpNextMonitor(xbmc.Monitor, object):
         # Re-trigger player play/start event if addon started mid playback
         if SETTINGS.start_trigger and self.player.isPlaying():
             # This is a fake event, use Other.OnAVStart
-            utils.event('OnAVStart')
+            utils.event('OnAVStart', internal=True)
 
         if not self._monitoring:
             self._monitoring = True

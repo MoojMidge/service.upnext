@@ -7,7 +7,6 @@ from __future__ import absolute_import, division, unicode_literals
 import base64
 import binascii
 import json
-import sys
 import threading
 from itertools import chain
 from operator import itemgetter
@@ -324,13 +323,10 @@ def encode_data(data, encoding='base64'):
 
     try:
         json_data = json.dumps(data).encode()
-        encoded_data = encode_method(json_data)
+        encoded_data = statichelper.from_bytes(encode_method(json_data))
     except (TypeError, ValueError, binascii.Error):
         log('{0} encode error: {1}'.format(encoding, data), level=LOGWARNING)
         return None
-
-    if sys.version_info[0] > 2:
-        encoded_data = encoded_data.decode('ascii')
 
     return encoded_data
 
@@ -376,22 +372,26 @@ def decode_data(encoded_data=None, serialised_json=None, compat_mode=True):
     return decoded_data, encoding
 
 
-def event(message, data=None, sender=None, encoding='base64'):
-    """Send internal notification event"""
+def event(message, data=None, sender=None, encoding='base64', internal=False):
+    """Send notification event"""
 
     data = data or {}
     sender = sender or get_addon_id()
 
-    encoded_data = encode_data(data, encoding=encoding)
-    if not encoded_data:
-        return None
+    # Compatibility with Addon Signals which wraps serialised data in square
+    # brackets to generate an array/list
+    if not internal:
+        encoded_data = encode_data(data, encoding=encoding)
+        if not encoded_data:
+            return None
+        data = [encoded_data]
 
     return jsonrpc(
         method='JSONRPC.NotifyAll',
         params={
             'sender': '{0}.SIGNAL'.format(sender),
             'message': message,
-            'data': [encoded_data],
+            'data': data,
         }
     )
 
