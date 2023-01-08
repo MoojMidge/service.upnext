@@ -1204,8 +1204,8 @@ class InfoTagComparator(object):
         'threshold',
     )
 
-    from re import compile
-    from string import punctuation
+    from re import compile as re_compile
+    from string import punctuation as string_punctuation
 
     K_CAST_CREW = 10
     K_FUZZ = 7.5
@@ -1242,12 +1242,12 @@ class InfoTagComparator(object):
         'DURINGCREDITSSTINGER',
         'AFTERCREDITSSTINGER',
     })
-    PUNCTUATION = frozenset(punctuation)
-    PUNCTUATION_TRANSLATION_TABLE = dict.fromkeys(map(ord, punctuation))
-    del punctuation
+    PUNCTUATION = frozenset(string_punctuation)
+    PUNCTUATION_TRANSLATION_TABLE = dict.fromkeys(map(ord, string_punctuation))
+    del string_punctuation
 
-    _token_split = staticmethod(compile(r'[_\.,]* |[\|/\\]').split)
-    del compile
+    _token_split = re_compile(r'[_\.,]* |[\|/\\]').split
+    del re_compile
 
     def __init__(self, infotags, limit=constants.UNDEFINED,
                  _set=set,
@@ -1421,6 +1421,7 @@ def get_similar_from_library(media_type,  # pylint: disable=too-many-arguments, 
         properties = RECOMMENDATION_PROPERTIES[media_type]
 
     if original:
+        # Use original video passed as argument to function call
         pass
     elif db_id == constants.UNDEFINED or db_id is None:
         original = get_videos_from_library(
