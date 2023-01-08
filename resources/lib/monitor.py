@@ -563,9 +563,9 @@ class UpNextMonitor(xbmc.Monitor, object):
         if SETTINGS.disabled:
             return
 
-        sender = statichelper.to_unicode(sender)
-        method = statichelper.to_unicode(method)
-        data = statichelper.to_unicode(data) if data else ''
+        sender = statichelper.from_bytes(sender)
+        method = statichelper.from_bytes(method)
+        data = statichelper.from_bytes(data) if data else ''
         self.log(' - '.join([sender, method, data]))
 
         handler = UpNextMonitor.EVENTS_MAP.get(method)

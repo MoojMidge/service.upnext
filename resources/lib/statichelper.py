@@ -7,8 +7,8 @@ from __future__ import absolute_import, division, unicode_literals
 import sys
 
 
-def to_unicode(text, encoding='utf-8', errors='strict'):
-    """Force text to unicode"""
+def from_bytes(text, encoding='utf-8', errors='strict'):
+    """Force bytes to str/unicode"""
 
     if isinstance(text, bytes):
         return text.decode(encoding, errors)
@@ -16,7 +16,7 @@ def to_unicode(text, encoding='utf-8', errors='strict'):
 
 
 def from_unicode(text, encoding='utf-8', errors='strict'):
-    """Force unicode to text"""
+    """Force unicode to bytes"""
 
     if sys.version_info.major == 2 and isinstance(text, unicode):  # noqa: F821; pylint: disable=undefined-variable,useless-suppression
         return text.encode(encoding, errors)

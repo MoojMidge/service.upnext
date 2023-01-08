@@ -130,7 +130,7 @@ class UpNextPlayer(xbmc.Player, object):
         else:
             actual = self.getVideoInfoTag().getMediaType()
             actual = actual if actual else 'unknowntype'
-        actual = statichelper.to_unicode(actual)
+        actual = statichelper.from_bytes(actual)
         self.player_state.media_type = actual
         # Return actual value or forced value if forced
         return self.player_state.media_type
@@ -142,7 +142,7 @@ class UpNextPlayer(xbmc.Player, object):
         # Use inbuilt method to store actual value if playing not forced
         else:
             actual = getattr(xbmc.Player, 'getPlayingFile')(self)
-        actual = statichelper.to_unicode(actual)
+        actual = statichelper.from_bytes(actual)
         self.player_state.playing_file = actual
         # Return actual value or forced value if forced
         return self.player_state.playing_file

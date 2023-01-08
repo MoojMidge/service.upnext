@@ -139,7 +139,7 @@ class UpNextSettings(object):
         value = default
         try:
             value = self._get_string(self._store, key)
-            value = statichelper.to_unicode(value)
+            value = statichelper.from_bytes(value)
         # Occurs when the addon is disabled
         except RuntimeError:
             value = default

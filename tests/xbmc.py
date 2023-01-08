@@ -24,7 +24,7 @@ from weakref import WeakValueDictionary
 import dateutil.parser
 
 from dummydata import LIBRARY
-from statichelper import to_unicode
+from statichelper import from_bytes
 from xbmcextra import (
     __KODI_MATRIX__,
     __KODI_NEXUS__,
@@ -1088,7 +1088,7 @@ def log(msg, level=LOGDEBUG):
         component=component,
         reset_colour=reset_colour,
         msg_colour=msg_colour,
-        msg=to_unicode(msg)
+        msg=from_bytes(msg)
     ))
     if level == LOGFATAL:
         raise Exception(msg)

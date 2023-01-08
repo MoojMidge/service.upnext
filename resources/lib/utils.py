@@ -248,7 +248,7 @@ def get_addon_info(key):
 
     key = statichelper.from_unicode(key)
     value = ADDON.getAddonInfo(key)
-    return statichelper.to_unicode(value)
+    return statichelper.from_bytes(value)
 
 
 def get_addon_id():
@@ -274,7 +274,7 @@ def get_property(key, window_id=constants.WINDOW_HOME):
 
     key = statichelper.from_unicode(key)
     value = xbmcgui.Window(window_id).getProperty(key)
-    return statichelper.to_unicode(value)
+    return statichelper.from_bytes(value)
 
 
 def set_property(key, value, window_id=constants.WINDOW_HOME):
@@ -368,7 +368,7 @@ def decode_data(encoded_data=None, serialised_json=None, compat_mode=True):
         try:
             # NOTE: With Python 3.5 and older json.loads() does not support
             # bytes or bytearray, so we convert to unicode
-            serialised_json = statichelper.to_unicode(serialised_json)
+            serialised_json = statichelper.from_bytes(serialised_json)
             decoded_data = json.loads(serialised_json)
         except (TypeError, ValueError):
             pass
@@ -442,7 +442,7 @@ def log(msg, name=__name__, level=LOGINFO):
         level = MIN_LOG_LEVEL
 
     # Convert to unicode for string formatting with Unicode literal
-    msg = statichelper.to_unicode(msg)
+    msg = statichelper.from_bytes(msg)
     msg = '[{0}] {1} -> {2}'.format(get_addon_id(), name, msg)
     # Convert back for older Kodi versions
     msg = statichelper.from_unicode(msg)
@@ -453,7 +453,7 @@ def localize(string_id):
     """Return the translated string from the .po language files"""
 
     string = ADDON.getLocalizedString(string_id)
-    return statichelper.to_unicode(string)
+    return statichelper.from_bytes(string)
 
 
 def get_year(date_string):
