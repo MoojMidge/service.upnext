@@ -411,7 +411,9 @@ def generate_tmdbhelper_play_url(upnext_data, mediapath=''):
 
     query = urlencode({
         'info': 'play',
+        'mode': 'play',
         'play_using': addon_id,
+        'player': addon_id,
         'tmdb_type': 'tv',
         'query': title,
         'season': season,
