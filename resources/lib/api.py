@@ -1206,12 +1206,6 @@ class InfoTagComparator(object):
 
     from re import compile as re_compile
     from string import punctuation as string_punctuation
-    try:
-        from string import upper as _str_upper  # pylint: disable=ungrouped-imports
-        _str_translate = unicode.translate  # noqa: F821; pylint: disable=undefined-variable,useless-suppression
-    except (ImportError, NameError):
-        _str_translate = str.translate
-        _str_upper = str.upper
 
     K_CAST_CREW = 10
     K_FUZZ = 7.5
@@ -1370,10 +1364,9 @@ class InfoTagComparator(object):
     @classmethod
     def tokenise(cls, values, split=_token_split,  # pylint: disable=too-many-arguments,
                  _empty=frozenset((None, )),
+                 _add=set.add,
                  _len=len,
-                 _set=set,
-                 _translate=_str_translate,
-                 _upper=_str_upper):
+                 _set=set):
 
         if split:
             tokens = _set()
@@ -1388,12 +1381,12 @@ class InfoTagComparator(object):
             length = _len(token)
             if length < 3:
                 continue
-            upper = _upper(token)
+            upper = token.upper()
             if length == 3 and token != upper:
                 continue
             if cls.PUNCTUATION & _set(upper):
-                upper = _translate(upper, cls.PUNCTUATION_TRANSLATION_TABLE)
-            processed_tokens.add(upper)
+                upper = upper.translate(cls.PUNCTUATION_TRANSLATION_TABLE)
+            _add(processed_tokens, upper)
 
         return processed_tokens - cls.IGNORE_WORDS
 
