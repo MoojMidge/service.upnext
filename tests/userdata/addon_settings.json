@@ -34,7 +34,7 @@
 		"enableQueue": "true",
 		"enableResume": "false",
 		"enableStillWatching": "true",
-        "enableTMDBHelper": "true",
+		"enableTMDBHelper": "true",
 		"includeWatched": "false",
 		"logLevel": 2,
 		"markWatched": 1,
@@ -47,7 +47,7 @@
 		"pluginSecondaryLabelToken2": 0,
 		"pluginSecondaryLabelToken3": 0,
 		"popupAccentColour": 0,
-        "popupCustomAccentColour": "FFFF4081",
+		"popupCustomAccentColour": "FFFF4081",
 		"popupCustomAccentColourA": 255,
 		"popupCustomAccentColourB": 0,
 		"popupCustomAccentColourG": 255,
@@ -57,11 +57,10 @@
 		"startDelay": 5,
 		"startTrigger": "true",
 		"stopAfterClose": "true",
-		"trackerMode": 2,
-        "widgetEnableCast": "false",
-        "widgetEnableTags": "false",
-        "widgetIncludeWatched": "true",
-        "widgetListLimit": 25,
-        "widgetRefreshPeriod": 10
+		"widgetEnableCast": "false",
+		"widgetEnableTags": "false",
+		"widgetIncludeWatched": "true",
+		"widgetListLimit": 25,
+		"widgetRefreshPeriod": 10
 	}
 }
