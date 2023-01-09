@@ -542,7 +542,7 @@
 				</setting>
                 <setting id="enableTMDBHelper" type="boolean" label="30709" help="30710">
 					<level>0</level>
-					<default>false</default>
+					<default>true</default>
 					<control type="toggle"/>
                     <dependencies>
                         <dependency type="enable" on="property" name="infobool">System.HasAddon(plugin.video.themoviedb.helper)</dependency>

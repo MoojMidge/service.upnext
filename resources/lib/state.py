@@ -298,7 +298,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         return current_video
 
     @staticmethod
-    def _get_library_now_playing(play_info):
+    def _get_library_now_playing(play_info):  # pylint: disable=too-many-return-statements
         media_type = play_info.get('media_type')
         current_video = api.get_now_playing(
             properties=(
@@ -316,38 +316,50 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
                 else None
             )
 
-        play_item = play_info.get('item')
-        for detail_name, detail_value in play_item.items():
-            if current_video.get(detail_name) != detail_value:
-                current_video.update(play_item)
-                break
+        # Previously resolved listitems may lose infotags that are set when the
+        # listitem is resolved. Fallback to Player notification data.
+        for info, value in play_info.get('item').items():
+            current_value = current_video.get(info)
+            if not current_value or current_value == constants.UNDEFINED:
+                current_video[info] = value
 
         title = current_video.get('showtitle')
         season = utils.get_int(current_video, 'season')
         episode = utils.get_int(current_video, 'episode')
         mediapath = current_video.get('mediapath', '')
-        if (mediapath.startswith('plugin://')
-                and SETTINGS.enable_tmdbhelper_fallback
-                and title and constants.UNDEFINED not in (season, episode)):
-            upnext.send_signal(
-                sender='UpNext.TMDBHelper',
-                upnext_info={
-                    'current_video': current_video,
-                    'play_url': None,
-                    'mediapath': mediapath,
-                }
-            )
+        tvshowid = current_video.get('tvshowid', constants.UNDEFINED)
+
+        if not title or constants.UNDEFINED in (season, episode):
             return None
 
-        # Get current tvshowid or search in library if detail missing
-        tvshowid = current_video.get('tvshowid', constants.UNDEFINED)
-        if tvshowid == constants.UNDEFINED:
-            tvshowid = api.get_tvshowid(title)
+        if (mediapath.startswith('plugin://')
+                or tvshowid == constants.UNDEFINED):
+            # Video plugins can provide a plugin specific tvshowid. Search Kodi
+            # library for tvshow title instead.
+            library_tvshowid = api.get_tvshowid(title)
+
+            # Use found tvshowid for library integrated plugins e.g. Emby,
+            # Jellyfin, Plex, etc.
+            if library_tvshowid != constants.UNDEFINED:
+                current_video['tvshowid'] = library_tvshowid
+                tvshowid = library_tvshowid
+
+            # Otherwise use TMDBHelper for video plugins if tvshow is not
+            # found in the Kodi library.
+            elif SETTINGS.enable_tmdbhelper_fallback:
+                upnext.send_signal(
+                    sender='UpNext.TMDBHelper',
+                    upnext_info={
+                        'current_video': current_video,
+                        'play_url': None,
+                        'mediapath': mediapath,
+                    }
+                )
+                return None
 
         # Now playing show not found in library
         if tvshowid == constants.UNDEFINED:
             return None
-        current_video['tvshowid'] = tvshowid
 
         # Get current episode id or search in library if detail missing
         episodeid = (
