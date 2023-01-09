@@ -450,6 +450,9 @@ class UpNextDetector(object):
     def log(cls, msg, level=utils.LOGDEBUG):
         utils.log(msg, name=cls.__name__, level=level)
 
+    def _has(self, attr):
+        return getattr(self, attr, False)
+
     def _evaluate_similarity(self, image, filtered_image, hash_size):
         is_match = False
         possible_match = False
@@ -658,8 +661,12 @@ class UpNextDetector(object):
         while not (abort or self._sigterm.is_set() or self._sigstop.is_set()):
             loop_start = timeit.default_timer()
 
-            with self.player as check_fail:
-                check_fail = self.player.get_speed() < 1
+            with (self.player if self._has('player')
+                  else utils.Error()) as check_fail:
+                if check_fail is None:
+                    check_fail = True
+                else:
+                    check_fail = self.player.get_speed() < 1
             if check_fail:
                 self.log('Stop capture: nothing playing')
                 break
@@ -733,15 +740,19 @@ class UpNextDetector(object):
            that end credits are playing."""
 
         while not (self._sigterm.is_set() or self._sigstop.is_set()):
-            with self.player as check_fail:
-                play_time = self.player.getTime()
-                self.hash_index['current'] = (
-                    int(self.player.getTotalTime() - play_time),
-                    int(play_time),
-                    self.hashes.group_idx
-                )
-                # Only capture if playing at normal speed
-                check_fail = self.player.get_speed() < 1
+            with (self.player if self._has('player')
+                  else utils.Error()) as check_fail:
+                if check_fail is None:
+                    check_fail = True
+                else:
+                    play_time = self.player.getTime()
+                    self.hash_index['current'] = (
+                        int(self.player.getTotalTime() - play_time),
+                        int(play_time),
+                        self.hashes.group_idx
+                    )
+                    # Only capture if playing at normal speed
+                    check_fail = self.player.get_speed() < 1
             if check_fail:
                 self.log('No file is playing')
                 break

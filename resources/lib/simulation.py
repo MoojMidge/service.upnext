@@ -53,18 +53,21 @@ def handle_sim_mode(player, state, now_playing_item):
     else:
         return _EVENT_TRIGGERED['general']
 
-    with player as check_fail:
-        log('Seeking to end')
-        player.seekTime(seek_time)
+    with player if player else utils.Error() as check_fail:
+        if check_fail is None:
+            check_fail = True
+        else:
+            log('Seeking to end')
+            player.seekTime(seek_time)
 
-        # Seek workaround required for AML HW decoder on certain problematic
-        # H.265 encodes to avoid buffer desync and playback hangs
-        utils.wait(3)
-        if player.getTime() <= seek_time:
-            log('Seek workaround')
-            player.seekTime(seek_time + 3)
+            # Seek workaround required for AML HW decoder on certain videos
+            # to avoid buffer desync and playback hangs
+            utils.wait(3)
+            if player.getTime() <= seek_time:
+                log('Seek workaround')
+                player.seekTime(seek_time + 3)
 
-        check_fail = False
+            check_fail = False
     if check_fail:
         log('Nothing playing', utils.LOGWARNING)
 

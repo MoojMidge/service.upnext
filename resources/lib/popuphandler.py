@@ -91,23 +91,26 @@ class UpNextPopupHandler(object):
             if kwarg in old_state:
                 old_state[kwarg] = value
 
-        if not self._has_popup():
+        if not self._has('popup'):
             old_state['abort'] = True
 
         if old_state['abort']:
             return old_state
 
-        with self.popup as check_fail:
-            remaining = kwargs.get('remaining')
-            if remaining is not None:
-                self.popup.update_progress(remaining)
+        with self.popup if self._has('popup') else utils.Error() as check_fail:
+            if check_fail is None:
+                check_fail = True
+            else:
+                remaining = kwargs.get('remaining')
+                if remaining is not None:
+                    self.popup.update_progress(remaining)
 
-            cancel = self.popup.is_cancel()
-            play_now = self.popup.is_playnow()
-            shuffle_on = self.popup.is_shuffle_on()
-            stop = self.popup.is_stop()
+                cancel = self.popup.is_cancel()
+                play_now = self.popup.is_playnow()
+                shuffle_on = self.popup.is_shuffle_on()
+                stop = self.popup.is_stop()
 
-            check_fail = False
+                check_fail = False
         if check_fail:
             return old_state
 
@@ -138,8 +141,8 @@ class UpNextPopupHandler(object):
         }
         return current_state
 
-    def _has_popup(self):
-        return getattr(self, 'popup', False)
+    def _has(self, attr):
+        return getattr(self, attr, False)
 
     def _play_next_video(self, next_item, popup_state):
         forced = self.player.player_state.forced('playing')
@@ -181,10 +184,9 @@ class UpNextPopupHandler(object):
         ))
 
     def _remove_popup(self):
-        if not self._has_popup():
-            return
-
-        with self.popup:
+        with self.popup if self._has('popup') else utils.Error() as check_fail:
+            if check_fail is None:
+                return
             self.popup.close()
             utils.clear_property('service.upnext.dialog')
 
@@ -261,17 +263,19 @@ class UpNextPopupHandler(object):
         return next_item, play_next, keep_playing, restart
 
     def _show_popup(self):
-        if not self._has_popup():
-            return False
-
-        with self.popup:
+        with self.popup if self._has('popup') else utils.Error() as check_fail:
+            if check_fail is None:
+                return False
             self.popup.show()
             utils.set_property('service.upnext.dialog', 'true')
             return True
 
     def _update_popup(self, popup_state):
         # Get video details, exit if no video playing or no popup available
-        with self.player as check_fail:
+        with (self.player if self._has('player')
+              else utils.Error()) as check_fail:
+            if check_fail is None:
+                return self._popup_state(old_state=popup_state, abort=True)
             total_time = self.player.getTotalTime()
             play_time = self.player.getTime()
             speed = self.player.get_speed()
@@ -315,7 +319,11 @@ class UpNextPopupHandler(object):
                     or popup_state['play_now']):
                 break
 
-            with self.player as check_fail:
+            with (self.player if self._has('player')
+                  else utils.Error()) as check_fail:
+                if check_fail is None:
+                    popup_abort = True
+                    break
                 play_time = self.player.getTime()
                 speed = self.player.get_speed()
                 check_fail = False
@@ -388,7 +396,7 @@ class UpNextPopupHandler(object):
             if timeout <= 0:
                 break
         if self._running.is_set():
-            if self._has_popup():
+            if self._has('popup'):
                 self.log('Popup taking too long to close', utils.LOGWARNING)
             else:
                 self._sigcont.clear()

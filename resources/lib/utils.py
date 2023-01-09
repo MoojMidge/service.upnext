@@ -20,6 +20,14 @@ import xbmcaddon
 import xbmcgui
 
 
+class Error(object):  # pylint: disable=no-init
+    def __enter__(self):
+        return None
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        return True
+
+
 class Profiler(object):
     """Class used to profile a block of code"""
 
