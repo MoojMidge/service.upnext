@@ -176,12 +176,14 @@ class Monitor(object):
         key = id(self)
         if key in Monitor._instances:
             del Monitor._instances[key]
-        else:
-            log('Monitor instance <{0}> already deleted'.format(key), LOGDEBUG)
 
     def _timer(self):
-        abort_times = [90, 120]
-        abort_time = abort_times[random.randint(0, len(abort_times) - 1)]
+        if __KODI_NEXUS__:
+            abort_time = 120
+        elif __KODI_MATRIX__:
+            abort_time = 90
+        else:
+            abort_time = random.randint(90, 120)
         log('Test exit in {0}s'.format(abort_time), LOGINFO)
 
         Monitor._aborted.wait(abort_time)
