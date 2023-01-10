@@ -20,9 +20,19 @@ import xbmcaddon
 import xbmcgui
 
 
-class Error(object):  # pylint: disable=no-init
+class ContextManager(object):
+    """Wrapper class used to retrieve a context manager, that may have been
+       deleted, for use in a with statement."""
+
+    def __new__(cls, *args, **kwargs):
+        if 'handler' in kwargs:  # pylint: disable=consider-using-get
+            handler = kwargs['handler']
+        else:
+            handler = getattr(args[0], args[1], None)
+        return handler or super(ContextManager, cls).__new__(cls)
+
     def __enter__(self):
-        return None
+        return AttributeError
 
     def __exit__(self, exc_type, exc_value, traceback):
         return True

@@ -59,9 +59,6 @@ class UpNextMonitor(xbmc.Monitor, object):
     def log(cls, msg, level=utils.LOGDEBUG):
         utils.log(msg, name=cls.__name__, level=level)
 
-    def _has(self, attr):
-        return getattr(self, attr, False)
-
     def _check_video(self, plugin_data=None, player_data=None):  # pylint: disable=too-many-return-statements
         # Only process one start at a time unless plugin data has been received
         if self.state.starting and not plugin_data:
@@ -298,10 +295,9 @@ class UpNextMonitor(xbmc.Monitor, object):
             item_details = {}
             player_details = None
 
-        with (self.player if self._has('player')
-              else utils.Error()) as check_fail:
-            if check_fail is None:
-                return None
+        with utils.ContextManager(self, 'player') as check_fail:
+            if check_fail is AttributeError:
+                raise check_fail
             playback = {
                 'playerid': (player_details.get('playerid') if player_details
                              else None),

@@ -14,9 +14,17 @@ import xbmc
 from settings import SETTINGS
 
 try:
-    import queue
+    from queue import (
+        Queue,
+        Empty as QueueEmpty,
+        Full as QueueFull,
+    )
 except ImportError:
-    import Queue as queue
+    from Queue import (
+        Queue,
+        Empty as QueueEmpty,
+        Full as QueueFull,
+    )
 
 
 class UpNextHashStore(object):
@@ -450,9 +458,6 @@ class UpNextDetector(object):
     def log(cls, msg, level=utils.LOGDEBUG):
         utils.log(msg, name=cls.__name__, level=level)
 
-    def _has(self, attr):
-        return getattr(self, attr, False)
-
     def _evaluate_similarity(self, image, filtered_image, hash_size):
         is_match = False
         possible_match = False
@@ -640,20 +645,22 @@ class UpNextDetector(object):
         self.mismatch_number = SETTINGS.detect_mismatches
         self._hash_match_reset()
 
-    def _queue_clear(self):
-        if not self.queue:
+    def _queue_clear(self, queue=None):
+        queue = queue or self.queue
+        if not queue:
             return
 
-        with self.queue.mutex:
-            self.queue.queue.clear()
-            self.queue.all_tasks_done.notify_all()
-            self.queue.unfinished_tasks = 0
+        with queue.mutex:
+            queue.queue.clear()
+            queue.all_tasks_done.notify_all()
+            queue.unfinished_tasks = 0
 
     def _queue_init(self):
         del self.queue
-        self.queue = queue.Queue(maxsize=SETTINGS.detector_threads)
+        self.queue = Queue(maxsize=SETTINGS.detector_threads)
 
     def _queue_push(self):
+        queue = self.queue
         capturer, size = self._queue_pull()
         capturer.capture(*size)
 
@@ -661,12 +668,10 @@ class UpNextDetector(object):
         while not (abort or self._sigterm.is_set() or self._sigstop.is_set()):
             loop_start = timeit.default_timer()
 
-            with (self.player if self._has('player')
-                  else utils.Error()) as check_fail:
-                if check_fail is None:
-                    check_fail = True
-                else:
-                    check_fail = self.player.get_speed() < 1
+            with utils.ContextManager(self, 'player') as check_fail:
+                if check_fail is AttributeError:
+                    raise check_fail
+                check_fail = self.player.get_speed() < 1
             if check_fail:
                 self.log('Stop capture: nothing playing')
                 break
@@ -691,14 +696,12 @@ class UpNextDetector(object):
                 capturer = xbmc.RenderCapture()
 
             try:
-                self.queue.put(
-                    (image_data, size), timeout=self.capture_interval
-                )
+                queue.put((image_data, size), timeout=self.capture_interval)
                 capturer.capture(*size)
 
                 loop_time = timeit.default_timer() - loop_start
                 if loop_time >= self.capture_interval:
-                    raise queue.Full
+                    raise QueueFull
 
                 abort = utils.wait(self.capture_interval - loop_time)
 
@@ -706,14 +709,14 @@ class UpNextDetector(object):
                 self.log('Stop capture: detector stopped')
                 break
 
-            except queue.Full:
+            except QueueFull:
                 self.log('Capture/detection desync', utils.LOGWARNING)
                 abort = utils.abort_requested()
                 continue
 
         del capturer
-        self._queue_task_done()
-        self._queue_clear()
+        self._queue_task_done(queue)
+        self._queue_clear(queue)
 
     def _queue_pull(self, timeout=None):
         if not self.queue:
@@ -721,11 +724,12 @@ class UpNextDetector(object):
 
         return self.queue.get(timeout=timeout)
 
-    def _queue_task_done(self):
-        if not self.queue or not self.queue.unfinished_tasks:
+    def _queue_task_done(self, queue=None):
+        queue = queue or self.queue
+        if not queue or not queue.unfinished_tasks:
             return
 
-        self.queue.task_done()
+        queue.task_done()
 
     @utils.Profiler(enabled=SETTINGS.detector_debug, lazy=True)
     def _worker(self):
@@ -739,20 +743,20 @@ class UpNextDetector(object):
            A consecutive number of matching frames must be detected to confirm
            that end credits are playing."""
 
+        queue = self.queue
+
         while not (self._sigterm.is_set() or self._sigstop.is_set()):
-            with (self.player if self._has('player')
-                  else utils.Error()) as check_fail:
-                if check_fail is None:
-                    check_fail = True
-                else:
-                    play_time = self.player.getTime()
-                    self.hash_index['current'] = (
-                        int(self.player.getTotalTime() - play_time),
-                        int(play_time),
-                        self.hashes.group_idx
-                    )
-                    # Only capture if playing at normal speed
-                    check_fail = self.player.get_speed() < 1
+            with utils.ContextManager(self, 'player') as check_fail:
+                if check_fail is AttributeError:
+                    raise check_fail
+                play_time = self.player.getTime()
+                self.hash_index['current'] = (
+                    int(self.player.getTotalTime() - play_time),
+                    int(play_time),
+                    self.hashes.group_idx
+                )
+                # Only capture if playing at normal speed
+                check_fail = self.player.get_speed() < 1
             if check_fail:
                 self.log('No file is playing')
                 break
@@ -760,11 +764,11 @@ class UpNextDetector(object):
             try:
                 image_data, size = self._queue_pull(SETTINGS.detector_threads)
                 if not isinstance(image_data, (bytes, bytearray)):
-                    raise queue.Empty
+                    raise QueueEmpty
             except TypeError:
                 self.log('Queue empty - exiting')
                 break
-            except queue.Empty:
+            except QueueEmpty:
                 self.log('Queue empty - retry')
                 continue
 
@@ -813,9 +817,9 @@ class UpNextDetector(object):
             # Store timestamps if credits are detected
             self.update_timestamp(play_time)
 
-            self._queue_task_done()
+            self._queue_task_done(queue)
 
-        self._queue_task_done()
+        self._queue_task_done(queue)
 
     def _worker_release(self):
         if not self.workers or not self.queue:
@@ -825,9 +829,11 @@ class UpNextDetector(object):
             if worker.is_alive():
                 try:
                     self.queue.put_nowait(None)
-                except queue.Full:
+                except QueueFull:
                     pass
-                worker.join(SETTINGS.detector_threads * self.capture_interval)
+                worker.join(
+                    2 * SETTINGS.detector_threads * self.capture_interval
+                )
 
             if worker.is_alive():
                 self.log('Worker {0}({1}) is taking too long to stop'.format(
