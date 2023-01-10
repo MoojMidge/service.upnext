@@ -332,20 +332,22 @@ class UpNextPopupHandler(object):
         self._running.set()
 
         next_item = None
+        player = self.player
+        state = self.state
         while True:
             # Show popup and get new playback state
             next_item, play_next, keep_playing, restart = self._run(next_item)
 
             # Update playback state
-            self.state.playing_next = play_next
-            self.state.keep_playing = keep_playing
+            state.playing_next = play_next
+            state.keep_playing = keep_playing
 
             # Stop playback and dequeue if not playing next file
             if not keep_playing:
                 self.log('Stopping playback', utils.LOGINFO)
-                self.player.stop()
-            if not play_next and self.state.queued:
-                self.state.queued = api.dequeue_next_item()
+                player.stop()
+            if not play_next and state.queued:
+                state.queued = api.dequeue_next_item()
 
             # Run again if shuffle started to get new random episode, or
             # restart triggered
