@@ -157,7 +157,7 @@ class UpNextPopupHandler(object):
                     resume=SETTINGS.enable_resume
                 )
 
-        # Fallback plugin playback method, used if plugin provides play_info
+        # Fallback plugin playback method, or if plugin provides play_info
         elif source.startswith('plugin'):
             api.play_plugin_item(
                 self.state.data,
@@ -195,7 +195,7 @@ class UpNextPopupHandler(object):
 
         # Add next file to playlist if existing playlist is not being used
         if (SETTINGS.enable_queue
-                and not next_item['source'].endswith('playlist')):
+                and not next_item['source'].endswith(('playlist', 'direct'))):
             self.state.queued = api.queue_next_item(self.state.data, next_item)
 
         # Create Kodi dialog to show UpNext or Still Watching? popup

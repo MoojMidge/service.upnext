@@ -379,7 +379,9 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
     def get_plugin_type(self, playlist_next=None):
         if self.data:
             plugin_type = constants.PLUGIN_DATA_ERROR
-            if playlist_next:
+            if self.data.get('play_direct'):
+                plugin_type += constants.PLUGIN_DIRECT
+            elif playlist_next:
                 plugin_type += constants.PLUGIN_PLAYLIST
             if self.data.get('play_url'):
                 plugin_type += constants.PLUGIN_PLAY_URL

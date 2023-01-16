@@ -80,18 +80,22 @@ SPECIALS = 0
 UNTITLED = 'untitled'
 MIXED_PLAYLIST = 'mixedplaylist'
 
-PLUGIN_TYPES = (
-    'plugin_data_error',
-    'plugin_playlist',
-    'plugin_play_url',
-    'plugin_play_url_playlist',
-    'plugin_play_info',
-    'plugin_play_info_playlist',
-)
+PLUGIN_TYPES = {
+    0: 'plugin_data_error',
+    1: 'plugin_playlist',
+    2: 'plugin_direct',
+    4: 'plugin_play_url',
+    5: 'plugin_play_url_playlist',
+    6: 'plugin_play_url_direct',
+    8: 'plugin_play_info',
+    9: 'plugin_play_info_playlist',
+    10: 'plugin_play_info_direct',
+}
 PLUGIN_DATA_ERROR = 0
 PLUGIN_PLAYLIST = 1
-PLUGIN_PLAY_URL = 2
-PLUGIN_PLAY_INFO = 4
+PLUGIN_DIRECT = 2
+PLUGIN_PLAY_URL = 4
+PLUGIN_PLAY_INFO = 8
 
 SETTING_DISABLED = 0
 SETTING_ON = 1
