@@ -1,4 +1,19 @@
 ## Releases
+### v2.0.15+dev.0 (2023-01-17)
+- Improve TMDBHelper player integration
+  - Now enabled by default
+  - Requires v5.0.46 of TMDBHelper and properly configured players
+- Add icons to plugin folders and fix issues with hierarchy navigation
+- Add episode numbers and watched progress to tvshow listitem properties
+- Improve recommendation widgets:
+  - Add similarity based on writer and director for movies
+  - Added option to enable/disable similarity based on cast and tags
+  - Added option to enable/disable watched videos from recommendations
+  - Recommendations are sorted by similarity and rating for all matching genres
+  - Significant speed improvements
+- Added fallback to player notification data for (resolved) plugin listitems
+- Improved thread error handling
+
 ### v2.0.14+dev.0 (2022-12-29)
 - Fix bug with plugin play_info integration
 - Update settings and help text
@@ -66,7 +81,7 @@
 - Allow specials in widgets and popup, based on episode air date
 - Fix SxE episode labels for videos without season or episode info
 - Fix popup artwork for non-episode videos
-  
+
 ### v2.0.7+dev.0 (2022-12-09)
 - Code tidy up
 - Additional updates for Kodi Nexus
@@ -81,7 +96,7 @@
   - Fix testing service operation
   - Fix various issues with incorrect playlist position
   - Fix various issues with pausing/restarting popup and detector
-  - Fix deprecated getFirstAired 
+  - Fix deprecated getFirstAired
 
 ### v2.0.5+dev.0 (2022-12-03)
 - Improve speed of widget sources
