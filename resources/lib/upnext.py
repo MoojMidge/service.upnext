@@ -544,6 +544,7 @@ def send_signal(sender, upnext_info):
         upnext_data['play_url'] = generate_tmdbhelper_play_url(
             upnext_data, upnext_info['plugin_path']
         )
+        upnext_data['play_direct'] = True
 
     return utils.event(
         sender=sender,
