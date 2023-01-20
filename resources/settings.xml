@@ -288,7 +288,7 @@
 						<maximum>15</maximum>
 					</constraints>
 					<dependencies>
-						<dependency type="enable">
+						<dependency type="visible">
 							<condition operator="is" setting="enableStillWatching">true</condition>
 						</dependency>
 					</dependencies>
@@ -562,7 +562,7 @@
 						<heading>30731</heading>
 					</control>
 				</setting>
-				<setting id="detectorThreads" type="integer" label="30732" help="">
+				<setting id="detectorThreads" type="integer" label="30732" help="30751">
 					<level>0</level>
 					<default>3</default>
 					<constraints>
@@ -574,7 +574,7 @@
 						<popup>false</popup>
 					</control>
 				</setting>
-				<setting id="detectorDataLimit" type="integer" label="30733" help="30751">
+				<setting id="detectorDataLimit" type="integer" label="30733" help="30752">
 					<level>0</level>
 					<default>32</default>
 					<constraints>
@@ -587,12 +587,12 @@
                         <formatlabel>14049</formatlabel>
 					</control>
 				</setting>
-				<setting id="detectorFilter" type="boolean" label="30734" help="30752">
+				<setting id="detectorFilter" type="boolean" label="30734" help="30753">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="detectorResizeMethod" type="integer" label="30735" help="">
+				<setting id="detectorResizeMethod" type="integer" label="30735" help="30754">
 					<level>0</level>
 					<default>1</default>
 					<constraints>
@@ -607,7 +607,7 @@
 					</constraints>
 					<control type="list" format="string"/>
 				</setting>
-				<setting id="detectLevel" type="integer" label="30742" help="30753">
+				<setting id="detectLevel" type="integer" label="30742" help="30755">
 					<level>0</level>
 					<default>90</default>
 					<constraints>
@@ -620,7 +620,7 @@
                         <formatlabel>14047</formatlabel>
 					</control>
 				</setting>
-				<setting id="detectSignificance" type="integer" label="30743" help="30754">
+				<setting id="detectSignificance" type="integer" label="30743" help="30756">
 					<level>0</level>
 					<default>25</default>
 					<constraints>
@@ -633,7 +633,7 @@
                         <formatlabel>14047</formatlabel>
 					</control>
 				</setting>
-				<setting id="detectMatches" type="integer" label="30744" help="30755">
+				<setting id="detectMatches" type="integer" label="30744" help="30757">
 					<level>0</level>
 					<default>5</default>
 					<constraints>
@@ -645,7 +645,7 @@
 						<popup>false</popup>
 					</control>
 				</setting>
-				<setting id="detectMismatches" type="integer" label="30745" help="30756">
+				<setting id="detectMismatches" type="integer" label="30745" help="30758">
 					<level>0</level>
 					<default>3</default>
 					<constraints>
@@ -712,7 +712,7 @@
 						</options>
 					</constraints>
 					<dependencies>
-						<dependency type="enable">
+						<dependency type="visible">
 							<condition operator="is" setting="enableSimMode">true</condition>
 						</dependency>
 					</dependencies>
@@ -729,7 +729,7 @@
 						</options>
 					</constraints>
 					<dependencies>
-						<dependency type="enable">
+						<dependency type="visible">
 							<condition operator="is" setting="enableSimMode">true</condition>
 						</dependency>
 					</dependencies>
@@ -739,7 +739,7 @@
 					<level>0</level>
 					<default>false</default>
 					<dependencies>
-						<dependency type="enable">
+						<dependency type="visible">
 							<condition operator="is" setting="enableSimMode">true</condition>
 						</dependency>
 					</dependencies>

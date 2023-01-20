@@ -427,7 +427,7 @@ msgid "Detection window"
 msgstr ""
 
 msgctxt "#30632"
-msgid "Detection will start prior to popup appearing within an adjustable window based on video runtime"
+msgid "Detection will start prior to popup appearing, within an adjustable time period from the end of the video, based on video runtime. For example, a setting of 300 sec/hr will start detection 150 seconds (2.5 minutes) from the end of a 0.5 hour long video, 300 seconds (5 minutes) from the end of a 1 hour long video, or 600 seconds (10 minutes) from the end of a 2 hour long video."
 msgstr ""
 
 msgctxt "#30633"
@@ -535,27 +535,27 @@ msgid "Detector resize method"
 msgstr ""
 
 msgctxt "#30736"
-msgid "Nearest"
+msgid "Nearest (fastest, lowest quality"
 msgstr ""
 
 msgctxt "#30737"
-msgid "Box"
+msgid "Box (fast, low quality)"
 msgstr ""
 
 msgctxt "#30738"
-msgid "Bilinear"
+msgid "Bilinear (slow, low quality)"
 msgstr ""
 
 msgctxt "#30739"
-msgid "Hamming"
+msgid "Hamming (slow, medium quality)"
 msgstr ""
 
 msgctxt "#30740"
-msgid "Bicubic"
+msgid "Bicubic (slower, high quality)"
 msgstr ""
 
 msgctxt "#30741"
-msgid "Lanczos"
+msgid "Lanczos (slowest, highest quality)"
 msgstr ""
 
 msgctxt "#30742"
@@ -579,26 +579,34 @@ msgid "Location where detected end credit details are stored for comparison with
 msgstr ""
 
 msgctxt "#30751"
-msgid "Amount of image data captured per frame of video. Increasing the data limit requires increased processing and can disrupt playback on slower devices"
+msgid "Number of Python threads used to capture and process video data. One thread is used for capturing data, remaining threads are used for processing captured data.[CR][CR]Increasing the number of threads may reduce video disruption playback on slower devices, but will be slower overall."
 msgstr ""
 
 msgctxt "#30752"
-msgid "Enables additional image processing and filtering to significantly improve end credit detection. Can disrupt playback on slower devices."
+msgid "Limit the amount of data processed per captured video frame by resizing using the selected detector resize method.[CR][CR]Increasing the data limit requires increased processing and can disrupt playback on slower devices."
 msgstr ""
 
 msgctxt "#30753"
-msgid "End credits will be matched if percentage similarity of captured image data exceeds this threshold"
+msgid "Enables additional image processing and filtering to significantly improve end credit detection. Can disrupt playback on slower devices."
 msgstr ""
 
 msgctxt "#30754"
-msgid "End credits will not be matched if the percentage of the captured image data that is identified as being significant exceeds this limit"
+msgid "Resampling method used when resizing captured video frame. Methods are ordered by speed and quality. Increasing the quality does not necessarily improve detection."
 msgstr ""
 
 msgctxt "#30755"
-msgid "Mininum number of matches required for end credits to be detected"
+msgid "End credits will be matched if the percentage similarity of captured image data, compared to previously captured data or typical representations of end credits, exceeds this threshold.[CR][CR]Lowering this value will allow faster moving end credits to be matched, but may result in false-positive matches."
 msgstr ""
 
 msgctxt "#30756"
+msgid "End credits will not be matched if the percentage of the captured image data that is identified as being visually significant exceeds this limit.[CR][CR]Increasing this value will allow more complex end credits (e.g. credits shown over a non-blank or moving background) to be matched, but may result in false-positive matches."
+msgstr ""
+
+msgctxt "#30757"
+msgid "Minimum number of matches required for end credits to be detected"
+msgstr ""
+
+msgctxt "#30758"
 msgid "Maximum number of mismatches before end credit match count is reset"
 msgstr ""
 
