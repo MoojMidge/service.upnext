@@ -34,7 +34,7 @@ def test_plugin():
 
     dbid = dummydata.LIBRARY['episodes'][0]['episodeid']
     test_complete = plugin.run([
-        'plugin://service.upnext/play',
+        'plugin://service.upnext/play_media',
         '1',
         '?db_type=episode&db_id={0}'.format(dbid)
     ])
@@ -61,7 +61,7 @@ def test_movie_plugin():
 
     upnext_info = {
         'current_video': upnext.create_listitem(current_item),
-        'play_url': 'plugin://{0}/play/?db_type={1}&db_id={2}'.format(
+        'play_url': 'plugin://{0}/play_media/?db_type={1}&db_id={2}'.format(
             1, dbtype, next_item['db_id']
         )
     }

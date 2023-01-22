@@ -13,9 +13,9 @@ import xbmcgui
 from settings import SETTINGS
 
 try:
-    from urllib.parse import parse_qs, urlencode, urlparse
+    from urllib.parse import parse_qsl, urlencode, urlparse
 except ImportError:
-    from urlparse import parse_qs, urlparse
+    from urlparse import parse_qsl, urlparse
     from urllib import urlencode  # pylint: disable=ungrouped-imports
 
 
@@ -435,7 +435,8 @@ def parse_url(url, scheme='plugin'):
     addon_path = posix_split(parsed_url.path.rstrip('/') or '/')
     while addon_path[0] != '/':
         addon_path = posix_split(addon_path[0]) + addon_path[1:]
-    addon_args = parse_qs(parsed_url.query, keep_blank_values=True)
+    # Simplified to only use the last value for each variable in the query
+    addon_args = dict(parse_qsl(parsed_url.query, keep_blank_values=True))
 
     return addon_id, addon_path, addon_args
 

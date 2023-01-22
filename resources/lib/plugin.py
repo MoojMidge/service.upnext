@@ -43,7 +43,7 @@ def generate_library_plugin_data(current_item, addon_id, state=None):
     upnext_info = {
         'current_video': upnext.create_listitem(current_item),
         'next_video': upnext.create_listitem(next_item),
-        'play_url': 'plugin://{0}/play/?db_type={1}&db_id={2}'.format(
+        'play_url': 'plugin://{0}/play_media/?db_type={1}&db_id={2}'.format(
             addon_id, media_type, next_item['db_id']
         )
     }
@@ -358,8 +358,8 @@ def open_settings(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-a
 
 
 def play_media(addon_handle, addon_id, **kwargs):
-    db_type = kwargs.get('db_type', [''])[0]
-    db_id = int(kwargs.get('db_id', [constants.UNDEFINED])[0])
+    db_type = kwargs.get('db_type', '')
+    db_id = utils.get_int(kwargs, 'db_id')
 
     if db_type and db_id != constants.UNDEFINED:
         current_video = api.get_from_library(media_type=db_type, db_id=db_id)
@@ -553,7 +553,7 @@ PLUGIN_CONTENT = {
         'content_type': 'action',
         'handler': open_settings,
     },
-    'play': {
+    'play_media': {
         'content_type': 'action',
         'handler': play_media,
     },
