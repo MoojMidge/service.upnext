@@ -510,6 +510,14 @@ msgctxt "#30710"
 msgid "Use TheMovieDb Helper players for plugin integration fallback"
 msgstr ""
 
+msgctxt "#30711"
+msgid "Exact match only"
+msgstr ""
+
+msgctxt "#30712"
+msgid "Plugin player must search for exact TVShow title, season, and episode number. Inhibits player dialog and manual episode selection."
+msgstr ""
+
 msgctxt "#30730"
 msgid "Additional detector settings"
 msgstr ""

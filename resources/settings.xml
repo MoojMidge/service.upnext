@@ -548,6 +548,16 @@
                         <dependency type="enable" on="property" name="infobool">System.HasAddon(plugin.video.themoviedb.helper)</dependency>
                     </dependencies>
 				</setting>
+                <setting id="exactTMDBMatch" type="boolean" label="30711" help="30712" parent="enableTMDBHelper">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+                    <dependencies>
+						<dependency type="visible">
+							<condition operator="is" setting="enableTMDBHelper">true</condition>
+						</dependency>
+					</dependencies>
+				</setting>
 			</group>
 			<group id="additionalDetectorSettings" label="30730">
 				<setting id="detectorSavePath" type="path" label="30731" help="30750">

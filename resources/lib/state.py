@@ -297,8 +297,8 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
         return current_video
 
-    @staticmethod
-    def _get_library_now_playing(play_info):  # pylint: disable=too-many-branches, too-many-return-statements
+    @classmethod
+    def _get_library_now_playing(cls, play_info):  # pylint: disable=too-many-branches, too-many-return-statements
         media_type = play_info.get('media_type')
         current_video = api.get_now_playing(
             properties=(
@@ -342,25 +342,15 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         if tvshowid == constants.UNDEFINED or plugin_path:
             # Video plugins can provide a plugin specific tvshowid. Search Kodi
             # library for tvshow title instead.
-            library_tvshowid = api.get_tvshowid(title)
-
-            # Now playing show not found in Kodi library
-            if library_tvshowid == constants.UNDEFINED:
-                if SETTINGS.enable_tmdbhelper_fallback:
-                    upnext.send_signal(
-                        sender='UpNext.TMDBHelper',
-                        upnext_info={
-                            'current_video': current_video,
-                            'play_url': None,
-                            'plugin_path': plugin_path,
-                        }
-                    )
-                return None
-
-            # Use found tvshowid for library integrated plugins e.g. Emby,
-            # Jellyfin, Plex, etc.
-            current_video['tvshowid'] = library_tvshowid
-            tvshowid = library_tvshowid
+            tvshowid = api.get_tvshowid(title)
+        # Now playing show not found in Kodi library
+        if tvshowid == constants.UNDEFINED:
+            return cls._get_tmdb_now_playing(
+                current_video, title, season, episode, plugin_path
+            ) if SETTINGS.enable_tmdbhelper_fallback else None
+        # Use found tvshowid for library integrated plugins e.g. Emby,
+        # Jellyfin, Plex, etc.
+        current_video['tvshowid'] = tvshowid
 
         # Get current episode id or search in library if detail missing
         episodeid = (
@@ -375,6 +365,42 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         current_video['episodeid'] = episodeid
 
         return current_video
+
+    @staticmethod
+    def _get_tmdb_now_playing(current_video, title, season, episode, path):
+        from tmdb_helper import TMDB
+
+        # TMDBHelper not importable, use plugin url instead
+        if not TMDB.is_initialised():
+            upnext.send_signal(
+                sender='UpNext.TMDBHelper',
+                upnext_info={
+                    'current_video': current_video,
+                    'play_url': None,
+                    'plugin_path': path,
+                }
+            )
+            return
+
+        tmdb_id, next_video = TMDB().get_details(title, season, episode + 1)
+        if not tmdb_id or not next_video:
+            return
+
+        next_video = dict(
+            next_video['infolabels'],
+            tmdb_id=tmdb_id,
+            art=next_video['art'],
+            showtitle=title,
+        )
+        upnext.send_signal(
+            sender='UpNext.TMDBHelper',
+            upnext_info={
+                'current_video': current_video,
+                'next_video': next_video,
+                'play_url': None,
+                'plugin_path': path,
+            }
+        )
 
     def get_plugin_type(self, playlist_next=None):
         if self.data:

@@ -41,6 +41,7 @@ class UpNextSettings(object):
         'enable_tmdbhelper_fallback',
         'enable_queue',
         'enable_resume',
+        'exact_tmdb_match',
         'mark_watched',
         'next_season',
         'played_limit',
@@ -214,6 +215,8 @@ class UpNextSettings(object):
         self.enable_playlist = self.get_bool('enablePlaylist')
         self.enable_movieset = self.get_bool('enableMovieset')
         self.enable_tmdbhelper_fallback = self.get_bool('enableTMDBHelper')
+        self.exact_tmdb_match = (self.enable_tmdbhelper_fallback
+                                 and self.get_bool('exactTMDBMatch'))
 
         self.auto_play_delay = self.get_int('autoPlayCountdown')
         self.popup_durations = {

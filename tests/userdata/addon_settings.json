@@ -35,6 +35,7 @@
 		"enableResume": "false",
 		"enableStillWatching": "true",
 		"enableTMDBHelper": "true",
+        "exactTMDBMatch": "true",
 		"includeWatched": "false",
 		"logLevel": 2,
 		"markWatched": 1,
