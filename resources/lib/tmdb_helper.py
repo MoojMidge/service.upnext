@@ -19,7 +19,7 @@ def log(msg, level=utils.LOGERROR):
 
 
 class Import(object):  # pylint: disable=too-few-public-methods
-    def __new__(cls, name=None):
+    def __new__(cls, object_name=None):
         def substitute(cls, func=None, default_return=None):
             def wrapper(*_args, **_kwargs):
                 return default_return
@@ -38,24 +38,29 @@ class Import(object):  # pylint: disable=too-few-public-methods
             return cls._initialised
 
         try:
-            module = __import__('themoviedb_helper', fromlist=[name])
-            base_class = getattr(module, name)
+            module_name = 'themoviedb_helper'
+            module = __import__(module_name, fromlist=[object_name])
+            imported_object = getattr(module, object_name)
             initialised = True
         except (AttributeError, ImportError):
             from traceback import format_exc
-            log('ImportError: TMDBHelper {0}\n{1}'.format(name, format_exc()))
-            base_class = object
+            log('ImportError: {0}.{1}\n{2}'.format(module_name, object_name,
+                                                   format_exc()))
+            imported_object = object
             initialised = False
 
-        return type(name, (base_class,), {
-            '_initialised': initialised,
-            '_substitute': classmethod(substitute),
-            'is_initialised': classmethod(is_initialised),
-        })
+        if isinstance(imported_object, type):
+            return type(object_name, (imported_object,), {
+                '_initialised': initialised,
+                '_substitute': classmethod(substitute),
+                'is_initialised': classmethod(is_initialised),
+            })
+        return imported_object
 
 
 TMDb = Import('TMDb')  # pylint: disable=invalid-name
 Players = Import('Players')  # pylint: disable=invalid-name
+get_next_episodes = Import('get_next_episodes')  # pylint: disable=invalid-name
 
 
 class TMDB(TMDb):  # pylint: disable=inherit-non-class,too-few-public-methods
@@ -91,25 +96,38 @@ class Player(Players):  # pylint: disable=inherit-non-class,too-few-public-metho
     @Players._substitute  # pylint: disable=no-member
     def _get_player_or_fallback(self, *args, **kwargs):
         player = super(Player, self)._get_player_or_fallback(*args, **kwargs)
-        if not SETTINGS.exact_tmdb_match:
-            return player
-        assert_keys = set(
-            self.players.get(player['file'], {})
-            .get('assert', {})
-            .get('play_episode', [])
-        )
-        if {'showname', 'season', 'episode'} - assert_keys:
-            return None
+        if player and SETTINGS.exact_tmdb_match:
+            assert_keys = set(
+                self.players.get(player.get('file'), {})
+                .get('assert', {})
+                .get('play_episode', [])
+            )
+            if {'showname', 'season', 'episode'} - assert_keys:
+                return None
+        self.current_player = player  # pylint: disable=attribute-defined-outside-init
         return player
-
-    def failed(self):
-        return not self._success
 
     @Players._substitute  # pylint: disable=no-member
     def get_resolved_path(self, *args, **kwargs):
         path = super(Player, self).get_resolved_path(*args, **kwargs)
-        self._success = (self.action_log[-2] == 'SUCCESS!')
+        self._success = (self.action_log and self.action_log[-2] == 'SUCCESS!')
+        if not self._success:
+            utils.notification('UpNext', 'Unable to play video')
+        elif not SETTINGS.queue_from_tmdb:
+            self.current_player['make_playlist'] = 'false'
         return path
+
+    def get_next_episodes(self):
+        player = self.current_player or self.get_default_player()
+        if not player:
+            return None
+        episodes = get_next_episodes(self.tmdb_id, self.season, self.episode,  # pylint: disable=not-callable
+                                     player.get('file'))
+        return episodes
+
+    def queue(self):
+        self.current_player = self.get_default_player()  # pylint: disable=attribute-defined-outside-init
+        self.queue_next_episodes(route='make_playlist')
 
     @Players._substitute  # pylint: disable=no-member
     def select_player(self, *args, **kwargs):
@@ -118,7 +136,7 @@ class Player(Players):  # pylint: disable=inherit-non-class,too-few-public-metho
         return super(Player, self).select_player(*args, **kwargs)
 
 
-def generate_tmdbhelper_play_url(upnext_data, plugin_url=''):
+def generate_tmdbhelper_play_url(upnext_data, player):
     video_details = upnext_data.get('next_video')
     offset = 0
     play_url = 'plugin://service.upnext/play_plugin?{0}'
@@ -127,7 +145,6 @@ def generate_tmdbhelper_play_url(upnext_data, plugin_url=''):
         offset = 1
         play_url = 'plugin://plugin.video.themoviedb.helper/?{0}'
 
-    addon_id, _, _ = utils.parse_url(plugin_url)
     tmdb_id = video_details.get('tmdb_id', '')
     title = video_details.get('showtitle', '')
     season = utils.get_int(video_details, 'season')
@@ -136,7 +153,7 @@ def generate_tmdbhelper_play_url(upnext_data, plugin_url=''):
     query = urlencode({
         'info': 'play',
         'mode': 'play',
-        'player': addon_id,
+        'player': player,
         'tmdb_type': 'tv',
         'tmdb_id': tmdb_id,
         'query': title,

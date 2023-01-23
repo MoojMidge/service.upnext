@@ -445,13 +445,6 @@ def send_signal(sender, upnext_info):
 
         media_type = val.getMediaType()
 
-        # Fallback for available date information
-        first_aired = (
-            val.getFirstAiredAsW3C() or val.getPremieredAsW3C()
-        ) if utils.supports_python_api(20) else (
-            val.getFirstAired() or val.getPremiered()
-        ) or str(val.getYear())
-
         video_info = {
             'title': val.getTitle(),
             # Prefer outline over full plot for UpNext popup
@@ -459,7 +452,12 @@ def send_signal(sender, upnext_info):
             'playcount': val.getPlayCount(),
             # Prefer user rating over scraped rating
             'rating': val.getUserRating() or val.getRating(),
-            'firstaired': first_aired,
+            # Fallback for available date information
+            'firstaired': (
+                val.getFirstAiredAsW3C() or val.getPremieredAsW3C()
+            ) if utils.supports_python_api(20) else (
+                val.getFirstAired() or val.getPremiered()
+            ) or str(val.getYear()),
             # Runtime used to evaluate endtime in UpNext popup, if available
             'runtime': utils.supports_python_api(18) and val.getDuration() or 0
         }
@@ -493,11 +491,11 @@ def send_signal(sender, upnext_info):
 
         upnext_data[key] = video_info
 
-    if 'plugin_path' in upnext_info:
+    if 'player' in upnext_info:
         from tmdb_helper import generate_tmdbhelper_play_url
 
         upnext_data['play_url'] = generate_tmdbhelper_play_url(
-            upnext_data, upnext_info['plugin_path']
+            upnext_data, upnext_info['player']
         )
         upnext_data['play_direct'] = True
     upnext_data = _copy_video_details(upnext_data)

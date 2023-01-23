@@ -50,6 +50,7 @@ class UpNextSettings(object):
         'popup_accent_colour',
         'popup_durations',
         'popup_position',
+        'queue_from_tmdb',
         'show_stop_button',
         'sim_cue',
         'sim_mode',
@@ -217,6 +218,8 @@ class UpNextSettings(object):
         self.enable_tmdbhelper_fallback = self.get_bool('enableTMDBHelper')
         self.exact_tmdb_match = (self.enable_tmdbhelper_fallback
                                  and self.get_bool('exactTMDBMatch'))
+        self.queue_from_tmdb = (self.enable_tmdbhelper_fallback
+                                and self.get_bool('queueFromTMDB'))
 
         self.auto_play_delay = self.get_int('autoPlayCountdown')
         self.popup_durations = {

@@ -367,40 +367,54 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         return current_video
 
     @staticmethod
-    def _get_tmdb_now_playing(current_video, title, season, episode, path):
-        from tmdb_helper import TMDB
+    def _get_tmdb_now_playing(current_video, title, season, episode, url):
+        from tmdb_helper import Player, TMDB
+
+        addon_id, _, addon_args = utils.parse_url(url)
+        if addon_id == constants.ADDON_ID and 'player' in addon_args:
+            addon_id = addon_args['player']
 
         # TMDBHelper not importable, use plugin url instead
         if not TMDB.is_initialised():
-            upnext.send_signal(
-                sender='UpNext.TMDBHelper',
-                upnext_info={
-                    'current_video': current_video,
-                    'play_url': None,
-                    'plugin_path': path,
-                }
-            )
+            upnext.send_signal(sender='UpNext.TMDBHelper',
+                               upnext_info={'current_video': current_video,
+                                            'play_url': None,
+                                            'player': addon_id,})
             return
 
-        tmdb_id, next_video = TMDB().get_details(title, season, episode + 1)
-        if not tmdb_id or not next_video:
+        tmdb_id, current_video = TMDB().get_details(title, season, episode)
+        if not tmdb_id or not current_video:
             return
 
-        next_video = dict(
-            next_video['infolabels'],
-            tmdb_id=tmdb_id,
-            art=next_video['art'],
-            showtitle=title,
-        )
-        upnext.send_signal(
-            sender='UpNext.TMDBHelper',
-            upnext_info={
-                'current_video': current_video,
-                'next_video': next_video,
-                'play_url': None,
-                'plugin_path': path,
-            }
-        )
+        player = Player(query=title, season=season, episode=episode,  # pylint: disable=unexpected-keyword-arg
+                        tbdb_id=tmdb_id, tmdb_type='tv',
+                        player=addon_id, mode='play')
+
+        if SETTINGS.queue_from_tmdb:
+            player.queue()
+            utils.event('OnAVStart', internal=True)
+        else:
+            episodes = player.get_next_episodes()
+            if not episodes or len(episodes) < 2:
+                return
+
+            upnext.send_signal(sender='UpNext.TMDBHelper',
+                               upnext_info={
+                                   'current_video': dict(
+                                       current_video['infolabels'],
+                                       tmdb_id=tmdb_id,
+                                       art=current_video['art'],
+                                       showtitle=title,
+                                   ),
+                                   'next_video': dict(
+                                       episodes[1].infolabels,
+                                       tmdb_id=tmdb_id,
+                                       art=episodes[1].art,
+                                       showtitle=title,
+                                   ),
+                                   'play_url': None,
+                                   'player': addon_id,
+                               })
 
     def get_plugin_type(self, playlist_next=None):
         if self.data:

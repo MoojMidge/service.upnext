@@ -389,10 +389,7 @@ def play_media(addon_handle, addon_id, **kwargs):
 
 def play_plugin(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     from tmdb_helper import Player
-    player = Player(**kwargs)
-    player.play(handle=addon_handle)
-    if player.failed():
-        utils.notification('UpNext', 'Unable to play video')
+    Player(**kwargs).play(handle=addon_handle)
 
 
 def run(argv):
