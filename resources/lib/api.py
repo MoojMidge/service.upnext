@@ -393,7 +393,7 @@ def get_item_id(item):
         return {}
 
     db_id = item['db_id']
-    media_type = item['media_type']
+    media_type = item['type']
 
     db_type = JSON_MAP.get(media_type)
     if not db_type or not db_id:
@@ -410,12 +410,10 @@ def play_kodi_item(item, resume=False):
     log('Playing from library: {0}'.format(item))
 
     item = get_item_id(item)
-    utils.jsonrpc(
-        method='Player.Open',
-        params={'item': item},
-        options={'resume': resume},
-        no_response=True
-    )
+    utils.jsonrpc(method='Player.Open',
+                  params={'item': item},
+                  options={'resume': resume},
+                  no_response=True)
 
 
 def queue_next_item(data=None, item=None):
@@ -429,11 +427,10 @@ def queue_next_item(data=None, item=None):
 
     if next_item:
         log('Adding to queue: {0}'.format(next_item))
-        utils.jsonrpc(
-            method='Playlist.Add',
-            params={'playlistid': get_playlistid(), 'item': next_item},
-            no_response=True
-        )
+        utils.jsonrpc(method='Playlist.Add',
+                      params={'playlistid': get_playlistid(),
+                              'item': next_item},
+                      no_response=True)
     else:
         log('Nothing added to queue')
 
@@ -445,11 +442,9 @@ def reset_queue():
        queue for the video that was just played"""
 
     log('Removing previously played item from queue')
-    utils.jsonrpc(
-        method='Playlist.Remove',
-        params={'playlistid': get_playlistid(), 'position': 0},
-        no_response=True
-    )
+    utils.jsonrpc(method='Playlist.Remove',
+                  params={'playlistid': get_playlistid(), 'position': 0},
+                  no_response=True)
     return False
 
 
@@ -458,11 +453,9 @@ def dequeue_next_item():
        queue for the next video to be played"""
 
     log('Removing unplayed next item from queue')
-    utils.jsonrpc(
-        method='Playlist.Remove',
-        params={'playlistid': get_playlistid(), 'position': 1},
-        no_response=True
-    )
+    utils.jsonrpc(method='Playlist.Remove',
+                  params={'playlistid': get_playlistid(), 'position': 1},
+                  no_response=True)
     return False
 
 
@@ -480,18 +473,12 @@ def play_playlist_item(position, resume=False):
 
     # JSON Player.Open can be too slow but is needed if resuming is enabled
     # Unfortunately resuming from a playlist item does not seem to work...
-    utils.jsonrpc(
-        method='Player.Open',
-        params={
-            'item': {
-                'playlistid': get_playlistid(),
-                # Convert one indexed position to zero indexed position
-                'position': position - 1
-            }
-        },
-        options={'resume': resume},
-        no_response=True
-    )
+    utils.jsonrpc(method='Player.Open',
+                  params={'item': {'playlistid': get_playlistid(),
+                                   # Convert 1 indexed to 0 indexed position
+                                   'position': position - 1}},
+                  options={'resume': resume},
+                  no_response=True)
 
 
 def get_playlist_position(offset=0):
@@ -523,18 +510,13 @@ def get_from_playlist(position, properties, unwatched_only=False):
     """Function to get details of item in playlist, where the first item in the
        playlist is position 1"""
 
-    result = utils.jsonrpc(
-        method='Playlist.GetItems',
-        params={
-            'playlistid': get_playlistid(),
-            # limits are zero indexed, position is one indexed
-            'limits': {
-                'start': position - 1,
-                'end': -1 if unwatched_only else position
-            },
-            'properties': properties
-        }
-    )
+    result = utils.jsonrpc(method='Playlist.GetItems',
+                           params={'playlistid': get_playlistid(),
+                                   # Limits start from 0, position is 1 indexed
+                                   'limits': {'start': position - 1,
+                                              'end': (-1 if unwatched_only
+                                                      else position)},
+                                   'properties': properties})
     items = result.get('result', {}).get('items')
 
     if not items:
@@ -587,23 +569,19 @@ def play_plugin_item(data, encoding, resume=False):
     play_url = data.get('play_url')
     if play_url:
         log('Playing from plugin - {0}'.format(play_url))
-        utils.jsonrpc(
-            method='Player.Open',
-            params={'item': {'file': play_url}},
-            options={'resume': resume},
-            no_response=True
-        )
+        utils.jsonrpc(method='Player.Open',
+                      params={'item': {'file': play_url}},
+                      options={'resume': resume},
+                      no_response=True)
         return
 
     play_info = data.get('play_info')
     if play_info:
         log('Sending as {0} to plugin - {1}'.format(encoding, play_info))
-        utils.event(
-            message=data.get('id'),
-            data=play_info,
-            sender='upnextprovider',
-            encoding=encoding
-        )
+        utils.event(message=data.get('id'),
+                    data=play_info,
+                    sender='upnextprovider',
+                    encoding=encoding)
         return
 
     log('No plugin data available for playback', utils.LOGWARNING)
@@ -655,16 +633,11 @@ def get_playlistid():
     if _CACHE['playlistid'] is not None:
         return _CACHE['playlistid']
 
-    result = utils.jsonrpc(
-        method='Player.GetProperties',
-        params={
-            'playerid': get_playerid(),
-            'properties': ['playlistid'],
-        }
-    )
-    playlistid = utils.get_int(
-        result.get('result', {}), 'playlistid', PLAYER_PLAYLIST['video']
-    )
+    result = utils.jsonrpc(method='Player.GetProperties',
+                           params={'playerid': get_playerid(),
+                                   'properties': ['playlistid'],})
+    playlistid = utils.get_int(result.get('result', {}), 'playlistid',
+                               PLAYER_PLAYLIST['video'])
 
     log('Selected playlistid: {0}'.format(playlistid))
     _CACHE['playlistid'] = playlistid
@@ -674,13 +647,9 @@ def get_playlistid():
 def get_player_speed():
     """Function to get speed of active player"""
 
-    result = utils.jsonrpc(
-        method='Player.GetProperties',
-        params={
-            'playerid': get_playerid(),
-            'properties': ['speed'],
-        }
-    )
+    result = utils.jsonrpc(method='Player.GetProperties',
+                           params={'playerid': get_playerid(),
+                                   'properties': ['speed'],})
     result = utils.get_int(result.get('result', {}), 'speed', 1)
 
     return result
@@ -692,13 +661,9 @@ def get_now_playing(properties, retry=3):
     # Retry in case of delay in getting response.
     attempts_left = 1 + retry
     while attempts_left > 0:
-        result = utils.jsonrpc(
-            method='Player.GetItem',
-            params={
-                'playerid': get_playerid(retry=retry),
-                'properties': properties,
-            }
-        )
+        result = utils.jsonrpc(method='Player.GetItem',
+                               params={'playerid': get_playerid(retry=retry),
+                                       'properties': properties,})
         result = result.get('result', {}).get('item')
 
         if result:
@@ -719,10 +684,10 @@ def get_next_from_library(item, **kwargs):
     """Function to get details of next episode in tvshow, or next movie in
     movieset, from Kodi library"""
 
-    if item['media_type'] == 'episode':
+    if item['type'] == 'episode':
         return get_next_episode_from_library(episode=item['details'], **kwargs)
 
-    if item['media_type'] == 'movie':
+    if item['type'] == 'movie':
         if 'next_season' in kwargs:
             del kwargs['next_season']
         return get_next_movie_from_library(movie=item['details'], **kwargs)
@@ -739,6 +704,12 @@ def get_next_episode_from_library(episode=constants.UNDEFINED,
 
     if not episode or episode == constants.UNDEFINED:
         log('No next episode found, current episode not in library',
+            utils.LOGWARNING)
+        return episode
+
+    tvshowid = utils.get_int(episode, 'tvshowid')
+    if not tvshowid or tvshowid == constants.UNDEFINED:
+        log('No next episode found, invalid tvshowid',
             utils.LOGWARNING)
         return episode
 
@@ -772,13 +743,11 @@ def get_next_episode_from_library(episode=constants.UNDEFINED,
 
     filters = {'and': filters}
 
-    result = get_videos_from_library(
-        media_type='episodes',
-        limit=1,
-        sort=sort,
-        filters=filters,
-        params={'tvshowid': episode.get('tvshowid', constants.UNDEFINED)}
-    )
+    result = get_videos_from_library(media_type='episodes',
+                                     limit=1,
+                                     sort=sort,
+                                     filters=filters,
+                                     params={'tvshowid': tvshowid})
 
     if not result:
         log('No next episode found in library')
@@ -827,12 +796,10 @@ def get_next_movie_from_library(movie=constants.UNDEFINED,
 
     filters = {'and': filters}
 
-    movie = get_videos_from_library(
-        media_type='movies',
-        limit=1,
-        sort=sort,
-        filters=filters
-    )
+    movie = get_videos_from_library(media_type='movies',
+                                    limit=1,
+                                    sort=sort,
+                                    filters=filters)
 
     if not movie:
         log('No next movie found in library')
@@ -846,7 +813,7 @@ def get_from_library(media_type=None, db_id=constants.UNDEFINED, item=None):
     """Function to get video and collection details from Kodi library"""
 
     if item:
-        media_type = item['media_type']
+        media_type = item['type']
         db_id = item['db_id']
 
     if not media_type or db_id == constants.UNDEFINED:
@@ -860,10 +827,9 @@ def get_from_library(media_type=None, db_id=constants.UNDEFINED, item=None):
         return None
 
     if media_type == 'episode':
-        tvshow_details, _ = get_details_from_library(
-            media_type='tvshow',
-            db_id=result.get('tvshowid', constants.UNDEFINED)
-        )
+        db_id = utils.get_int(result, 'tvshowid')
+        tvshow_details, _ = get_details_from_library(media_type='tvshow',
+                                                     db_id=db_id)
 
         if not tvshow_details:
             log('Show info not found in library', utils.LOGWARNING)
@@ -879,12 +845,10 @@ def get_tvshowid(title):
     """Function to search Kodi library for tshowid by title"""
 
     FILTER_TITLE['value'] = title
-    tvshow = get_videos_from_library(
-        media_type='tvshows',
-        limit=1,
-        properties=[],
-        filters=FILTER_TITLE
-    )
+    tvshow = get_videos_from_library(media_type='tvshows',
+                                     limit=1,
+                                     properties=[],
+                                     filters=FILTER_TITLE)
 
     if not tvshow:
         log('tvshowid not found in library', utils.LOGWARNING)
@@ -902,13 +866,11 @@ def get_episodeid(tvshowid, season, episode):
     FILTER_THIS_SEASON['value'] = str(season)
     FILTER_THIS_EPISODE['value'] = str(episode)
 
-    result = get_videos_from_library(
-        media_type='episodes',
-        limit=1,
-        properties=[],
-        filters=FILTER_EPISODE,
-        params={'tvshowid': tvshowid}
-    )
+    result = get_videos_from_library(media_type='episodes',
+                                     limit=1,
+                                     properties=[],
+                                     filters=FILTER_EPISODE,
+                                     params={'tvshowid': tvshowid})
 
     if not result:
         log('episodeid not found in library', utils.LOGWARNING)
@@ -928,7 +890,7 @@ def get_details_from_library(media_type=None,
     """Function to retrieve video info details from Kodi library"""
 
     if item:
-        media_type = item['media_type']
+        media_type = item['type']
         db_id = item['db_id']
 
     if not media_type or db_id == constants.UNDEFINED:
@@ -945,13 +907,9 @@ def get_details_from_library(media_type=None,
     elif isinstance(properties, (set, frozenset)):
         properties = detail_type['properties'] | properties
 
-    result = utils.jsonrpc(
-        method=detail_type['get_method'],
-        params={
-            detail_type['db_id']: db_id,
-            'properties': properties,
-        }
-    )
+    result = utils.jsonrpc(method=detail_type['get_method'],
+                           params={detail_type['db_id']: db_id,
+                                   'properties': properties,})
 
     result = result.get('result', {}).get(detail_type['result'])
     return result, detail_type
@@ -960,14 +918,14 @@ def get_details_from_library(media_type=None,
 def handle_just_watched(item, reset_playcount=False, reset_resume=True):
     """Function to update playcount and resume point of just watched video"""
 
-    result, detail_type = get_details_from_library(
-        item=item, properties=['playcount', 'resume']
-    )
+    result = get_details_from_library(item=item,
+                                      properties=['playcount', 'resume'])
+    details, detail_type = result
 
-    if result:
+    if details:
         initial_playcount = utils.get_int(item.get('details'), 'playcount', 0)
-        current_playcount = utils.get_int(result, 'playcount', 0)
-        current_resume = utils.get_int(result.get('resume'), 'position', 0)
+        current_playcount = utils.get_int(details, 'playcount', 0)
+        current_resume = utils.get_int(details.get('resume'), 'position', 0)
     else:
         return
 
@@ -987,14 +945,12 @@ def handle_just_watched(item, reset_playcount=False, reset_resume=True):
     # Only update library if playcount or resume point needs to change
     if params:
         params[detail_type['db_id']] = item['db_id']
-        utils.jsonrpc(
-            method=detail_type['set_method'],
-            params=params,
-            no_response=True
-        )
+        utils.jsonrpc(method=detail_type['set_method'],
+                      params=params,
+                      no_response=True)
 
     log('Library update: {0}{1}{2}{3}'.format(
-        '{0}_id - {1}'.format(item['media_type'], item['db_id']),
+        '{0}_id - {1}'.format(item['type'], item['db_id']),
         ', playcount - {0} to {1}'.format(initial_playcount, current_playcount)
         if 'playcount' in params else '',
         ', resume - {0} to 0'.format(current_resume)
@@ -1025,19 +981,15 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
         ]
         sort = SORT_EPISODE
 
-    inprogress = get_videos_from_library(
-        media_type='episodes',
-        limit=limit,
-        sort=SORT_LASTPLAYED,
-        filters=filters[0]
-    )
+    inprogress = get_videos_from_library(media_type='episodes',
+                                         limit=limit,
+                                         sort=SORT_LASTPLAYED,
+                                         filters=filters[0])
 
-    watched = get_videos_from_library(
-        media_type='episodes',
-        limit=limit,
-        sort=SORT_LASTPLAYED,
-        filters=filters[1]
-    )
+    watched = get_videos_from_library(media_type='episodes',
+                                      limit=limit,
+                                      sort=SORT_LASTPLAYED,
+                                      filters=filters[1])
 
     episodes = utils.merge_iterable(inprogress, watched, sort='lastplayed')
 
@@ -1057,13 +1009,12 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
                 episode['firstaired']
             )
 
-            upnext_episode = get_videos_from_library(
-                media_type='episodes',
-                limit=1,
-                sort=sort,
-                filters=filters[2],
-                params={'tvshowid': tvshowid}
-            )
+            upnext_episode = get_videos_from_library(media_type='episodes',
+                                                     limit=1,
+                                                     sort=sort,
+                                                     filters=filters[2],
+                                                     params={'tvshowid':
+                                                             tvshowid})
 
             if not upnext_episode:
                 tvshow_index.add(tvshowid)
@@ -1085,20 +1036,16 @@ def get_upnext_movies_from_library(limit=25,
                                    unwatched_only=False):
     """Function to get in-progress and next movie details from Kodi library"""
 
-    inprogress = get_videos_from_library(
-        media_type='movies',
-        limit=limit,
-        sort=SORT_LASTPLAYED,
-        filters=FILTER_INPROGRESS
-    )
+    inprogress = get_videos_from_library(media_type='movies',
+                                         limit=limit,
+                                         sort=SORT_LASTPLAYED,
+                                         filters=FILTER_INPROGRESS)
 
     if movie_sets:
-        watched = get_videos_from_library(
-            media_type='movies',
-            limit=limit,
-            sort=SORT_LASTPLAYED,
-            filters=FILTER_WATCHED
-        )
+        watched = get_videos_from_library(media_type='movies',
+                                          limit=limit,
+                                          sort=SORT_LASTPLAYED,
+                                          filters=FILTER_WATCHED)
 
         movies = utils.merge_iterable(inprogress, watched, sort='lastplayed')
     else:
@@ -1122,12 +1069,10 @@ def get_upnext_movies_from_library(limit=25,
             FILTER_SET['value'] = movie['set']
             FILTER_NEXT_MOVIE['value'] = str(movie['year'])
 
-            upnext_movie = get_videos_from_library(
-                media_type='movies',
-                limit=1,
-                sort=SORT_YEAR,
-                filters=filters
-            )
+            upnext_movie = get_videos_from_library(media_type='movies',
+                                                   limit=1,
+                                                   sort=SORT_YEAR,
+                                                   filters=filters)
 
             if not upnext_movie:
                 set_index.add(setid)
@@ -1181,10 +1126,8 @@ def get_videos_from_library(media_type,  # pylint: disable=too-many-arguments
     if params is not None:
         _params.update(params)
 
-    videos = utils.jsonrpc(
-        method=detail_type['get_method'],
-        params=_params
-    )
+    videos = utils.jsonrpc(method=detail_type['get_method'],
+                           params=_params)
     videos = videos.get('result', {}).get(detail_type['result'], [])
 
     if videos and limit == 1:
@@ -1259,9 +1202,8 @@ class InfoTagComparator(object):
             | _set(_get(infotags, 'director', []))
             | _set(_get(infotags, 'writer', []))
         )
-        self.fuzz = self.tokenise([
-            _get(infotags, 'plot'), _get(infotags, 'title')
-        ])
+        self.fuzz = self.tokenise([_get(infotags, 'plot'),
+                                   _get(infotags, 'title')])
         self.genres = _set(_get(infotags, 'genre', []))
         self.set_name = self.tokenise([_get(infotags, 'set')])
         self.tags = self.tokenise([_get(infotags, 'tag')], split=False)
@@ -1317,9 +1259,8 @@ class InfoTagComparator(object):
                 )
 
         if fuzz_stored:
-            fuzz = self.tokenise(
-                [_get(infotags, 'plot'), _get(infotags, 'title')]
-            )
+            fuzz = self.tokenise([_get(infotags, 'plot'),
+                                  _get(infotags, 'title')])
             if fuzz:
                 similarity += self.K_FUZZ * _min(1, (
                     (2 * _len(fuzz & fuzz_stored)) ** 2
@@ -1423,19 +1364,15 @@ def get_similar_from_library(media_type,  # pylint: disable=too-many-arguments, 
         # Use original video passed as argument to function call
         pass
     elif db_id == constants.UNDEFINED or db_id is None:
-        original = get_videos_from_library(
-            media_type=media_type,
-            limit=1,
-            sort=SORT_RANDOM,
-            properties=properties,
-            filters=FILTER_WATCHED
-        )
+        original = get_videos_from_library(media_type=media_type,
+                                           limit=1,
+                                           sort=SORT_RANDOM,
+                                           properties=properties,
+                                           filters=FILTER_WATCHED)
     else:
-        original, _ = get_details_from_library(
-            media_type=media_type,
-            db_id=int(db_id),
-            properties=properties
-        )
+        original, _ = get_details_from_library(media_type=media_type,
+                                               db_id=int(db_id),
+                                               properties=properties)
 
     if not original:
         return None, []
@@ -1450,12 +1387,10 @@ def get_similar_from_library(media_type,  # pylint: disable=too-many-arguments, 
 
     if infotags.set_name and media_type == 'movies':
         FILTER_SET['value'] = original['set']
-        similar = get_videos_from_library(
-            media_type=media_type,
-            limit=None,
-            sort=SORT_YEAR,
-            filters=FILTER_SET
-        )
+        similar = get_videos_from_library(media_type=media_type,
+                                          limit=None,
+                                          sort=SORT_YEAR,
+                                          filters=FILTER_SET)
         for video in similar:
             dbid = video[id_name]
             if dbid in video_index:
@@ -1476,14 +1411,13 @@ def get_similar_from_library(media_type,  # pylint: disable=too-many-arguments, 
 
     FILTER_GENRE['value'] = infotags.genres
     while True:
-        similar = get_videos_from_library(
-            media_type=media_type,
-            limit=chunk_limit,
-            sort=SORT_RATING,
-            properties=properties,
-            filters=(FILTER_UNWATCHED_GENRE if unwatched_only
-                     else FILTER_GENRE)
-        )
+        similar = get_videos_from_library(media_type=media_type,
+                                          limit=chunk_limit,
+                                          sort=SORT_RATING,
+                                          properties=properties,
+                                          filters=(FILTER_UNWATCHED_GENRE
+                                                   if unwatched_only
+                                                   else FILTER_GENRE))
 
         for video in similar:
             dbid = video[id_name]

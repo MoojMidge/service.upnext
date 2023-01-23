@@ -96,7 +96,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
         next_video = None
         source = None
-        media_type = self.current_item['media_type']
+        media_type = self.current_item['type']
         next_position, _ = api.get_playlist_position(offset=1)
         plugin_type = self.get_plugin_type(next_position)
 
@@ -233,7 +233,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         ), utils.LOGINFO)
 
     def process_now_playing(self, playlist_position, plugin_type, play_info):
-        media_type = play_info.get('media_type')
+        media_type = play_info.get('type')
         if plugin_type:
             new_video = self._get_plugin_now_playing(media_type)
             source = constants.PLUGIN_TYPES[plugin_type]
@@ -299,7 +299,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
     @classmethod
     def _get_library_now_playing(cls, play_info):  # pylint: disable=too-many-branches, too-many-return-statements
-        media_type = play_info.get('media_type')
+        media_type = play_info.get('type')
         current_video = api.get_now_playing(
             properties=(
                 api.MOVIE_PROPERTIES if media_type == 'movie' else
@@ -333,20 +333,20 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
         filepath = current_video.get('file', '')
         mediapath = current_video.get('mediapath', '')
-        for plugin_path in (filepath, mediapath):
-            if plugin_path.startswith('plugin://'):
+        for plugin_url in (filepath, mediapath):
+            if plugin_url.startswith('plugin://'):
                 break
         else:
-            plugin_path = None
+            plugin_url = None
 
-        if tvshowid == constants.UNDEFINED or plugin_path:
+        if tvshowid == constants.UNDEFINED or plugin_url:
             # Video plugins can provide a plugin specific tvshowid. Search Kodi
             # library for tvshow title instead.
             tvshowid = api.get_tvshowid(title)
         # Now playing show not found in Kodi library
         if tvshowid == constants.UNDEFINED:
             return cls._get_tmdb_now_playing(
-                current_video, title, season, episode, plugin_path
+                current_video, title, season, episode, plugin_url
             ) if SETTINGS.enable_tmdbhelper_fallback else None
         # Use found tvshowid for library integrated plugins e.g. Emby,
         # Jellyfin, Plex, etc.

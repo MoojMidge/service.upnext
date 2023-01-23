@@ -261,9 +261,8 @@ class UpNextSettings(object):
         self.sim_plugin = self.sim_mode and self.get_bool('simPlugin')
 
         self.detector_debug = self.get_bool('detectorDebug')
-        self.detector_debug_save = (
-            self.detector_save_path and self.get_bool('detectorDebugSave')
-        )
+        self.detector_debug_save = (self.detector_save_path
+                                    and self.get_bool('detectorDebugSave'))
         self.start_trigger = self.get_bool('startTrigger')
 
         self._store = None

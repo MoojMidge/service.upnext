@@ -3,6 +3,11 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
+
 import utils
 from settings import SETTINGS
 
@@ -111,3 +116,32 @@ class Player(Players):  # pylint: disable=inherit-non-class,too-few-public-metho
         if SETTINGS.exact_tmdb_match:
             return None
         return super(Player, self).select_player(*args, **kwargs)
+
+
+def generate_tmdbhelper_play_url(upnext_data, plugin_url=''):
+    video_details = upnext_data.get('next_video')
+    offset = 0
+    play_url = 'plugin://service.upnext/play_plugin?{0}'
+    if not video_details:
+        video_details = upnext_data.get('current_video')
+        offset = 1
+        play_url = 'plugin://plugin.video.themoviedb.helper/?{0}'
+
+    addon_id, _, _ = utils.parse_url(plugin_url)
+    tmdb_id = video_details.get('tmdb_id', '')
+    title = video_details.get('showtitle', '')
+    season = utils.get_int(video_details, 'season')
+    episode = utils.get_int(video_details, 'episode') + offset
+
+    query = urlencode({
+        'info': 'play',
+        'mode': 'play',
+        'player': addon_id,
+        'tmdb_type': 'tv',
+        'tmdb_id': tmdb_id,
+        'query': title,
+        'season': season,
+        'episode': episode
+    })
+
+    return play_url.format(query)

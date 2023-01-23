@@ -129,7 +129,7 @@ class UpNextPopup(xbmcgui.WindowXMLDialog, object):
             return
 
         details = self.item['details']
-        media_type = self.item.get('media_type')
+        media_type = self.item.get('type')
 
         if details:
             show_spoilers = utils.get_global_setting(

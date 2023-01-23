@@ -55,7 +55,7 @@ def test_popup(popup_type, simple_style=False):
         'total_time': {'value': test_video['runtime'], 'force': True},
         # 'next_file': {'value': None, 'force': False},
         # Simulate episode media type is being played based on dummy episode
-        'media_type': {'value': 'episode', 'force': True},
+        'type': {'value': 'episode', 'force': True},
         # Simulate stop to ensure actual playback doesnt stop when popup closes
         'stop': {'force': True}
     })
@@ -65,7 +65,7 @@ def test_popup(popup_type, simple_style=False):
     test_player.player_state.set('speed', 1, force=True)
     test_player.player_state.set('time', (test_video['runtime'] - 10), force=True)
     test_player.player_state.set('total_time', test_video['runtime'], force=True)
-    test_player.player_state.set('media_type', 'episode', force=True)
+    test_player.player_state.set('type', 'episode', force=True)
     test_player.player_state.set('stop', force=True)
 
     # Create a test popuphandler and create an actual popup for testing
@@ -108,7 +108,7 @@ def test_upnext(popup_type, simple_style=False):
         # Simulate endtime based on dummy episode
         'total_time': {'value': test_episode['runtime'], 'force': True},
         # Simulate episode media type is being played based on dummy episode
-        'media_type': {'value': 'episode', 'force': True},
+        'type': {'value': 'episode', 'force': True},
         # Simulate stop to ensure actual playback doesn't stop on popup close
         'stop': {'force': True}
     })
@@ -119,7 +119,7 @@ def test_upnext(popup_type, simple_style=False):
     test_player.player_state.set('speed', 1, force=True)
     test_player.player_state.set('time', 0, force=True)
     test_player.player_state.set('total_time', test_episode['runtime'], force=True)
-    test_player.player_state.set('media_type', 'episode', force=True)
+    test_player.player_state.set('type', 'episode', force=True)
     test_player.player_state.set('stop', force=True)
 
     test_monitor = monitor.UpNextMonitor()

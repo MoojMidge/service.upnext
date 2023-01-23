@@ -10,6 +10,12 @@ import json
 import threading
 from itertools import chain
 from operator import itemgetter
+from posixpath import split as posix_split
+
+try:
+    from urllib.parse import parse_qsl, urlparse
+except ImportError:
+    from urlparse import parse_qsl, urlparse
 
 from dateutil.parser import parse as dateutil_parse
 
@@ -254,10 +260,9 @@ def get_addon(addon_id=None, retry_attempts=3):
 
 
 ADDON = get_addon(constants.ADDON_ID)
-_KODI_MAJOR_VERSION = jsonrpc(
-    method='Application.GetProperties',
-    params={'properties': ['version']}
-).get('result').get('version').get('major')
+_KODI_MAJOR_VERSION = jsonrpc(method='Application.GetProperties',
+                              params={'properties': ['version']})
+_KODI_MAJOR_VERSION = _KODI_MAJOR_VERSION['result']['version']['major']  # pylint: disable=unsubscriptable-object
 
 
 def get_addon_info(key):
@@ -404,23 +409,17 @@ def event(message, data=None, sender=None, encoding='base64', internal=False):
             return None
         data = [encoded_data]
 
-    return jsonrpc(
-        method='JSONRPC.NotifyAll',
-        params={
-            'sender': '{0}.SIGNAL'.format(sender),
-            'message': message,
-            'data': data,
-        }
-    )
+    return jsonrpc(method='JSONRPC.NotifyAll',
+                   params={'sender': '{0}.SIGNAL'.format(sender),
+                           'message': message,
+                           'data': data,})
 
 
 def get_global_setting(setting):
     """Get a Kodi setting"""
 
-    result = jsonrpc(
-        method='Settings.GetSettingValue',
-        params={'setting': setting}
-    )
+    result = jsonrpc(method='Settings.GetSettingValue',
+                     params={'setting': setting})
     return result.get('result', {}).get('value')
 
 
@@ -591,7 +590,7 @@ def create_item_details(item, source=None,
         return {
             'details': {},
             'source': None,
-            'media_type': None,
+            'type': None,
             'db_id': constants.UNDEFINED,
             'group_name': None,
             'group_idx': constants.UNDEFINED,
@@ -624,7 +623,7 @@ def create_item_details(item, source=None,
     item_details = {
         'details': item,
         'source': source,
-        'media_type': 'episode' if is_episode else media_type,
+        'type': 'episode' if is_episode else media_type,
         'db_id': (
             get_int(item, 'episodeid' if is_episode else 'movieid', None)
             or get_int(item, 'id')
@@ -658,3 +657,21 @@ if supports_python_api(19):
         deque(map(function, sequence), maxlen=0)
 else:
     modify_iterable = map  # pylint: disable=invalid-name
+
+
+def parse_url(url, scheme='plugin'):
+    if not url:
+        return None, None, None
+
+    parsed_url = urlparse(url)
+    if scheme and scheme != parsed_url.scheme:
+        return None, None, None
+
+    addon_id = parsed_url.netloc
+    addon_path = posix_split(parsed_url.path.rstrip('/') or '/')
+    while addon_path[0] != '/':
+        addon_path = posix_split(addon_path[0]) + addon_path[1:]
+    # Simplified to only use the last value for each variable in the query
+    addon_args = dict(parse_qsl(parsed_url.query, keep_blank_values=True))
+
+    return addon_id, addon_path, addon_args

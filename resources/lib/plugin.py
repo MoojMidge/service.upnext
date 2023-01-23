@@ -22,7 +22,7 @@ def log(msg, level=utils.LOGDEBUG):
 
 
 def generate_library_plugin_data(current_item, addon_id, state=None):
-    media_type = current_item['media_type']
+    media_type = current_item['type']
     if state:
         next_item = state.get_next()
     else:
@@ -397,7 +397,7 @@ def play_plugin(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-arg
 
 def run(argv):
     addon_handle = int(argv[1])
-    addon_id, addon_path, addon_args = upnext.parse_url(argv[0] + argv[2])
+    addon_id, addon_path, addon_args = utils.parse_url(argv[0] + argv[2])
     content = PLUGIN_CONTENT.get(addon_path[1] or addon_path[0])
     if not content:
         return False

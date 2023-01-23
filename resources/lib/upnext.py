@@ -4,19 +4,11 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-from posixpath import split as posix_split
-
 import constants
 import utils
 import xbmc
 import xbmcgui
 from settings import SETTINGS
-
-try:
-    from urllib.parse import parse_qsl, urlencode, urlparse
-except ImportError:
-    from urlparse import parse_qsl, urlparse
-    from urllib import urlencode  # pylint: disable=ungrouped-imports
 
 
 def log(msg, level=utils.LOGWARNING):
@@ -386,7 +378,7 @@ def create_tvshow_listitem(tvshow,
 def create_listitem(item, kwargs=None, infolabels=None, properties=None):
     """Create a xbmcgui.ListItem from provided item_details dict"""
 
-    media_type = item.get('media_type')
+    media_type = item.get('type')
     if 'details' in item:
         item = item['details']
 
@@ -400,53 +392,6 @@ def create_listitem(item, kwargs=None, infolabels=None, properties=None):
         return create_movie_listitem(item, kwargs, infolabels, properties)
 
     return None
-
-
-def generate_tmdbhelper_play_url(upnext_data, plugin_path=''):
-    video_details = upnext_data.get('next_video')
-    offset = 0
-    play_url = 'plugin://service.upnext/play_plugin?{0}'
-    if not video_details:
-        video_details = upnext_data.get('current_video')
-        offset = 1
-        play_url = 'plugin://plugin.video.themoviedb.helper/?{0}'
-
-    addon_id, _, _ = parse_url(plugin_path)
-    tmdb_id = video_details.get('tmdb_id', '')
-    title = video_details.get('showtitle', '')
-    season = utils.get_int(video_details, 'season')
-    episode = utils.get_int(video_details, 'episode') + offset
-
-    query = urlencode({
-        'info': 'play',
-        'mode': 'play',
-        'player': addon_id,
-        'tmdb_type': 'tv',
-        'tmdb_id': tmdb_id,
-        'query': title,
-        'season': season,
-        'episode': episode
-    })
-
-    return play_url.format(query)
-
-
-def parse_url(url, scheme='plugin'):
-    if not url:
-        return None, None, None
-
-    parsed_url = urlparse(url)
-    if scheme and scheme != parsed_url.scheme:
-        return None, None, None
-
-    addon_id = parsed_url.netloc
-    addon_path = posix_split(parsed_url.path.rstrip('/') or '/')
-    while addon_path[0] != '/':
-        addon_path = posix_split(addon_path[0]) + addon_path[1:]
-    # Simplified to only use the last value for each variable in the query
-    addon_args = dict(parse_qsl(parsed_url.query, keep_blank_values=True))
-
-    return addon_id, addon_path, addon_args
 
 
 def send_signal(sender, upnext_info):
@@ -549,15 +494,15 @@ def send_signal(sender, upnext_info):
         upnext_data[key] = video_info
 
     if 'plugin_path' in upnext_info:
+        from tmdb_helper import generate_tmdbhelper_play_url
+
         upnext_data['play_url'] = generate_tmdbhelper_play_url(
             upnext_data, upnext_info['plugin_path']
         )
         upnext_data['play_direct'] = True
     upnext_data = _copy_video_details(upnext_data)
 
-    return utils.event(
-        sender=sender,
-        message='upnext_data',
-        data=upnext_data,
-        encoding='base64'
-    )
+    return utils.event(sender=sender,
+                       message='upnext_data',
+                       data=upnext_data,
+                       encoding='base64')

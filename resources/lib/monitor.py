@@ -115,7 +115,7 @@ class UpNextMonitor(xbmc.Monitor, object):
         # Exit if UpNext movie set handling has not been enabled
         if (not playlist_remaining
                 and not SETTINGS.enable_movieset
-                and play_info['media_type'] == 'movie'):
+                and play_info['type'] == 'movie'):
             self.log('Skip video check: movie set handling not enabled')
             return
 
@@ -303,8 +303,8 @@ class UpNextMonitor(xbmc.Monitor, object):
                              else None),
                 'file': self.player.getPlayingFile(),
                 'item': item_details,
-                'media_type': (item_details.get('type') if item_details
-                               else self.player.get_media_type()),
+                'type': (item_details.get('type') if item_details
+                         else self.player.get_media_type()),
                 'speed': (player_details.get('speed') if player_details
                           else self.player.get_speed()),
                 'time': self.player.getTime(use_infolabel),
