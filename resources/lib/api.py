@@ -416,11 +416,12 @@ def play_kodi_item(item, resume=False):
                   no_response=True)
 
 
-def queue_next_item(data=None, item=None):
+def queue_next_item(data=None, item=None, playlist=None):
     """Function to add next video to the UpNext queue"""
 
     next_item = (
-        get_item_id(item) if not data
+        playlist if playlist
+        else get_item_id(item) if not data
         else {'file': data['play_url']} if 'play_url' in data
         else None
     )
