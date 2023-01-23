@@ -1,8 +1,16 @@
 ## Releases
+### v2.0.16+dev.0 (2023-01-23)
+- Update advanced settings help text
+- Improve TMDB Helper player integration
+  - Add support for queueing playlist of next episodes
+  - Fix crashes caused by concurrent busy dialogs
+  - Make integration more transparent (no selection dialogs) by default
+  - Utilise TMDB Helper for info lookups of episodes played using a plugin
+
 ### v2.0.15+dev.0 (2023-01-17)
-- Improve TMDBHelper player integration
+- Improve TMDB Helper player integration
   - Now enabled by default
-  - Requires v5.0.46 of TMDBHelper and properly configured players
+  - Requires v5.0.46 of TMDB Helper and properly configured players
 - Add icons to plugin folders and fix issues with hierarchy navigation
 - Add episode numbers and watched progress to tvshow listitem properties
 - Improve recommendation widgets:
@@ -28,7 +36,7 @@
 - Minor misc bug fixes and tidy ups
 
 ### v2.0.13+dev.0 (2022-12-25)
-- Added experimental support for TMDBHelper players
+- Added experimental support for TMDB Helper players
 - Fix for Kodi Nexus API parameter name changes
 - Speed up similar video widgets
 - Fix for movie widgets not showing all movies without movie set details
