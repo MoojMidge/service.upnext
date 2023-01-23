@@ -78,6 +78,7 @@ LOG_ENABLE_DEBUG = 2
 SEASON_EPISODE = '{0}x{1}'
 SPECIALS = 0
 UNTITLED = 'untitled'
+UNKNOWN = 'unknown'
 MIXED_PLAYLIST = 'mixedplaylist'
 
 PLUGIN_TYPES = {

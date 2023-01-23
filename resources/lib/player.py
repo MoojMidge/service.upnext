@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, unicode_literals
 import datetime
 
 import api
+import constants
 import statichelper
 import utils
 import xbmc
@@ -79,7 +80,7 @@ class UpNextPlayer(xbmc.Player, object):
         self.player_state.time = 0
         self.player_state.total_time = 0
         self.player_state.next_file = None
-        self.player_state.type = None
+        self.player_state.type = constants.UNKNOWN
         self.player_state.playnext = None
         self.player_state.stop = None
 
@@ -129,7 +130,7 @@ class UpNextPlayer(xbmc.Player, object):
         # Use inbuilt method to store actual value if playing not forced
         else:
             actual = self.getVideoInfoTag().getMediaType()
-            actual = actual if actual else 'unknown'
+            actual = actual if actual else constants.UNKNOWN
         actual = statichelper.from_bytes(actual)
         self.player_state.type = actual
         # Return actual value or forced value if forced
