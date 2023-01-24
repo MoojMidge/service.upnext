@@ -126,8 +126,10 @@ class Player(Players):  # pylint: disable=inherit-non-class,too-few-public-metho
         return episodes
 
     def queue(self):
+        player = self.current_player
         self.current_player = self.get_default_player()  # pylint: disable=attribute-defined-outside-init
         self.queue_next_episodes(route='make_playlist')
+        self.current_player = player  # pylint: disable=attribute-defined-outside-init
 
     @Players._substitute  # pylint: disable=no-member
     def select_player(self, *args, **kwargs):
