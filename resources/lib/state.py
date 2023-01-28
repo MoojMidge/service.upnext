@@ -382,7 +382,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
                                             'player': addon_id,})
             return
 
-        tmdb_id, current_video = TMDB().get_details(title, season, episode)
+        tmdb_id, current_video = TMDB().get_id_details(title, season, episode)
         if not tmdb_id or not current_video:
             return
 

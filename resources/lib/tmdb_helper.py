@@ -104,14 +104,13 @@ make_playlist = Import('player.putils', 'make_playlist')  # pylint: disable=inva
 
 
 class TMDB(TMDb):  # pylint: disable=inherit-non-class,too-few-public-methods
-    @TMDb._substitute(default_return=(None, None))  # pylint: disable=no-member
-    def get_details(self, title, season, episode):
+    def get_id_details(self, title, season, episode):
         tmdb_id = self.get_tmdb_id(
             tmdb_type='tv', query=title, season=season, episode=episode
         )
         if not tmdb_id:
             return None, None
-        details = super(TMDB, self).get_details(
+        details = self.get_details(
             tmdb_type='tv', tmdb_id=tmdb_id, season=season, episode=episode
         )
         return tmdb_id, details
