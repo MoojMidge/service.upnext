@@ -1,4 +1,10 @@
 ## Releases
+### v2.0.17+dev.0 (2023-02-08)
+- Simplify TMDB Helper player integration
+- Additional thread error handling
+- Add tvshow progress to episode listitems (for skins having these indications)
+- Minor misc bug fixes and tidy ups
+
 ### v2.0.16+dev.0 (2023-01-23)
 - Update advanced settings help text
 - Improve TMDB Helper player integration
