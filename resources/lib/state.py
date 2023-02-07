@@ -382,11 +382,11 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
                                             'player': addon_id,})
             return
 
-        tmdb_id, current_video = TMDB().get_id_details(title, season, episode)
+        tmdb_id, current_video = TMDB().get_id_details(title, season, episode)  # pylint: disable=no-value-for-parameter
         if not tmdb_id or not current_video:
             return
 
-        player = Player(query=title, season=season, episode=episode,  # pylint: disable=unexpected-keyword-arg
+        player = Player(query=title, season=season, episode=episode,  # pylint: disable=no-value-for-parameter,unexpected-keyword-arg
                         tbdb_id=tmdb_id, tmdb_type='tv',
                         player=addon_id, mode='play')
 
