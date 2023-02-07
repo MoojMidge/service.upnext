@@ -49,7 +49,7 @@ TVSHOW_PROPERTIES = frozenset({
     # 'votes',  # Not used
     'file',
     'genre',
-    'episode',
+    'episode',  # Remapped to totalepisodes
     'season',
     'runtime',
     'mpaa',
@@ -157,6 +157,9 @@ JSON_MAP = {
         'set_method': 'VideoLibrary.SetTVShowDetails',
         'id_name': 'tvshowid',
         'properties': TVSHOW_PROPERTIES,
+        'mapping': {
+            'episode': 'totalepisodes',
+        },
         'result': 'tvshowdetails'
     },
     'episodes': {
@@ -172,6 +175,9 @@ JSON_MAP = {
     'tvshows': {
         'get_method': 'VideoLibrary.GetTVShows',
         'properties': TVSHOW_PROPERTIES,
+        'mapping': {
+            'episode': 'totalepisodes',
+        },
         'result': 'tvshows'
     },
 }
@@ -384,6 +390,19 @@ def art_fallbacks(item=None, art=None, art_map=COMMON_ART_MAP, replace=True):  #
     if item:
         item['art'] = art
     return art
+
+
+def map_properties(item, db_type=None, mapping=None):
+    if db_type:
+        mapping = JSON_MAP.get(db_type, {}).get('mapping')
+    if not mapping:
+        return item
+
+    for old, new in mapping.items():
+        if old in item:
+            item[new] = item.pop(old)
+
+    return item
 
 
 def get_json_properties(item, additional=None):
@@ -919,6 +938,8 @@ def get_details_from_library(db_type=None,
                                    'properties': properties})
 
     result = result.get('result', {}).get(detail_type['result'], {})
+    if 'mapping' in detail_type:
+        map_properties(result, mapping=detail_type['mapping'])
     return result, detail_type
 
 
@@ -1436,6 +1457,8 @@ def get_similar_from_library(db_type,  # pylint: disable=too-many-arguments, too
                 break
             if similarity:
                 art_fallbacks(video)
+                if 'mapping' in detail_type:
+                    map_properties(video, mapping=detail_type['mapping'])
                 video['__similarity__'] = similarity
                 selected.append(video)
         else:
