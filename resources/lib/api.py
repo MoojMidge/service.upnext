@@ -849,7 +849,9 @@ def get_from_library(db_type=None, db_id=constants.UNDEFINED, item=None):
     details, _ = get_details_from_library(db_type=db_type, db_id=db_id)
 
     if not details:
-        log('Video info not found in library', utils.LOGWARNING)
+        log('Video info for {0} {1} not found in library'.format(
+            db_type, db_id
+        ), utils.LOGWARNING)
         return None
 
     if db_type == 'episode':
@@ -858,7 +860,8 @@ def get_from_library(db_type=None, db_id=constants.UNDEFINED, item=None):
                                                      db_id=db_id)
 
         if not tvshow_details:
-            log('Show info not found in library', utils.LOGWARNING)
+            log('tvshowid {0} not found in library'.format(db_id),
+                utils.LOGWARNING)
             return None
         tvshow_details.update(details)
         details = tvshow_details
@@ -877,11 +880,12 @@ def get_tvshowid(title):
                                         filters=FILTER_TITLE)
 
     if not tvshow:
-        log('tvshowid not found in library', utils.LOGWARNING)
+        log('showtitle "{0}" not found in library'.format(title),
+            utils.LOGWARNING)
         return constants.UNDEFINED
 
     tvshowid = utils.get_int(tvshow, 'tvshowid')
-    log('Fetched show "{0}" tvshowid: {1}'.format(title, tvshowid))
+    log('Found tvshowid {0} for showtitle "{1}"'.format(tvshowid, title))
     return tvshowid
 
 
@@ -899,12 +903,14 @@ def get_episodeid(tvshowid, season, episode):
                                         params={'tvshowid': tvshowid})
 
     if not result:
-        log('episodeid not found in library', utils.LOGWARNING)
+        log('episodeid for tvshowid {0} S{1}E{2} not found in library'.format(
+            tvshowid, season, episode
+        ), utils.LOGWARNING)
         return constants.UNDEFINED
 
     episodeid = utils.get_int(result, 'episodeid')
-    log('Fetched show {0} s{1}e{2} episodeid: {3}'.format(
-        tvshowid, season, episode, episodeid
+    log('Found episodeid {0} for tvshowid {1} S{2}E{3}'.format(
+        episodeid, tvshowid, season, episode
     ))
     return episodeid
 
