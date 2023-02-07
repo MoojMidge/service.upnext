@@ -144,6 +144,10 @@ class Player(Players):  # pylint: disable=inherit-non-class,too-few-public-metho
         self._success = (self.action_log and self.action_log[-2] == 'SUCCESS!')
         if not self._success:
             utils.notification('UpNext', 'Unable to play video')
+            from xbmc import Player as _Player, PlayList, PLAYLIST_VIDEO
+            playlist = PlayList(PLAYLIST_VIDEO)
+            playlist.clear()
+            _Player().stop()
         elif not SETTINGS.queue_from_tmdb:
             self.current_player['make_playlist'] = 'false'
         return path

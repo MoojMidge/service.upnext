@@ -291,6 +291,9 @@ class PlayList(object):
         ''' A stub constructor for the xbmc PlayList class '''
         self.playlist_type = playList
 
+    def clear(self):
+        _PLAYLIST[self.playlist_type]['playlist'].clear()
+
     def getposition(self):
         ''' A stub implementation for the xbmc PlayList class getposition() method '''
         return _PLAYLIST[self.playlist_type]['position']
