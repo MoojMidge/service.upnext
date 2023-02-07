@@ -36,14 +36,6 @@ EPISODE_PROPERTIES = frozenset({
     'dateadded',
     'lastplayed',
 })
-EPISODE_ART_MAP = {
-    'poster': ('season.poster', 'tvshow.poster'),
-    'fanart': ('season.fanart', 'tvshow.fanart'),
-    'landscape': ('season.landscape', 'tvshow.landscape'),
-    'clearart': ('season.clearart', 'tvshow.clearart'),
-    'banner': ('season.banner', 'tvshow.banner'),
-    'clearlogo': ('season.clearlogo', 'tvshow.clearlogo'),
-}
 
 TVSHOW_PROPERTIES = frozenset({
     'title',
@@ -112,9 +104,18 @@ MOVIE_PROPERTIES = frozenset({
     'premiered',
     # 'uniqueid',  # Not used, slow
 })
+
 COMMON_ART_MAP = {
     'thumb': ('poster', ),
     'icon': ('poster', ),
+}
+EPISODE_ART_MAP = {
+    'poster': ('season.poster', 'tvshow.poster'),
+    'fanart': ('season.fanart', 'tvshow.fanart'),
+    'landscape': ('season.landscape', 'tvshow.landscape'),
+    'clearart': ('season.clearart', 'tvshow.clearart'),
+    'banner': ('season.banner', 'tvshow.banner'),
+    'clearlogo': ('season.clearlogo', 'tvshow.clearlogo'),
 }
 
 RECOMMENDATION_PROPERTIES = {
@@ -641,7 +642,7 @@ def get_playlistid():
 
     result = utils.jsonrpc(method='Player.GetProperties',
                            params={'playerid': get_playerid(),
-                                   'properties': ['playlistid'],})
+                                   'properties': ['playlistid']})
     playlistid = utils.get_int(result.get('result', {}), 'playlistid',
                                PLAYER_PLAYLIST['video'])
 
@@ -655,7 +656,7 @@ def get_player_speed():
 
     result = utils.jsonrpc(method='Player.GetProperties',
                            params={'playerid': get_playerid(),
-                                   'properties': ['speed'],})
+                                   'properties': ['speed']})
     result = utils.get_int(result.get('result', {}), 'speed', 1)
 
     return result
@@ -669,7 +670,7 @@ def get_now_playing(properties, retry=3):
     while attempts_left > 0:
         result = utils.jsonrpc(method='Player.GetItem',
                                params={'playerid': get_playerid(retry=retry),
-                                       'properties': properties,})
+                                       'properties': properties})
         result = result.get('result', {}).get('item')
 
         if result:
@@ -826,25 +827,25 @@ def get_from_library(db_type=None, db_id=constants.UNDEFINED, item=None):
         log('Video info not found in library, invalid dbid', utils.LOGWARNING)
         return None
 
-    result, _ = get_details_from_library(db_type=db_type, db_id=db_id)
+    details, _ = get_details_from_library(db_type=db_type, db_id=db_id)
 
-    if not result:
+    if not details:
         log('Video info not found in library', utils.LOGWARNING)
         return None
 
     if db_type == 'episode':
-        db_id = utils.get_int(result, 'tvshowid')
+        db_id = utils.get_int(details, 'tvshowid')
         tvshow_details, _ = get_details_from_library(db_type='tvshow',
                                                      db_id=db_id)
 
         if not tvshow_details:
             log('Show info not found in library', utils.LOGWARNING)
             return None
-        tvshow_details.update(result)
-        result = tvshow_details
+        tvshow_details.update(details)
+        details = tvshow_details
 
-    log('Info from library: {0}'.format(result))
-    return result
+    log('Info from library: {0}'.format(details))
+    return details
 
 
 def get_tvshowid(title):
@@ -915,18 +916,18 @@ def get_details_from_library(db_type=None,
 
     result = utils.jsonrpc(method=detail_type['get_method'],
                            params={detail_type['id_name']: db_id,
-                                   'properties': properties,})
+                                   'properties': properties})
 
-    result = result.get('result', {}).get(detail_type['result'])
+    result = result.get('result', {}).get(detail_type['result'], {})
     return result, detail_type
 
 
 def handle_just_watched(item, reset_playcount=False, reset_resume=True):
     """Function to update playcount and resume point of just watched video"""
 
-    result = get_details_from_library(item=item,
-                                      properties=['playcount', 'resume'])
-    details, detail_type = result
+    details = get_details_from_library(item=item,
+                                       properties=['playcount', 'resume'])
+    details, detail_type = details
 
     if details:
         initial_playcount = utils.get_int(item.get('details'), 'playcount', 0)
@@ -1028,9 +1029,7 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
 
         # Restore current episode lastplayed for sorting of next-up episode
         upnext_episode['lastplayed'] = episode['lastplayed']
-
         art_fallbacks(upnext_episode, art_map=EPISODE_ART_MAP, replace=False)
-
         upnext_episodes.append(upnext_episode)
         tvshow_index.add(tvshowid)
 
@@ -1088,9 +1087,7 @@ def get_upnext_movies_from_library(limit=25,
 
         # Restore current movie lastplayed for sorting of next-up movie
         upnext_movie['lastplayed'] = movie['lastplayed']
-
         art_fallbacks(upnext_movie)
-
         upnext_movies.append(upnext_movie)
         set_index.add(setid)
 
