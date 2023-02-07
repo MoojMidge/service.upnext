@@ -3,8 +3,8 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-from importlib.util import find_spec, module_from_spec
-from sys import modules
+import sys
+from importlib import import_module
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -14,16 +14,44 @@ import utils
 from settings import SETTINGS
 
 
-def log(msg, level=utils.LOGERROR):
+def log(msg, level=utils.LOGDEBUG):
     """Log wrapper"""
 
     utils.log(msg, name=__name__, level=level)
 
 
 class Import(object):  # pylint: disable=too-few-public-methods
-    def __new__(cls, mod_name=None, obj_name=None,
-                mod_attrs=None, pre_mod_attrs=None, post_mod_attrs=None,
-                obj_attrs=None):
+    def __new__(cls, name, mod_attrs=None):
+        try:
+            try:
+                module = sys.modules[name]
+            except KeyError:
+                module = import_module(name)
+            if mod_attrs is not None:
+                module.__dict__.update(mod_attrs)
+        except ImportError:
+            from traceback import format_exc
+            log('ImportError: {0}'.format(format_exc()))
+            module = None
+        return module
+
+
+class ObjectImport(Import):  # pylint: disable=too-few-public-methods
+    def __new__(cls, name, obj_name, obj_attrs=None, **kwargs):  # pylint: disable=arguments-differ
+        module = super(ObjectImport, cls).__new__(cls, name, **kwargs)
+        try:
+            imported_obj = getattr(module, obj_name)
+            if obj_attrs is not None:
+                imported_obj.__dict__.update(obj_attrs)
+        except AttributeError:
+            from traceback import format_exc
+            log('ImportError: {0}'.format(format_exc()))
+            imported_obj = None
+        return imported_obj
+
+
+class ClassImport(ObjectImport):  # pylint: disable=too-few-public-methods
+    def __new__(cls, name, obj_name, obj_attrs=None, **kwargs):
         def substitute(cls, func=None, default_return=None):
             def wrapper(*_args, **_kwargs):
                 return default_return
@@ -41,66 +69,30 @@ class Import(object):  # pylint: disable=too-few-public-methods
         def is_initialised(cls):
             return cls._initialised
 
-        try:
-            spec = find_spec(f'themoviedb_helper.{mod_name}')
-            module = module_from_spec(spec)
-            if spec.name not in modules:
-                modules[spec.name] = module
-            attrs = None
-            if not pre_mod_attrs:
-                if mod_attrs:
-                    attrs = mod_attrs
-            elif mod_attrs:
-                attrs = dict(mod_attrs, **pre_mod_attrs)
-            else:
-                attrs = pre_mod_attrs
-            if attrs:
-                module.__dict__.update(attrs)
-            spec.loader.exec_module(module)
-            attrs = None
-            if not post_mod_attrs:
-                if mod_attrs:
-                    attrs = mod_attrs
-            elif mod_attrs:
-                attrs = dict(mod_attrs, **post_mod_attrs)
-            else:
-                attrs = post_mod_attrs
-            if attrs:
-                module.__dict__.update(attrs)
-            if obj_name:
-                imported_obj = getattr(module, obj_name)
-                del modules[spec.name]
+        imported_obj = super(ClassImport, cls).__new__(
+            cls, name, obj_name, **kwargs
+        )
+        if imported_obj:
             initialised = True
-        except (AttributeError, ImportError):
-            from traceback import format_exc
-            log('ImportError: {0}'.format(format_exc()))
-            module = None
+        else:
             imported_obj = object
             initialised = False
 
-        if isinstance(imported_obj, type):
-            _dict = {
-                '_initialised': initialised,
-                '_substitute': classmethod(substitute),
-                'is_initialised': classmethod(is_initialised),
-            }
-            if obj_attrs is not None:
-                _dict.update(obj_attrs)
-            return type(obj_name, (imported_obj, ), _dict)
-
-        if imported_obj:
-            if obj_attrs is not None:
-                imported_obj.__dict__.update(obj_attrs)
-            return imported_obj
-
-        return module
+        _dict = {
+            '_initialised': initialised,
+            '_substitute': classmethod(substitute),
+            'is_initialised': classmethod(is_initialised),
+        }
+        if obj_attrs is not None:
+            _dict.update(obj_attrs)
+        return type(obj_name, (imported_obj, ), _dict)
 
 
-TMDb = Import('api.tmdb.api', 'TMDb', obj_attrs={'api_key': 'b5004196f5004839a7b0a89e623d3bd2'})  # pylint: disable=invalid-name
-get_next_episodes = Import('player.details', 'get_next_episodes', mod_attrs={'TMDb': TMDb})  # pylint: disable=invalid-name
-get_item_details = Import('player.details', 'get_item_details', mod_attrs={'TMDb': TMDb})  # pylint: disable=invalid-name
-Players = Import('player.players', 'Players', mod_attrs={'TMDb': TMDb, 'get_item_details': get_item_details})  # pylint: disable=invalid-name
-make_playlist = Import('player.putils', 'make_playlist')  # pylint: disable=invalid-name
+TMDb = ClassImport('themoviedb_helper.api.tmdb.api', 'TMDb', obj_attrs={'api_key': 'b5004196f5004839a7b0a89e623d3bd2'})  # pylint: disable=invalid-name
+get_next_episodes = ObjectImport('themoviedb_helper.player.details', 'get_next_episodes', mod_attrs={'TMDb': TMDb})  # pylint: disable=invalid-name
+get_item_details = ObjectImport('themoviedb_helper.player.details', 'get_item_details', mod_attrs={'TMDb': TMDb})  # pylint: disable=invalid-name
+Players = ClassImport('themoviedb_helper.player.players', 'Players', mod_attrs={'TMDb': TMDb, 'get_item_details': get_item_details})  # pylint: disable=invalid-name
+make_playlist = ObjectImport('themoviedb_helper.player.putils', 'make_playlist')  # pylint: disable=invalid-name
 
 
 class TMDB(TMDb):  # pylint: disable=inherit-non-class,too-few-public-methods
@@ -120,7 +112,7 @@ class Player(Players):  # pylint: disable=inherit-non-class,too-few-public-metho
     @Players._substitute  # pylint: disable=no-member
     def __init__(self, **kwargs):
         if 'tmdb_id' not in kwargs:
-            kwargs['tmdb_id'] = TMDB().get_tmdb_id(**kwargs)  # pylint: disable=not-callable
+            kwargs['tmdb_id'] = TMDB().get_tmdb_id(**kwargs)  # pylint: disable=no-value-for-parameter,not-callable
         super(Player, self).__init__(**kwargs)
         self._success = False
 
@@ -170,7 +162,7 @@ class Player(Players):  # pylint: disable=inherit-non-class,too-few-public-metho
         episodes = self.get_next_episodes()
         if not episodes or len(episodes) < 2:
             return
-        make_playlist(episodes)
+        make_playlist(episodes)  # pylint: disable=not-callable
 
     @Players._substitute  # pylint: disable=no-member
     def select_player(self, *args, **kwargs):
