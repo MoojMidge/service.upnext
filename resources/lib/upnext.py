@@ -235,6 +235,12 @@ def create_episode_listitem(episode,  # pylint: disable=too-many-locals
     season = episode.get('season')
     show_title = episode.get('showtitle', '')
 
+    # Calculate tvshow progress if available
+    num_episodes = episode.get('totalepisodes', 0)
+    num_watched = episode.get('watchedepisodes', 0)
+    num_unwatched = max(0, num_episodes - num_watched)
+    progress = round(100 * num_watched / num_episodes) if num_episodes else 0
+
     if first_aired:
         year = first_aired.year
         first_aired_string = str(first_aired)
@@ -283,10 +289,14 @@ def create_episode_listitem(episode,  # pylint: disable=too-many-locals
     if infolabels:
         _infolabels.update(infolabels)
 
-    # Pass as property - there is no method to set/get tvshowid from a ListItem
-    # or InfoTagVideo
     _properties = {
-        'tvshowid': str(episode.get('tvshowid', constants.UNDEFINED))
+        # No method to set/get tvshowid from a ListItem or InfoTagVideo
+        'tvshowid': str(episode.get('tvshowid', constants.UNDEFINED)),
+        # Set tvshow progress if available
+        'totalepisodes': str(num_episodes),
+        'unwatchedepisodes': str(num_unwatched),
+        'watchedepisodes': str(num_watched),
+        'watchedprogress': str(progress),
     }
     if properties:
         _properties.update(properties)
@@ -340,11 +350,11 @@ def create_tvshow_listitem(tvshow,
                            kwargs=None, infolabels=None, properties=None):
     """Create a xbmcgui.ListItem from provided tvshow details"""
 
-    episode_num = tvshow.get('episode', 0)
+    num_episodes = tvshow.get('totalepisodes') or tvshow.get('episode', 0)
     title = tvshow.get('title', '')
-    watched_num = tvshow.get('watchedepisodes', 0)
-    unwatched_num = max(0, episode_num - watched_num)
-    progress = round(100 * watched_num / episode_num) if episode_num else 0
+    num_watched = tvshow.get('watchedepisodes', 0)
+    num_unwatched = max(0, num_episodes - num_watched)
+    progress = round(100 * num_watched / num_episodes) if num_episodes else 0
     year = tvshow.get('year')
 
     _kwargs = {
@@ -361,9 +371,9 @@ def create_tvshow_listitem(tvshow,
         _infolabels.update(infolabels)
 
     _properties = {
-        'totalepisodes': str(episode_num),
-        'unwatchedepisodes': str(unwatched_num),
-        'watchedepisodes': str(watched_num),
+        'totalepisodes': str(num_episodes),
+        'unwatchedepisodes': str(num_unwatched),
+        'watchedepisodes': str(num_watched),
         'watchedprogress': str(progress),
     }
     if properties:
