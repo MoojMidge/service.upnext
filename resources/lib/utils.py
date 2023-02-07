@@ -582,8 +582,7 @@ def calc_wait_time(end_time=None, start_time=0, rate=None):
     return max(0, (end_time - start_time) // rate)
 
 
-def create_item_details(item, source=None,
-                        media_type=None, playlist_position=None):
+def create_item_details(item, source=None, position=constants.UNDEFINED):
     """Create item_details dict used by state, api and plugin modules"""
 
     if item == 'empty':
@@ -591,21 +590,28 @@ def create_item_details(item, source=None,
             'details': {},
             'source': None,
             'type': None,
-            'db_id': constants.UNDEFINED,
-            'group_name': None,
+            'id': constants.UNDEFINED,
+            'group_name': constants.UNKNOWN,
             'group_idx': constants.UNDEFINED,
         }
 
     if not item or not source:
         return None
 
-    is_episode = (media_type == 'episode') or ('tvshowid' in item)
+    if 'tvshowid' in item:
+        db_type = 'episode'
+    elif 'setid' in item:
+        db_type = 'movie'
+    else:
+        db_type = item.get('type', constants.UNKNOWN)
 
-    if playlist_position:
+    if position != constants.UNDEFINED:
+        db_id = get_int(item, 'id')
         group_name = constants.MIXED_PLAYLIST
-        group_idx = playlist_position
+        group_idx = position
 
-    elif is_episode:
+    elif db_type == 'episode':
+        db_id = get_int(item, 'episodeid', None) or get_int(item, 'id')
         group_name = '-'.join((
             str(get_int(item, 'tvshowid')),
             item.get('showtitle', constants.UNTITLED),
@@ -613,21 +619,24 @@ def create_item_details(item, source=None,
         ))
         group_idx = get_int(item, 'episode')
 
-    else:
+    elif db_type == 'movie':
+        db_id = get_int(item, 'movieid', None) or get_int(item, 'id')
         group_name = '-'.join((
             str(get_int(item, 'setid')),
             item.get('set', constants.UNTITLED),
         ))
-        group_idx = playlist_position
+        group_idx = position
+
+    else:
+        db_id = get_int(item, 'id')
+        group_name = constants.UNKNOWN
+        group_idx = position
 
     item_details = {
         'details': item,
         'source': source,
-        'type': 'episode' if is_episode else media_type,
-        'db_id': (
-            get_int(item, 'episodeid' if is_episode else 'movieid', None)
-            or get_int(item, 'id')
-        ),
+        'type': db_type,
+        'id': db_id,
         'group_name': group_name,
         'group_idx': group_idx,
     }

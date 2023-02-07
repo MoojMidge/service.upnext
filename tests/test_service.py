@@ -32,11 +32,11 @@ def test_plugin():
         assert True
         return
 
-    dbid = dummydata.LIBRARY['episodes'][0]['episodeid']
+    db_id = dummydata.LIBRARY['episodes'][0]['episodeid']
     test_complete = plugin.run([
         'plugin://service.upnext/play_media',
         '1',
-        '?db_type=episode&db_id={0}'.format(dbid)
+        '?type=episode&id={0}'.format(db_id)
     ])
     assert test_complete is True
 
@@ -48,21 +48,17 @@ def test_movie_plugin():
 
     addon_id = 'video.test_movie_plugin'
 
-    dbid = dummydata.LIBRARY['movies'][0]['movieid']
-    dbtype = 'movie'
-    current_video = api.get_from_library(media_type=dbtype, db_id=dbid)
-    current_item = utils.create_item_details(current_video, 'library', dbtype)
-
+    db_id = dummydata.LIBRARY['movies'][0]['movieid']
+    current_video = api.get_from_library(db_type='movie', db_id=db_id)
+    current_item = utils.create_item_details(current_video, 'library')
     next_item = utils.create_item_details(
-        api.get_next_from_library(item=current_item),
-        source='library',
-        media_type=dbtype
+        api.get_next_from_library(item=current_item), 'library',
     )
 
     upnext_info = {
         'current_video': upnext.create_listitem(current_item),
-        'play_url': 'plugin://{0}/play_media/?db_type={1}&db_id={2}'.format(
-            1, dbtype, next_item['db_id']
+        'play_url': 'plugin://{0}/play_media/?type={1}&id={2}'.format(
+            1, next_item['type'], next_item['id']
         )
     }
     test_complete = upnext.send_signal(addon_id, upnext_info)

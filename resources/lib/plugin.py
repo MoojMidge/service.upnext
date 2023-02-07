@@ -22,18 +22,14 @@ def log(msg, level=utils.LOGDEBUG):
 
 
 def generate_library_plugin_data(current_item, addon_id, state=None):
-    media_type = current_item['type']
     if state:
         next_item = state.get_next()
     else:
-        next_item = utils.create_item_details(
-            api.get_next_from_library(
-                item=current_item,
-                next_season=SETTINGS.next_season,
-                unwatched_only=SETTINGS.unwatched_only
-            ),
-            source='library', media_type=media_type
-        )
+        next_item = utils.create_item_details(api.get_next_from_library(
+            item=current_item,
+            next_season=SETTINGS.next_season,
+            unwatched_only=SETTINGS.unwatched_only
+        ), 'library')
 
     if (not next_item
             or not next_item['details']
@@ -43,8 +39,8 @@ def generate_library_plugin_data(current_item, addon_id, state=None):
     upnext_info = {
         'current_video': upnext.create_listitem(current_item),
         'next_video': upnext.create_listitem(next_item),
-        'play_url': 'plugin://{0}/play_media/?db_type={1}&db_id={2}'.format(
-            addon_id, media_type, next_item['db_id']
+        'play_url': 'plugin://{0}/play_media/?type={1}&id={2}'.format(
+            addon_id, next_item['type'], next_item['id']
         )
     }
     return upnext_info
@@ -88,7 +84,7 @@ def generate_next_movies_list(addon_handle, addon_id, **kwargs):  # pylint: disa
 
 def generate_watched_movies_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     movies = api.get_videos_from_library(
-        media_type='movies',
+        db_type='movies',
         limit=SETTINGS.widget_list_limit,
         sort=api.SORT_LASTPLAYED,
         filters=api.FILTER_WATCHED
@@ -118,7 +114,7 @@ def generate_similar_movies_list(addon_handle, addon_id, **kwargs):  # pylint: d
         movieid = last_path
 
     movie, movies = api.get_similar_from_library(
-        media_type='movies',
+        db_type='movies',
         limit=SETTINGS.widget_list_limit,
         db_id=movieid,
         unwatched_only=SETTINGS.widget_unwatched_only,
@@ -162,7 +158,7 @@ def generate_next_episodes_list(addon_handle, addon_id, **kwargs):  # pylint: di
 
 def generate_watched_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     tvshows = api.get_videos_from_library(
-        media_type='tvshows',
+        db_type='tvshows',
         limit=SETTINGS.widget_list_limit,
         sort=api.SORT_LASTPLAYED,
         filters=api.FILTER_WATCHED
@@ -192,7 +188,7 @@ def generate_similar_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: 
         tvshowid = last_path
 
     tvshow, tvshows = api.get_similar_from_library(
-        media_type='tvshows',
+        db_type='tvshows',
         limit=SETTINGS.widget_list_limit,
         db_id=tvshowid,
         unwatched_only=SETTINGS.widget_unwatched_only,
@@ -247,13 +243,13 @@ def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disab
 
 def generate_watched_media_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
     movies = api.get_videos_from_library(
-        media_type='movies',
+        db_type='movies',
         limit=SETTINGS.widget_list_limit,
         sort=api.SORT_LASTPLAYED,
         filters=api.FILTER_WATCHED,
     )
     tvshows = api.get_videos_from_library(
-        media_type='tvshows',
+        db_type='tvshows',
         limit=SETTINGS.widget_list_limit,
         sort=api.SORT_LASTPLAYED,
         filters=api.FILTER_WATCHED,
@@ -300,7 +296,7 @@ def generate_similar_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
         randshuffle(similar_list)
 
     original, similar_list[0] = api.get_similar_from_library(
-        media_type=similar_list[0],
+        db_type=similar_list[0],
         limit=SETTINGS.widget_list_limit,
         db_id=db_id,
         unwatched_only=SETTINGS.widget_unwatched_only,
@@ -309,7 +305,7 @@ def generate_similar_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
         sort=False
     )
     original, similar_list[1] = api.get_similar_from_library(
-        media_type=similar_list[1],
+        db_type=similar_list[1],
         limit=SETTINGS.widget_list_limit,
         original=original,
         unwatched_only=SETTINGS.widget_unwatched_only,
@@ -358,14 +354,10 @@ def open_settings(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-a
 
 
 def play_media(addon_handle, addon_id, **kwargs):
-    db_type = kwargs.get('db_type', '')
-    db_id = utils.get_int(kwargs, 'db_id')
-
-    if db_type and db_id != constants.UNDEFINED:
-        current_video = api.get_from_library(media_type=db_type, db_id=db_id)
-        current_item = utils.create_item_details(
-            current_video, 'library', db_type
-        )
+    if 'id' in kwargs:
+        kwargs['id'] = utils.get_int(kwargs, 'id')
+        current_video = api.get_from_library(item=kwargs)
+        current_item = utils.create_item_details(current_video, 'library')
     else:
         current_item = None
 

@@ -17,20 +17,18 @@ from settings import SETTINGS
 
 
 def test_popup(popup_type, simple_style=False):
-    media_type = randchoice(('movies', 'episodes'))
+    db_type = randchoice(('movies', 'episodes'))
     selection = randchoice((0, 2))
 
-    test_video = dummydata.LIBRARY[media_type][selection]
-    test_next_video = dummydata.LIBRARY[media_type][selection + 1]
+    test_video = dummydata.LIBRARY[db_type][selection]
+    test_next_video = dummydata.LIBRARY[db_type][selection + 1]
 
     # Create test state object
     test_state = state.UpNextState()
     # Simulate after file has started
     test_state.starting = 0
     # Use test episode to simulate next playing episode used for popup display
-    test_state.next_item = utils.create_item_details(
-        item=test_next_video, source='playlist',
-    )
+    test_state.next_item = utils.create_item_details(test_next_video, 'playlist')
 
     # Choose popup style
     SETTINGS.simple_mode = bool(simple_style)
