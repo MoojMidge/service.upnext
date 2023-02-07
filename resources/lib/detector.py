@@ -655,16 +655,21 @@ class UpNextDetector(object):
             queue.all_tasks_done.notify_all()
             queue.unfinished_tasks = 0
 
-    def _queue_init(self):
+    def _queue_create(self):
+        queue = Queue(maxsize=SETTINGS.detector_threads)
         del self.queue
-        self.queue = Queue(maxsize=SETTINGS.detector_threads)
+        self.queue = queue
+        return queue
 
-    def _queue_push(self):
-        queue = self.queue
-        capturer, size = self._queue_pull()
-        capturer.capture(*size)
+    def _queue_push(self, queue=None):
+        queue = queue or self.queue
+        try:
+            capturer, size = self._queue_pull(queue)
+            capturer.capture(*size)
+            abort = False
+        except TypeError:
+            abort = True
 
-        abort = False
         while not (abort or self._sigterm.is_set() or self._sigstop.is_set()):
             loop_start = timeit.default_timer()
 
@@ -718,11 +723,12 @@ class UpNextDetector(object):
         self._queue_task_done(queue)
         self._queue_clear(queue)
 
-    def _queue_pull(self, timeout=None):
-        if not self.queue:
+    def _queue_pull(self, queue=None, timeout=None):
+        queue = queue or self.queue
+        if not queue:
             return None
 
-        return self.queue.get(timeout=timeout)
+        return queue.get(timeout=timeout)
 
     def _queue_task_done(self, queue=None):
         queue = queue or self.queue
@@ -762,7 +768,8 @@ class UpNextDetector(object):
                 break
 
             try:
-                image_data, size = self._queue_pull(SETTINGS.detector_threads)
+                image_data, size = self._queue_pull(queue,
+                                                    SETTINGS.detector_threads)
                 if not isinstance(image_data, (bytes, bytearray)):
                     raise QueueEmpty
             except TypeError:
@@ -897,26 +904,25 @@ class UpNextDetector(object):
             return
 
         # Otherwise run the detector in a new thread
-        self.log('Started')
+        with self._lock:
+            self.log('Started')
+            queue = self._queue_create()
+            queue.put_nowait([
+                xbmc.RenderCapture(),
+                self._get_video_capture_resolution(
+                    max_size=SETTINGS.detector_data_limit
+                )
+            ])
+            self.workers = [utils.run_threaded(self._queue_push,
+                                               kwargs={'queue': queue})]
+            self.workers += [
+                utils.run_threaded(self._worker,
+                                   delay=start_delay * self.capture_interval)
+                for start_delay in range(SETTINGS.detector_threads - 1)
+            ]
+            self._running.set()
 
-        self._queue_init()
-        self.queue.put_nowait([
-            xbmc.RenderCapture(),
-            self._get_video_capture_resolution(
-                max_size=SETTINGS.detector_data_limit
-            )
-        ])
-        self.workers = [utils.run_threaded(self._queue_push)]
-        self.workers += [
-            utils.run_threaded(
-                self._worker,
-                delay=(start_delay * self.capture_interval)
-            )
-            for start_delay in range(SETTINGS.detector_threads - 1)
-        ]
-
-        self._running.set()
-        self.queue.join()
+        queue.join()
         self._worker_release()
 
         self.log('Stopped')
