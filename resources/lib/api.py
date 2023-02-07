@@ -1414,14 +1414,13 @@ def get_similar_from_library(db_type,  # pylint: disable=too-many-arguments, too
     }
 
     FILTER_GENRE['value'] = infotags.genres
+    unwatched_only = FILTER_UNWATCHED_GENRE if unwatched_only else FILTER_GENRE
     while True:
         similar, detail_type = get_videos_from_library(db_type=db_type,
                                                        limit=chunk_limit,
                                                        sort=SORT_RATING,
                                                        properties=properties,
-                                                       filters=(FILTER_UNWATCHED_GENRE
-                                                                if unwatched_only
-                                                                else FILTER_GENRE))
+                                                       filters=unwatched_only)
 
         for video in similar:
             db_id = video[id_name]
