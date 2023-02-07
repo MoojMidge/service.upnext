@@ -292,6 +292,7 @@ def update_library_ids():
         while tvshow_id in tvshow_ids:
             tvshow_id = randint(min_id, max_id)
         tvshow_ids.append(tvshow_id)
+        LIBRARY['tvshows'][tvshow]['type'] = 'tvshow'
         LIBRARY['tvshows'][tvshow]['tvshowid'] = tvshow_id
         LIBRARY['tvshows'][tvshow]['title'] = tvshow
 
@@ -302,6 +303,7 @@ def update_library_ids():
         while episode_id in episode_ids:
             episode_id = randint(min_id, max_id)
         episode_ids.append(episode_id)
+        episode['type'] = 'episode'
         episode['episodeid'] = episode_id
 
         tvshow = LIBRARY['tvshows'].get(episode['showtitle'], {})
@@ -333,6 +335,7 @@ def update_library_ids():
         while movie_id in movie_ids:
             movie_id = randint(min_id, max_id)
         movie_ids.append(movie_id)
+        movie['type'] = 'movie'
         movie['movieid'] = movie_id
 
         _set = LIBRARY['sets'].get(movie['set'], {})
