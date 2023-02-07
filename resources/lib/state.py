@@ -283,15 +283,17 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
     @classmethod
     def _get_library_now_playing(cls, play_info):  # pylint: disable=too-many-branches, too-many-return-statements
-        media_type = play_info.get('type')
-        current_video = api.get_now_playing(
-            properties=api.get_json_properties(play_info, {'mediapath'}),
-            retry=SETTINGS.api_retry_attempts
-        )
+        if 'id' in play_info:
+            current_video = api.get_from_library(item=play_info)
+        else:
+            current_video = api.get_now_playing(
+                properties=api.get_json_properties(play_info, {'mediapath'}),
+                retry=SETTINGS.api_retry_attempts
+            )
         if not current_video:
             return None
 
-        if media_type == 'movie':
+        if current_video['type'] == 'movie':
             return (
                 current_video if utils.get_int(current_video, 'setid') > 0
                 else None
