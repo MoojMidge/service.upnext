@@ -51,9 +51,11 @@
                     <default>FFFF4081</default>
                     <dependencies>
                         <dependency type="visible">
-							<condition operator="is" setting="popupAccentColour">4</condition>
+                            <and>
+                                <condition operator="is" setting="popupAccentColour">4</condition>
+                                <condition on="property" name="infobool">String.StartsWith(System.BuildVersionShort,2)</condition>
+                            </and>
 						</dependency>
-                        <dependency type="visible" on="property" name="infobool">String.StartsWith(System.BuildVersionShort,2)</dependency>
                     </dependencies>
                     <control type="colorbutton"/>
                 </setting>
@@ -66,11 +68,13 @@
 						<maximum>255</maximum>
 					</constraints>
 					<dependencies>
-						<dependency type="visible">
-							<condition operator="is" setting="popupAccentColour">4</condition>
+                        <dependency type="visible">
+                            <and>
+                                <condition operator="is" setting="popupAccentColour">4</condition>
+                                <condition on="property" name="infobool">!String.StartsWith(System.BuildVersionShort,2)</condition>
+                            </and>
 						</dependency>
-                        <dependency type="visible" on="property" name="infobool">!String.StartsWith(System.BuildVersionShort,2)</dependency>
-					</dependencies>
+                    </dependencies>
 					<control type="slider" format="integer">
 						<popup>false</popup>
 					</control>
@@ -84,11 +88,13 @@
 						<maximum>255</maximum>
 					</constraints>
 					<dependencies>
-						<dependency type="visible">
-							<condition operator="is" setting="popupAccentColour">4</condition>
+                        <dependency type="visible">
+                            <and>
+                                <condition operator="is" setting="popupAccentColour">4</condition>
+                                <condition on="property" name="infobool">!String.StartsWith(System.BuildVersionShort,2)</condition>
+                            </and>
 						</dependency>
-                        <dependency type="visible" on="property" name="infobool">!String.StartsWith(System.BuildVersionShort,2)</dependency>
-					</dependencies>
+                    </dependencies>
 					<control type="slider" format="integer">
 						<popup>false</popup>
 					</control>
@@ -102,11 +108,13 @@
 						<maximum>255</maximum>
 					</constraints>
 					<dependencies>
-						<dependency type="visible">
-							<condition operator="is" setting="popupAccentColour">4</condition>
+                        <dependency type="visible">
+                            <and>
+                                <condition operator="is" setting="popupAccentColour">4</condition>
+                                <condition on="property" name="infobool">!String.StartsWith(System.BuildVersionShort,2)</condition>
+                            </and>
 						</dependency>
-                        <dependency type="visible" on="property" name="infobool">!String.StartsWith(System.BuildVersionShort,2)</dependency>
-					</dependencies>
+                    </dependencies>
 					<control type="slider" format="integer">
 						<popup>false</popup>
 					</control>
@@ -120,11 +128,13 @@
 						<maximum>255</maximum>
 					</constraints>
 					<dependencies>
-						<dependency type="visible">
-							<condition operator="is" setting="popupAccentColour">4</condition>
+                        <dependency type="visible">
+                            <and>
+                                <condition operator="is" setting="popupAccentColour">4</condition>
+                                <condition on="property" name="infobool">!String.StartsWith(System.BuildVersionShort,2)</condition>
+                            </and>
 						</dependency>
-                        <dependency type="visible" on="property" name="infobool">!String.StartsWith(System.BuildVersionShort,2)</dependency>
-					</dependencies>
+                    </dependencies>
 					<control type="slider" format="integer">
 						<popup>false</popup>
 					</control>
@@ -545,7 +555,9 @@
 					<default>true</default>
 					<control type="toggle"/>
                     <dependencies>
-                        <dependency type="enable" on="property" name="infobool">System.HasAddon(plugin.video.themoviedb.helper)</dependency>
+                        <dependency type="enable">
+                            <condition on="property" name="infobool">System.HasAddon(plugin.video.themoviedb.helper)</condition>
+                        </dependency>
                     </dependencies>
 				</setting>
                 <setting id="exactTMDBMatch" type="boolean" label="30711" help="30712" parent="enableTMDBHelper">
