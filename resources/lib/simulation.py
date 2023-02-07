@@ -41,21 +41,21 @@ def handle_sim_mode(player, state, now_playing_item):
             _EVENT_TRIGGERED['general'] = True
             upnext.send_signal(addon_id, upnext_info)
 
-    # Seek to 15s before end of video
-    if SETTINGS.sim_seek == constants.SIM_SEEK_15S:
-        seek_time = player.getTotalTime() - 15
-    # Seek to popup start time
-    elif SETTINGS.sim_seek == constants.SIM_SEEK_POPUP_TIME:
-        seek_time = state.get_popup_time()
-    # Seek to detector start time
-    elif SETTINGS.sim_seek == constants.SIM_SEEK_DETECT_TIME:
-        seek_time = state.get_detect_time() or state.get_popup_time()
-    else:
+    if not SETTINGS.sim_seek:
         return _EVENT_TRIGGERED['general']
 
     with utils.ContextManager(handler=player) as check_fail:
         if check_fail is AttributeError:
             raise check_fail
+        # Seek to 15s before end of video
+        if SETTINGS.sim_seek == constants.SIM_SEEK_15S:
+            seek_time = player.getTotalTime() - 15
+        # Seek to popup start time
+        elif SETTINGS.sim_seek == constants.SIM_SEEK_POPUP_TIME:
+            seek_time = state.get_popup_time()
+        # Seek to detector start time
+        else:
+            seek_time = state.get_detect_time() or state.get_popup_time()
         log('Seeking to end')
         player.seekTime(seek_time)
 
