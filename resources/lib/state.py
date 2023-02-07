@@ -233,18 +233,14 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         ), utils.LOGINFO)
 
     def process_now_playing(self, playlist_position, plugin_type, play_info):
-        media_type = play_info.get('type')
         if plugin_type:
-            new_video = self._get_plugin_now_playing(media_type)
+            new_video = self._get_plugin_now_playing(play_info)
             source = constants.PLUGIN_TYPES[plugin_type]
 
         elif playlist_position:
             new_video = api.get_from_playlist(
                 position=playlist_position,
-                properties=(
-                    api.MOVIE_PROPERTIES if media_type == 'movie' else
-                    api.EPISODE_PROPERTIES
-                )
+                properties=api.get_json_properties(play_info)
             )
             source = 'playlist'
 
@@ -274,17 +270,14 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             self.current_item = new_item
         return self.current_item
 
-    def _get_plugin_now_playing(self, media_type):
+    def _get_plugin_now_playing(self, play_info):
         if self.data:
             # Fallback to now playing info if plugin does not provide current
             # episode details
             current_video = (
                 self.data.get('current_video')
                 or api.get_now_playing(
-                    properties=(
-                        api.MOVIE_PROPERTIES if media_type == 'movie' else
-                        api.EPISODE_PROPERTIES
-                    ),
+                    properties=api.get_json_properties(play_info),
                     retry=SETTINGS.api_retry_attempts
                 )
             )
@@ -301,10 +294,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
     def _get_library_now_playing(cls, play_info):  # pylint: disable=too-many-branches, too-many-return-statements
         media_type = play_info.get('type')
         current_video = api.get_now_playing(
-            properties=(
-                api.MOVIE_PROPERTIES if media_type == 'movie' else
-                api.EPISODE_PROPERTIES | {'mediapath'}
-            ),
+            properties=api.get_json_properties(play_info, {'mediapath'}),
             retry=SETTINGS.api_retry_attempts
         )
         if not current_video:

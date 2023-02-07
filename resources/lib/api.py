@@ -385,6 +385,14 @@ def art_fallbacks(item=None, art=None, art_map=COMMON_ART_MAP, replace=True):  #
     return art
 
 
+def get_json_properties(item, additional=None):
+    db_type = item.get('type')
+    if db_type not in JSON_MAP:
+        return []
+    properties = JSON_MAP[db_type].get('properties') or set()
+    return properties | additional
+
+
 def get_item_id(item):
     """Helper function to construct item dict with library dbid reference for
     use with params arguments of JSONRPC requests"""
