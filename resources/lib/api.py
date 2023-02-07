@@ -1030,7 +1030,11 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
         # Restore current episode lastplayed for sorting of next-up episode
         upnext_episode['lastplayed'] = episode['lastplayed']
         art_fallbacks(upnext_episode, art_map=EPISODE_ART_MAP, replace=False)
-        upnext_episodes.append(upnext_episode)
+        # Combine tvshow details with episode details
+        tvshow_details, _ = get_details_from_library(db_type='tvshow',
+                                                     db_id=tvshowid)
+        tvshow_details.update(upnext_episode)
+        upnext_episodes.append(tvshow_details)
         tvshow_index.add(tvshowid)
 
     return upnext_episodes
