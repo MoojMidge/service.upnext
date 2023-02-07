@@ -83,7 +83,7 @@ def generate_next_movies_list(addon_handle, addon_id, **kwargs):  # pylint: disa
 
 
 def generate_watched_movies_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
-    movies = api.get_videos_from_library(
+    movies, _ = api.get_videos_from_library(
         db_type='movies',
         limit=SETTINGS.widget_list_limit,
         sort=api.SORT_LASTPLAYED,
@@ -157,7 +157,7 @@ def generate_next_episodes_list(addon_handle, addon_id, **kwargs):  # pylint: di
 
 
 def generate_watched_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
-    tvshows = api.get_videos_from_library(
+    tvshows, _ = api.get_videos_from_library(
         db_type='tvshows',
         limit=SETTINGS.widget_list_limit,
         sort=api.SORT_LASTPLAYED,
@@ -242,13 +242,13 @@ def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disab
 
 
 def generate_watched_media_list(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
-    movies = api.get_videos_from_library(
+    movies, _ = api.get_videos_from_library(
         db_type='movies',
         limit=SETTINGS.widget_list_limit,
         sort=api.SORT_LASTPLAYED,
         filters=api.FILTER_WATCHED,
     )
-    tvshows = api.get_videos_from_library(
+    tvshows, _ = api.get_videos_from_library(
         db_type='tvshows',
         limit=SETTINGS.widget_list_limit,
         sort=api.SORT_LASTPLAYED,

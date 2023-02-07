@@ -750,11 +750,11 @@ def get_next_episode_from_library(episode=constants.UNDEFINED,
 
     filters = {'and': filters}
 
-    result = get_videos_from_library(db_type='episodes',
-                                     limit=1,
-                                     sort=sort,
-                                     filters=filters,
-                                     params={'tvshowid': tvshowid})
+    result, _ = get_videos_from_library(db_type='episodes',
+                                        limit=1,
+                                        sort=sort,
+                                        filters=filters,
+                                        params={'tvshowid': tvshowid})
 
     if not result:
         log('No next episode found in library')
@@ -803,10 +803,10 @@ def get_next_movie_from_library(movie=constants.UNDEFINED,
 
     filters = {'and': filters}
 
-    movie = get_videos_from_library(db_type='movies',
-                                    limit=1,
-                                    sort=sort,
-                                    filters=filters)
+    movie, _ = get_videos_from_library(db_type='movies',
+                                       limit=1,
+                                       sort=sort,
+                                       filters=filters)
 
     if not movie:
         log('No next movie found in library')
@@ -852,10 +852,10 @@ def get_tvshowid(title):
     """Function to search Kodi library for tshowid by title"""
 
     FILTER_TITLE['value'] = title
-    tvshow = get_videos_from_library(db_type='tvshows',
-                                     limit=1,
-                                     properties=[],
-                                     filters=FILTER_TITLE)
+    tvshow, _ = get_videos_from_library(db_type='tvshows',
+                                        limit=1,
+                                        properties=[],
+                                        filters=FILTER_TITLE)
 
     if not tvshow:
         log('tvshowid not found in library', utils.LOGWARNING)
@@ -873,11 +873,11 @@ def get_episodeid(tvshowid, season, episode):
     FILTER_THIS_SEASON['value'] = str(season)
     FILTER_THIS_EPISODE['value'] = str(episode)
 
-    result = get_videos_from_library(db_type='episodes',
-                                     limit=1,
-                                     properties=[],
-                                     filters=FILTER_EPISODE,
-                                     params={'tvshowid': tvshowid})
+    result, _ = get_videos_from_library(db_type='episodes',
+                                        limit=1,
+                                        properties=[],
+                                        filters=FILTER_EPISODE,
+                                        params={'tvshowid': tvshowid})
 
     if not result:
         log('episodeid not found in library', utils.LOGWARNING)
@@ -988,15 +988,15 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
         ]
         sort = SORT_EPISODE
 
-    inprogress = get_videos_from_library(db_type='episodes',
+    inprogress, _ = get_videos_from_library(db_type='episodes',
+                                            limit=limit,
+                                            sort=SORT_LASTPLAYED,
+                                            filters=filters[0])
+
+    watched, _ = get_videos_from_library(db_type='episodes',
                                          limit=limit,
                                          sort=SORT_LASTPLAYED,
-                                         filters=filters[0])
-
-    watched = get_videos_from_library(db_type='episodes',
-                                      limit=limit,
-                                      sort=SORT_LASTPLAYED,
-                                      filters=filters[1])
+                                         filters=filters[1])
 
     episodes = utils.merge_iterable(inprogress, watched, sort='lastplayed')
 
@@ -1016,12 +1016,12 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
                 episode['firstaired']
             )
 
-            upnext_episode = get_videos_from_library(db_type='episodes',
-                                                     limit=1,
-                                                     sort=sort,
-                                                     filters=filters[2],
-                                                     params={'tvshowid':
-                                                             tvshowid})
+            upnext_episode, _ = get_videos_from_library(db_type='episodes',
+                                                        limit=1,
+                                                        sort=sort,
+                                                        filters=filters[2],
+                                                        params={'tvshowid':
+                                                                tvshowid})
 
             if not upnext_episode:
                 tvshow_index.add(tvshowid)
@@ -1041,16 +1041,16 @@ def get_upnext_movies_from_library(limit=25,
                                    unwatched_only=False):
     """Function to get in-progress and next movie details from Kodi library"""
 
-    inprogress = get_videos_from_library(db_type='movies',
-                                         limit=limit,
-                                         sort=SORT_LASTPLAYED,
-                                         filters=FILTER_INPROGRESS)
+    inprogress, _ = get_videos_from_library(db_type='movies',
+                                            limit=limit,
+                                            sort=SORT_LASTPLAYED,
+                                            filters=FILTER_INPROGRESS)
 
     if movie_sets:
-        watched = get_videos_from_library(db_type='movies',
-                                          limit=limit,
-                                          sort=SORT_LASTPLAYED,
-                                          filters=FILTER_WATCHED)
+        watched, _ = get_videos_from_library(db_type='movies',
+                                             limit=limit,
+                                             sort=SORT_LASTPLAYED,
+                                             filters=FILTER_WATCHED)
 
         movies = utils.merge_iterable(inprogress, watched, sort='lastplayed')
     else:
@@ -1074,10 +1074,10 @@ def get_upnext_movies_from_library(limit=25,
             FILTER_SET['value'] = movie['set']
             FILTER_NEXT_MOVIE['value'] = str(movie['year'])
 
-            upnext_movie = get_videos_from_library(db_type='movies',
-                                                   limit=1,
-                                                   sort=SORT_YEAR,
-                                                   filters=filters)
+            upnext_movie, _ = get_videos_from_library(db_type='movies',
+                                                      limit=1,
+                                                      sort=SORT_YEAR,
+                                                      filters=filters)
 
             if not upnext_movie:
                 set_index.add(setid)
@@ -1134,8 +1134,8 @@ def get_videos_from_library(db_type,  # pylint: disable=too-many-arguments
     videos = videos.get('result', {}).get(detail_type['result'], [])
 
     if videos and limit == 1:
-        return videos[0]
-    return videos
+        return videos[0], detail_type
+    return videos, detail_type
 
 
 class InfoTagComparator(object):
@@ -1368,11 +1368,11 @@ def get_similar_from_library(db_type,  # pylint: disable=too-many-arguments, too
         # Use original video passed as argument to function call
         pass
     elif db_id == constants.UNDEFINED or db_id is None:
-        original = get_videos_from_library(db_type=db_type,
-                                           limit=1,
-                                           sort=SORT_RANDOM,
-                                           properties=properties,
-                                           filters=FILTER_WATCHED)
+        original, _ = get_videos_from_library(db_type=db_type,
+                                              limit=1,
+                                              sort=SORT_RANDOM,
+                                              properties=properties,
+                                              filters=FILTER_WATCHED)
     else:
         original, _ = get_details_from_library(db_type=db_type,
                                                db_id=int(db_id),
@@ -1391,10 +1391,10 @@ def get_similar_from_library(db_type,  # pylint: disable=too-many-arguments, too
 
     if infotags.set_name and db_type == 'movies':
         FILTER_SET['value'] = original['set']
-        similar = get_videos_from_library(db_type=db_type,
-                                          limit=None,
-                                          sort=SORT_YEAR,
-                                          filters=FILTER_SET)
+        similar, _ = get_videos_from_library(db_type=db_type,
+                                             limit=None,
+                                             sort=SORT_YEAR,
+                                             filters=FILTER_SET)
         for video in similar:
             db_id = video[id_name]
             if db_id in video_index:
@@ -1415,13 +1415,13 @@ def get_similar_from_library(db_type,  # pylint: disable=too-many-arguments, too
 
     FILTER_GENRE['value'] = infotags.genres
     while True:
-        similar = get_videos_from_library(db_type=db_type,
-                                          limit=chunk_limit,
-                                          sort=SORT_RATING,
-                                          properties=properties,
-                                          filters=(FILTER_UNWATCHED_GENRE
-                                                   if unwatched_only
-                                                   else FILTER_GENRE))
+        similar, detail_type = get_videos_from_library(db_type=db_type,
+                                                       limit=chunk_limit,
+                                                       sort=SORT_RATING,
+                                                       properties=properties,
+                                                       filters=(FILTER_UNWATCHED_GENRE
+                                                                if unwatched_only
+                                                                else FILTER_GENRE))
 
         for video in similar:
             db_id = video[id_name]
