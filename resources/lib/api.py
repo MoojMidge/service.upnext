@@ -1038,7 +1038,8 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
         if tvshowid in tvshow_index:
             continue
 
-        if episode['resume']['position']:
+        resume = episode['resume']
+        if resume['position'] < 0.9 * resume['total']:
             upnext_episode = episode
         else:
             FILTER_THIS_SEASON['value'] = str(episode['season'])
@@ -1103,7 +1104,8 @@ def get_upnext_movies_from_library(limit=25,
         if setid != constants.UNDEFINED and setid in set_index:
             continue
 
-        if movie['resume']['position']:
+        resume = movie['resume']
+        if resume['position'] < 0.9 * resume['total']:
             upnext_movie = movie
         elif movie_sets and setid != constants.UNDEFINED:
             FILTER_SET['value'] = movie['set']
@@ -1482,4 +1484,3 @@ def get_similar_from_library(db_type,  # pylint: disable=too-many-arguments, too
         return original, selected
     selected = utils.merge_iterable(selected, sort='__similarity__')
     return original, selected[:limit]
-
