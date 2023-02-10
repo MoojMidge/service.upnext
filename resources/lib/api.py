@@ -409,8 +409,12 @@ def get_json_properties(item, additional=None):
     db_type = item.get('type')
     if db_type not in JSON_MAP:
         return []
-    properties = JSON_MAP[db_type].get('properties') or set()
-    return properties | additional
+    properties = JSON_MAP[db_type].get('properties')
+    if properties and additional:
+        return properties | additional
+    if additional:
+        return additional
+    return properties or set()
 
 
 def get_item_id(item):
