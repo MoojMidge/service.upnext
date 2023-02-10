@@ -1,4 +1,7 @@
 ## Releases
+### v2.0.18+dev.0 (2023-02-10)
+- Bug fixes
+
 ### v2.0.17+dev.0 (2023-02-08)
 - Simplify TMDB Helper player integration
 - Additional thread error handling
