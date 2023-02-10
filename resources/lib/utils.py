@@ -9,7 +9,6 @@ import binascii
 import json
 import threading
 from itertools import chain
-from operator import itemgetter
 from posixpath import split as posix_split
 
 try:
@@ -645,17 +644,39 @@ def create_item_details(item, source=None, position=constants.UNDEFINED):
 
 def merge_iterable(*iterables, **kwargs):
     sort = kwargs.get('sort')
+    unique = kwargs.get('unique')
 
     merged = chain.from_iterable(iterables)
-    if sort:
-        descending = kwargs.get('ascending', True)
-        key = None if isinstance(sort, bool) else itemgetter(sort)
-        threshold = kwargs.get('threshold')
 
-        if key and threshold is not None:
-            merged = (item for item in merged if key(item) > threshold)
+    if sort or unique:
+        descending = kwargs.get('ascending', True)
+        subset = set()
+        threshold = {'num': 0}
+
+        def key(item,  # pylint: disable=dangerous-default-value
+                sort=sort, unique=unique,
+                subset=subset, threshold=threshold):
+            if unique in item:
+                unique = item[unique]
+            if sort in item:
+                sort = item[sort]
+            if 'value' not in threshold:
+                threshold['value'] = kwargs.get('threshold') or type(sort)()
+            if unique is not None:
+                if unique in subset:
+                    return threshold['value']
+                subset.add(unique)
+            if sort is None or sort > threshold['value']:
+                threshold['num'] += 1
+                return sort
+            return threshold['value']
 
         merged = sorted(merged, key=key, reverse=descending)
+        if not threshold['num']:
+            return merged
+        if descending:
+            return merged[:threshold['num']]
+        return merged[threshold['num']:]
     return merged
 
 
