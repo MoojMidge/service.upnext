@@ -1373,7 +1373,7 @@ def get_similar_from_library(db_type,  # pylint: disable=too-many-arguments, too
                              unwatched_only=False,
                              use_cast=False,
                              use_tag=False,
-                             sort=True):
+                             return_all=False):
     """Function to search by db_id for similar videos from Kodi library"""
 
     if use_cast and use_tag:
@@ -1474,8 +1474,8 @@ def get_similar_from_library(db_type,  # pylint: disable=too-many-arguments, too
                 continue
         break
 
-    if sort:
-        return original, utils.merge_iterable(
-            selected, sort='__similarity__'
-        )[:limit]
-    return original, selected
+    if return_all:
+        return original, selected
+    selected = utils.merge_iterable(selected, sort='__similarity__')
+    return original, selected[:limit]
+

@@ -229,12 +229,10 @@ def generate_next_media_list(addon_handle, addon_id, **kwargs):  # pylint: disab
         unwatched_only=SETTINGS.unwatched_only
     )
 
-    videos = utils.merge_iterable(
-        episodes, movies, sort='lastplayed'
-    )[:SETTINGS.widget_list_limit]
+    videos = utils.merge_iterable(episodes, movies, sort='lastplayed')
 
     listing = []
-    for video in videos:
+    for video in videos[:SETTINGS.widget_list_limit]:
         listitem = upnext.create_listitem(video)
         listing += ((video['file'], listitem, False),)
 
@@ -255,12 +253,10 @@ def generate_watched_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
         filters=api.FILTER_WATCHED,
     )
 
-    videos = utils.merge_iterable(
-        movies, tvshows, sort='lastplayed'
-    )[:SETTINGS.widget_list_limit]
+    videos = utils.merge_iterable(movies, tvshows, sort='lastplayed')
 
     listing = []
-    for video in videos:
+    for video in videos[:SETTINGS.widget_list_limit]:
         if 'tvshowid' in video:
             listitem = upnext.create_tvshow_listitem
             path = 'plugin://{0}/similar_media/tvshows/{1}'.format(
@@ -302,7 +298,7 @@ def generate_similar_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
         unwatched_only=SETTINGS.widget_unwatched_only,
         use_cast=SETTINGS.widget_enable_cast,
         use_tag=SETTINGS.widget_enable_tags,
-        sort=False
+        return_all=True
     )
     original, similar_list[1] = api.get_similar_from_library(
         db_type=similar_list[1],
@@ -311,19 +307,17 @@ def generate_similar_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
         unwatched_only=SETTINGS.widget_unwatched_only,
         use_cast=SETTINGS.widget_enable_cast,
         use_tag=SETTINGS.widget_enable_tags,
-        sort=False
+        return_all=True
     )
     if original:
         title = original['title']
         label = utils.localize(constants.MORE_LIKE_THIS_STR_ID).format(title)
         xbmcplugin.setPluginCategory(addon_handle, label)
 
-    videos = utils.merge_iterable(
-        similar_list[0], similar_list[1], sort='__similarity__'
-    )[:SETTINGS.widget_list_limit]
+    videos = utils.merge_iterable(*similar_list, sort='__similarity__')
 
     listing = []
-    for video in videos:
+    for video in videos[:SETTINGS.widget_list_limit]:
         if 'tvshowid' in video:
             listitem = upnext.create_tvshow_listitem
             path = 'videodb://tvshows/titles/{0}/'.format(video['tvshowid'])
