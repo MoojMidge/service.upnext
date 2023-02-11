@@ -221,7 +221,7 @@ class UpNextMonitor(xbmc.Monitor, object):
 
         # Update idle state for widget refresh
         self._idle[0] = False
-        now = int(time)
+        now = int(time())
         delta = now - self._idle[1]
         if delta > SETTINGS.widget_refresh_period - 10:
             self._idle[1] = now
@@ -517,7 +517,7 @@ class UpNextMonitor(xbmc.Monitor, object):
                 if self._idle[0]:
                     continue
 
-                now = int(time)
+                now = int(time())
                 delta = now - self._idle[1]
                 if delta > SETTINGS.widget_refresh_period - 10:
                     self._idle[1] = now
