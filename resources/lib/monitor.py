@@ -220,10 +220,11 @@ class UpNextMonitor(xbmc.Monitor, object):
             return
 
         # Update idle state for widget refresh
+        self._idle[0] = False
         now = int(time)
         delta = now - self._idle[1]
-        self._idle = [False, now]
-        if delta > 60:
+        if delta > SETTINGS.widget_refresh_period - 10:
+            self._idle[1] = now
             utils.set_property(constants.WIDGET_RELOAD_PROPERTY_NAME, str(now))
 
         # Delay event handler execution to allow events to queue up
@@ -237,7 +238,7 @@ class UpNextMonitor(xbmc.Monitor, object):
 
     def _event_handler_screensaver_on(self, **_kwargs):
         # Update idle state for widget refresh
-        self._idle = [True, int(time())]
+        self._idle[0] = True
 
     def _event_handler_upnext_trigger(self, **_kwargs):
         # Remove remnants from previous operations
@@ -515,13 +516,15 @@ class UpNextMonitor(xbmc.Monitor, object):
                                         - delta):
                 if self._idle[0]:
                     continue
+
                 now = int(time)
                 delta = now - self._idle[1]
                 if delta > SETTINGS.widget_refresh_period - 10:
-                    delta = 0
                     self._idle[1] = now
                     utils.set_property(constants.WIDGET_RELOAD_PROPERTY_NAME,
                                        str(now))
+                    delta = 0
+
             # Cleanup when abort requested
             self.stop()
 
