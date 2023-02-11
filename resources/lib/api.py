@@ -960,25 +960,22 @@ def handle_just_watched(item, reset_playcount=False, reset_resume=True):
                                        properties=['playcount', 'resume'])
     details, detail_type = details
 
-    if details:
-        initial_playcount = utils.get_int(item.get('details'), 'playcount', 0)
-        current_playcount = utils.get_int(details, 'playcount', 0)
-        current_resume = utils.get_int(details.get('resume'), 'position', 0)
-    else:
+    if not details:
         return
 
+    resume = details.get('resume')
+    playcount = utils.get_int(item.get('details'), 'playcount', 0)
     params = {}
 
     # If Kodi has not updated playcount then UpNext will
     if reset_playcount:
         params['playcount'] = 0
-    elif current_playcount == initial_playcount:
-        current_playcount += 1
-        params['playcount'] = current_playcount
+    elif utils.get_int(details, 'playcount', 0) == playcount:
+        params['playcount'] = playcount + 1
 
     # If resume point has been saved then reset it
-    if current_resume and reset_resume:
-        params['resume'] = {'position': 0}
+    if reset_resume and utils.get_int(resume, 'position', 0):
+        params['resume'] = {'position': 0, 'total': resume['total']}
 
     # Only update library if playcount or resume point needs to change
     if params:
@@ -989,9 +986,9 @@ def handle_just_watched(item, reset_playcount=False, reset_resume=True):
 
     log('Library update: {0}{1}{2}{3}'.format(
         '{0}_id - {1}'.format(item['type'], item['id']),
-        ', playcount - {0} to {1}'.format(initial_playcount, current_playcount)
+        ', playcount - {0} to {1}'.format(playcount, params['playcount'])
         if 'playcount' in params else '',
-        ', resume - {0} to 0'.format(current_resume)
+        ', resume - {0} to {1}'.format(resume, params['resume'])
         if 'resume' in params else '',
         '' if params else ', no change'
     ), utils.LOGDEBUG)
