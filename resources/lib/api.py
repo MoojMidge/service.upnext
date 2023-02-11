@@ -1040,7 +1040,7 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
             continue
 
         resume = episode['resume']
-        if resume['position'] < 0.9 * resume['total']:
+        if 0 < resume['position'] < 0.9 * resume['total']:
             upnext_episode = episode
         else:
             FILTER_THIS_SEASON['value'] = str(episode['season'])
@@ -1107,7 +1107,7 @@ def get_upnext_movies_from_library(limit=25,
             continue
 
         resume = movie['resume']
-        if resume['position'] < 0.9 * resume['total']:
+        if 0 < resume['position'] <= 0.9 * resume['total']:
             upnext_movie = movie
         elif movie_sets and setid != constants.UNDEFINED:
             FILTER_SET['value'] = movie['set']
