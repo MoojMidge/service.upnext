@@ -581,7 +581,7 @@ def calc_wait_time(end_time=None, start_time=0, rate=None):
     return max(0, (end_time - start_time) // rate)
 
 
-def create_item_details(item, source=None, position=constants.UNDEFINED):
+def create_item_details(item, source=None, position=None):
     """Create item_details dict used by state, api and plugin modules"""
 
     if item == 'empty':
@@ -604,7 +604,7 @@ def create_item_details(item, source=None, position=constants.UNDEFINED):
     else:
         db_type = item.get('type', constants.UNKNOWN)
 
-    if position != constants.UNDEFINED:
+    if position:
         db_id = get_int(item, 'id')
         group_name = constants.MIXED_PLAYLIST
         group_idx = position
