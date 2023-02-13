@@ -63,6 +63,7 @@
 		"widgetEnableTags": "false",
 		"widgetIncludeWatched": "true",
 		"widgetListLimit": 25,
+		"widgetRefreshAll": "false",
 		"widgetRefreshPeriod": 10
 	}
 }

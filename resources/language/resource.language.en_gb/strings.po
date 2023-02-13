@@ -286,6 +286,10 @@ msgctxt "#30544"
 msgid "Widget refresh period"
 msgstr ""
 
+msgctxt "#30545"
+msgid "Refresh all widgets when using remote database"
+msgstr ""
+
 msgctxt "#30546"
 msgid "Recommendation widgets use cast and crew"
 msgstr ""

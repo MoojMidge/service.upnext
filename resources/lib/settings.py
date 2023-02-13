@@ -64,6 +64,7 @@ class UpNextSettings(object):
         'widget_enable_cast',
         'widget_enable_tags',
         'widget_list_limit',
+        'widget_refresh_all',
         'widget_refresh_period',
         'widget_unwatched_only',
     )
@@ -185,6 +186,7 @@ class UpNextSettings(object):
         self.widget_refresh_period = (
             60 * self.get_int('widgetRefreshPeriod', default=10)
         )
+        self.widget_refresh_all = self.get_bool('widgetRefreshAll')
 
         self.widget_enable_cast = self.get_bool('widgetEnableCast')
         self.widget_enable_tags = self.get_bool('widgetEnableTags')

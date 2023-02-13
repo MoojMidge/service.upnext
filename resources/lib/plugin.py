@@ -468,6 +468,8 @@ PLUGIN_CONTENT = {
         },
         'content_type': 'movies',
         'handler': generate_next_movies_list,
+        'params': (constants.WIDGET_RELOAD_PARAM_STRING
+                   if SETTINGS.widget_refresh_all else '')
     },
     'next_episodes': {
         'label': utils.localize(constants.NEXT_EPISODES_STR_ID),
@@ -476,6 +478,8 @@ PLUGIN_CONTENT = {
         },
         'content_type': 'episodes',
         'handler': generate_next_episodes_list,
+        'params': (constants.WIDGET_RELOAD_PARAM_STRING
+                   if SETTINGS.widget_refresh_all else '')
     },
     'next_media': {
         'label': utils.localize(constants.NEXT_MEDIA_STR_ID),
@@ -484,6 +488,8 @@ PLUGIN_CONTENT = {
         },
         'content_type': 'videos',
         'handler': generate_next_media_list,
+        'params': (constants.WIDGET_RELOAD_PARAM_STRING
+                   if SETTINGS.widget_refresh_all else '')
     },
     'watched_movies': {
         'label': utils.localize(constants.WATCHED_MOVIES_STR_ID),
@@ -492,6 +498,8 @@ PLUGIN_CONTENT = {
         },
         'content_type': 'movies',
         'handler': generate_watched_movies_list,
+        'params': (constants.WIDGET_RELOAD_PARAM_STRING
+                   if SETTINGS.widget_refresh_all else '')
     },
     'watched_tvshows': {
         'label': utils.localize(constants.WATCHED_TVSHOWS_STR_ID),
@@ -500,6 +508,8 @@ PLUGIN_CONTENT = {
         },
         'content_type': 'tvshows',
         'handler': generate_watched_tvshows_list,
+        'params': (constants.WIDGET_RELOAD_PARAM_STRING
+                   if SETTINGS.widget_refresh_all else '')
     },
     'watched_media': {
         'label': utils.localize(constants.WATCHED_MEDIA_STR_ID),
@@ -508,6 +518,8 @@ PLUGIN_CONTENT = {
         },
         'content_type': 'tvshows',
         'handler': generate_watched_media_list,
+        'params': (constants.WIDGET_RELOAD_PARAM_STRING
+                   if SETTINGS.widget_refresh_all else '')
     },
     'similar_movies': {
         'label': utils.localize(constants.MORE_LIKE_MOVIES_STR_ID),
