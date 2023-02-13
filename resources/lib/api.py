@@ -143,6 +143,9 @@ JSON_MAP = {
         'set_method': 'VideoLibrary.SetEpisodeDetails',
         'id_name': 'episodeid',
         'properties': EPISODE_PROPERTIES,
+        'mapping': {
+            'type': 'episode',
+        },
         'result': 'episodedetails'
     },
     'movie': {
@@ -150,6 +153,9 @@ JSON_MAP = {
         'set_method': 'VideoLibrary.SetMovieDetails',
         'id_name': 'movieid',
         'properties': MOVIE_PROPERTIES,
+        'mapping': {
+            'type': 'movie',
+        },
         'result': 'moviedetails'
     },
     'tvshow': {
@@ -159,6 +165,7 @@ JSON_MAP = {
         'properties': TVSHOW_PROPERTIES,
         'mapping': {
             'episode': 'totalepisodes',
+            'type': 'tvshow',
         },
         'result': 'tvshowdetails'
     },
@@ -401,6 +408,8 @@ def map_properties(item, db_type=None, mapping=None):
     for old, new in mapping.items():
         if old in item:
             item[new] = item.pop(old)
+        else:
+            item[old] = new
 
     return item
 
@@ -948,7 +957,7 @@ def get_details_from_library(db_type=None,
                                    'properties': properties})
 
     result = result.get('result', {}).get(detail_type['result'], {})
-    if 'mapping' in detail_type:
+    if result and 'mapping' in detail_type:
         map_properties(result, mapping=detail_type['mapping'])
     return result, detail_type
 
