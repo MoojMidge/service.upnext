@@ -270,15 +270,30 @@ FILTER_NEXT_EPISODE = {
     'operator': 'greaterthan',
     'value': constants.UNDEFINED_STR
 }
+
+FILTER_AIRED = {
+    'field': 'airdate',
+    'operator': 'startswith',
+    'value': constants.UNDEFINED_STR
+}
 FILTER_NEXT_AIRED = {
     'field': 'airdate',
     'operator': 'after',
     'value': constants.UNDEFINED_STR
 }
-FILTER_UNWATCHED_NEXT_AIRED = {
+FILTER_UPNEXT_AIRED = {
+    'or': [
+        FILTER_NEXT_AIRED,
+        {'and': [
+            FILTER_AIRED,
+            FILTER_NEXT_EPISODE
+        ]}
+    ]
+}
+FILTER_UNWATCHED_UPNEXT_AIRED = {
     'and': [
         FILTER_UNWATCHED,
-        FILTER_NEXT_AIRED
+        FILTER_UPNEXT_AIRED
     ]
 }
 
@@ -772,8 +787,11 @@ def get_next_episode_from_library(episode=constants.UNDEFINED,
         sort = SORT_RANDOM
     elif next_season:
         sort = SORT_DATE
-        FILTER_NEXT_AIRED['value'] = utils.iso_datetime(episode['firstaired'])
-        filters.append(FILTER_NEXT_AIRED)
+        FILTER_NEXT_EPISODE['value'] = str(episode['episode'])
+        aired = utils.iso_datetime(episode['firstaired'])
+        FILTER_AIRED['value'] = aired.split()[0]
+        FILTER_NEXT_AIRED['value'] = aired
+        filters.append(FILTER_UPNEXT_AIRED)
     else:
         sort = SORT_EPISODE
         FILTER_THIS_SEASON['value'] = str(episode['season'])
@@ -1012,8 +1030,8 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
         filters = [
             FILTER_INPROGRESS,
             FILTER_WATCHED,
-            (FILTER_UNWATCHED_NEXT_AIRED if unwatched_only
-             else FILTER_NEXT_AIRED)
+            (FILTER_UNWATCHED_UPNEXT_AIRED if unwatched_only
+             else FILTER_UPNEXT_AIRED)
         ]
         sort = SORT_DATE
     else:
@@ -1051,9 +1069,9 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
         else:
             FILTER_THIS_SEASON['value'] = str(episode['season'])
             FILTER_NEXT_EPISODE['value'] = str(episode['episode'])
-            FILTER_NEXT_AIRED['value'] = utils.iso_datetime(
-                episode['firstaired']
-            )
+            aired = utils.iso_datetime(episode['firstaired'])
+            FILTER_AIRED['value'] = aired.split()[0]
+            FILTER_NEXT_AIRED['value'] = aired
 
             upnext_episode, _ = get_videos_from_library(db_type='episodes',
                                                         limit=1,
