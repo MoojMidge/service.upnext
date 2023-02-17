@@ -419,6 +419,9 @@ class UpNextMonitor(xbmc.Monitor, object):
         # xbmc.Player.getTime() as the infolabel appears to update quicker
         playback = self._get_playback_details(use_infolabel=True)
 
+        # Update idle state for widget refresh
+        self._idle[0] = not playback
+
         # Exit if not playing, paused, or rewinding
         if not playback or playback['speed'] < 1:
             self.log('Skip tracking: nothing playing', utils.LOGINFO)
@@ -429,9 +432,6 @@ class UpNextMonitor(xbmc.Monitor, object):
             self.log('Unknown file playing', utils.LOGWARNING)
             self.state.set_tracking(False)
             return
-
-        # Update idle state for widget refresh
-        self._idle[0] = False
 
         # Determine time until popup is required, scaled to real time
         popup_delay = utils.calc_wait_time(
