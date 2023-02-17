@@ -220,12 +220,7 @@ class UpNextMonitor(xbmc.Monitor, object):
             return
 
         # Update idle state for widget refresh
-        self._idle[0] = False
-        now = int(time())
-        delta = now - self._idle[1]
-        if delta > SETTINGS.widget_refresh_period - 10:
-            self._idle[1] = now
-            utils.set_property(constants.WIDGET_RELOAD_PROPERTY_NAME, str(now))
+        self._idle[0] = True
 
         # Delay event handler execution to allow events to queue up
         self.waitForAbort(1)
@@ -236,9 +231,17 @@ class UpNextMonitor(xbmc.Monitor, object):
         # Restart tracking if previously enabled
         self._start_tracking()
 
+        if not self._idle[0]:
+            return
+        now = int(time())
+        delta = now - self._idle[1]
+        if delta > SETTINGS.widget_refresh_period - 10:
+            self._idle[1] = now
+            utils.set_property(constants.WIDGET_RELOAD_PROPERTY_NAME, str(now))
+
     def _event_handler_screensaver_on(self, **_kwargs):
         # Update idle state for widget refresh
-        self._idle[0] = True
+        self._idle[0] = False
 
     def _event_handler_upnext_trigger(self, **_kwargs):
         # Remove remnants from previous operations
@@ -427,6 +430,9 @@ class UpNextMonitor(xbmc.Monitor, object):
             self.state.set_tracking(False)
             return
 
+        # Update idle state for widget refresh
+        self._idle[0] = False
+
         # Determine time until popup is required, scaled to real time
         popup_delay = utils.calc_wait_time(
             end_time=self.state.get_popup_time(),
@@ -506,15 +512,17 @@ class UpNextMonitor(xbmc.Monitor, object):
         if not self._monitoring:
             self._monitoring = True
             # Set initial idle state for widget refresh
-            self._idle = [xbmc.getCondVisibility('System.ScreenSaverActive'),
-                          int(time())]
+            self._idle = [
+                not xbmc.getCondVisibility('System.ScreenSaverActive'),
+                int(time())
+            ]
 
             # Wait indefinitely until addon is terminated, but periodically
             # update widgets
             delta = 0
             while not self.waitForAbort(SETTINGS.widget_refresh_period
                                         - delta):
-                if self._idle[0]:
+                if not self._idle[0]:
                     continue
 
                 now = int(time())
