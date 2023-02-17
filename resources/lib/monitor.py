@@ -234,10 +234,12 @@ class UpNextMonitor(xbmc.Monitor, object):
         if not self._idle[0]:
             return
         now = int(time())
-        delta = now - self._idle[1]
-        if delta > SETTINGS.widget_refresh_period - 10:
-            self._idle[1] = now
-            utils.set_property(constants.WIDGET_RELOAD_PROPERTY_NAME, str(now))
+        if now - self._idle[1] <= SETTINGS.widget_refresh_period - 10:
+            return
+        self.log('Widget reload')
+        self._idle[1] = now
+        utils.set_property(constants.WIDGET_RELOAD_PROPERTY_NAME, str(now))
+
 
     def _event_handler_screensaver_on(self, **_kwargs):
         # Update idle state for widget refresh
@@ -509,32 +511,34 @@ class UpNextMonitor(xbmc.Monitor, object):
             # This is a fake event, use Other.OnAVStart
             utils.event('OnAVStart', internal=True)
 
-        if not self._monitoring:
-            self._monitoring = True
-            # Set initial idle state for widget refresh
-            self._idle = [
-                not xbmc.getCondVisibility('System.ScreenSaverActive'),
-                int(time())
-            ]
+        if self._monitoring:
+            return
+        self._monitoring = True
 
-            # Wait indefinitely until addon is terminated, but periodically
-            # update widgets
+        # Set initial idle state for widget refresh
+        now = int(time())
+        self._idle = [not xbmc.getCondVisibility('System.ScreenSaverActive'),
+                      now]
+        utils.set_property(constants.WIDGET_RELOAD_PROPERTY_NAME, str(now))
+
+        # Wait indefinitely until addon is terminated, but periodically
+        # update widgets
+        delta = 0
+        while not self.waitForAbort(SETTINGS.widget_refresh_period - delta):
+            if not self._idle[0]:
+                continue
+            now = int(time())
+            delta = now - self._idle[1]
+            if delta <= SETTINGS.widget_refresh_period - 10:
+                continue
+            self.log('Widget reload')
+            self._idle[1] = now
+            utils.set_property(constants.WIDGET_RELOAD_PROPERTY_NAME, str(now))
             delta = 0
-            while not self.waitForAbort(SETTINGS.widget_refresh_period
-                                        - delta):
-                if not self._idle[0]:
-                    continue
 
-                now = int(time())
-                delta = now - self._idle[1]
-                if delta > SETTINGS.widget_refresh_period - 10:
-                    self._idle[1] = now
-                    utils.set_property(constants.WIDGET_RELOAD_PROPERTY_NAME,
-                                       str(now))
-                    delta = 0
 
-            # Cleanup when abort requested
-            self.stop()
+        # Cleanup when abort requested
+        self.stop()
 
     def stop(self):
         self.log('UpNext exiting', utils.LOGINFO)
