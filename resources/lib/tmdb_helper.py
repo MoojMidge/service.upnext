@@ -69,9 +69,12 @@ class ClassImport(ObjectImport):  # pylint: disable=too-few-public-methods
         def is_initialised(cls):
             return cls._initialised
 
-        imported_obj = super(ClassImport, cls).__new__(
-            cls, name, obj_name, **kwargs
-        )
+        if 'obj' in kwargs:  # pylint: disable=consider-using-get
+            imported_obj = kwargs['obj']
+        else:
+            imported_obj = super(ClassImport, cls).__new__(
+                cls, name, obj_name, **kwargs
+            )
         if imported_obj:
             initialised = True
         else:
@@ -88,11 +91,11 @@ class ClassImport(ObjectImport):  # pylint: disable=too-few-public-methods
         return type(obj_name, (imported_obj, ), _dict)
 
 
-TMDb = ClassImport('themoviedb_helper.api.tmdb.api', 'TMDb', obj_attrs={'api_key': 'b5004196f5004839a7b0a89e623d3bd2'})  # pylint: disable=invalid-name
-get_next_episodes = ObjectImport('themoviedb_helper.player.details', 'get_next_episodes', mod_attrs={'TMDb': TMDb})  # pylint: disable=invalid-name
-get_item_details = ObjectImport('themoviedb_helper.player.details', 'get_item_details', mod_attrs={'TMDb': TMDb})  # pylint: disable=invalid-name
-Players = ClassImport('themoviedb_helper.player.players', 'Players', mod_attrs={'TMDb': TMDb, 'get_item_details': get_item_details})  # pylint: disable=invalid-name
-make_playlist = ObjectImport('themoviedb_helper.player.putils', 'make_playlist')  # pylint: disable=invalid-name
+TMDb = ClassImport('tmdbhelper_lib.api.tmdb.api', 'TMDb', obj_attrs={'api_key': 'b5004196f5004839a7b0a89e623d3bd2'})  # pylint: disable=invalid-name
+get_next_episodes = ObjectImport('tmdbhelper_lib.player.details', 'get_next_episodes', mod_attrs={'TMDb': TMDb})  # pylint: disable=invalid-name
+get_item_details = ObjectImport('tmdbhelper_lib.player.details', 'get_item_details', mod_attrs={'TMDb': TMDb})  # pylint: disable=invalid-name
+Players = ClassImport('tmdbhelper_lib.player.players', 'Players', mod_attrs={'TMDb': TMDb, 'get_item_details': get_item_details})  # pylint: disable=invalid-name
+make_playlist = ObjectImport('tmdbhelper_lib.player.putils', 'make_playlist')  # pylint: disable=invalid-name
 
 
 class TMDB(TMDb):  # pylint: disable=inherit-non-class,too-few-public-methods
@@ -177,9 +180,10 @@ class Player(Players):  # pylint: disable=inherit-non-class,too-few-public-metho
 
 def generate_tmdbhelper_play_url(upnext_data, player):
     video_details = upnext_data.get('next_video')
-    offset = 0
-    play_url = 'plugin://service.upnext/play_plugin?{0}'
-    if not video_details:
+    if video_details:
+        offset = 0
+        play_url = 'plugin://service.upnext/play_plugin?{0}'
+    else:
         video_details = upnext_data.get('current_video')
         offset = 1
         play_url = 'plugin://plugin.video.themoviedb.helper/?{0}'
