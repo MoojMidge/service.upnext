@@ -220,7 +220,7 @@ class UpNextMonitor(xbmc.Monitor, object):
             return
 
         # Update idle state for widget refresh
-        self._idle[0] = True
+        self._idle[0] = False
 
         # Delay event handler execution to allow events to queue up
         self.waitForAbort(1)
@@ -231,19 +231,12 @@ class UpNextMonitor(xbmc.Monitor, object):
         # Restart tracking if previously enabled
         self._start_tracking()
 
-        if not self._idle[0]:
-            return
-        now = int(time())
-        if now - self._idle[1] <= SETTINGS.widget_refresh_period - 10:
-            return
-        self.log('Widget reload')
-        self._idle[1] = now
-        utils.set_property(constants.WIDGET_RELOAD_PROPERTY_NAME, str(now))
+        self._widget_reload()
 
 
     def _event_handler_screensaver_on(self, **_kwargs):
         # Update idle state for widget refresh
-        self._idle[0] = False
+        self._idle[0] = True
 
     def _event_handler_upnext_trigger(self, **_kwargs):
         # Remove remnants from previous operations
@@ -409,6 +402,13 @@ class UpNextMonitor(xbmc.Monitor, object):
         self._stop_detector(terminate=True)
 
     def _start_tracking(self):
+        # Get playback details and use VideoPlayer.Time infolabel over
+        # xbmc.Player.getTime() as the infolabel appears to update quicker
+        play_info = self._get_playback_details(use_infolabel=True)
+
+        # Update idle state for widget refresh
+        self._idle[0] = play_info is not None
+
         # Exit if tracking disabled
         if not self.state.is_tracking():
             return
@@ -416,13 +416,6 @@ class UpNextMonitor(xbmc.Monitor, object):
         # Remove remnants from previous operations
         self._stop_detector()
         self._stop_popuphandler()
-
-        # Get playback details and use VideoPlayer.Time infolabel over
-        # xbmc.Player.getTime() as the infolabel appears to update quicker
-        play_info = self._get_playback_details(use_infolabel=True)
-
-        # Update idle state for widget refresh
-        self._idle[0] = not play_info
 
         # Exit if not playing, paused, or rewinding
         if not play_info or play_info['speed'] < 1:
@@ -495,6 +488,21 @@ class UpNextMonitor(xbmc.Monitor, object):
                 self.popuphandler = None
                 self.log('Cleanup popuphandler')
 
+    def _widget_reload(self, init=False):
+        if self._idle[0]:
+            return 0
+        now = int(time())
+        if init:
+            self._idle = [xbmc.getCondVisibility('System.ScreenSaverActive'),
+                          now]
+        delta = now - self._idle[1]
+        if delta <= SETTINGS.widget_refresh_period - 10:
+            return delta
+        self.log('Widget reload')
+        self._idle[1] = now
+        utils.set_property(constants.WIDGET_RELOAD_PROPERTY_NAME, str(now))
+        return 0
+
     def start(self, **kwargs):
         if SETTINGS.disabled:
             return
@@ -516,26 +524,12 @@ class UpNextMonitor(xbmc.Monitor, object):
         self._monitoring = True
 
         # Set initial idle state for widget refresh
-        now = int(time())
-        self._idle = [not xbmc.getCondVisibility('System.ScreenSaverActive'),
-                      now]
-        utils.set_property(constants.WIDGET_RELOAD_PROPERTY_NAME, str(now))
+        delta = self._widget_reload(init=True)
 
         # Wait indefinitely until addon is terminated, but periodically
         # update widgets
-        delta = 0
         while not self.waitForAbort(SETTINGS.widget_refresh_period - delta):
-            if not self._idle[0]:
-                continue
-            now = int(time())
-            delta = now - self._idle[1]
-            if delta <= SETTINGS.widget_refresh_period - 10:
-                continue
-            self.log('Widget reload')
-            self._idle[1] = now
-            utils.set_property(constants.WIDGET_RELOAD_PROPERTY_NAME, str(now))
-            delta = 0
-
+            delta = self._widget_reload()
 
         # Cleanup when abort requested
         self.stop()
