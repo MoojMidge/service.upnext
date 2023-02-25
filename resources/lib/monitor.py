@@ -254,18 +254,18 @@ class UpNextMonitor(xbmc.Monitor, object):
 
         # Get playback details and use VideoPlayer.Time infolabel over
         # xbmc.Player.getTime() as the infolabel appears to update quicker
-        playback = self._get_playback_details(use_infolabel=True)
+        play_info = self._get_playback_details(use_infolabel=True)
 
         # Exit if not playing, paused, or rewinding
-        if not playback or playback['speed'] < 1:
+        if not play_info or play_info['speed'] < 1:
             self.log('Skip trigger: nothing playing', utils.LOGINFO)
             return
 
         # Determine time until popup is required, scaled to real time
         popup_delay = utils.calc_wait_time(
             end_time=self.state.get_popup_time(),
-            start_time=playback['time'],
-            rate=playback['speed']
+            start_time=play_info['time'],
+            rate=play_info['speed']
         )
 
         # Schedule popuphandler to start when required
@@ -308,7 +308,7 @@ class UpNextMonitor(xbmc.Monitor, object):
         with utils.ContextManager(self, 'player') as check_fail:
             if check_fail is AttributeError:
                 raise check_fail
-            playback = {
+            play_info = {
                 'playerid': (player_details.get('playerid') if player_details
                              else None),
                 'file': self.player.getPlayingFile(),
@@ -324,19 +324,19 @@ class UpNextMonitor(xbmc.Monitor, object):
         if check_fail:
             return None
 
-        return playback
+        return play_info
 
     def _launch_detector(self):
         del self._detector
         self._detector = None
 
-        playback = self._get_playback_details()
-        if not playback:
+        play_info = self._get_playback_details()
+        if not play_info:
             return
 
         # Start detector to detect end credits and trigger popup
         self.log('Detector started at {time}s of {duration}s'.format(
-            **playback), utils.LOGINFO)
+            **play_info), utils.LOGINFO)
         if not self.detector:
             self.detector = detector.UpNextDetector(
                 player=self.player,
@@ -349,8 +349,8 @@ class UpNextMonitor(xbmc.Monitor, object):
         del self._popuphandler
         self._popuphandler = None
 
-        playback = self._get_playback_details()
-        if not playback:
+        play_info = self._get_playback_details()
+        if not play_info:
             return
 
         # Stop second thread and popup from being created after next video
@@ -359,7 +359,7 @@ class UpNextMonitor(xbmc.Monitor, object):
 
         # Start popuphandler to show popup and handle playback of next video
         self.log('Popuphandler started at {time}s of {duration}s'.format(
-            **playback), utils.LOGINFO)
+            **play_info), utils.LOGINFO)
         if not self.popuphandler:
             self.popuphandler = popuphandler.UpNextPopupHandler(
                 player=self.player,
@@ -398,8 +398,8 @@ class UpNextMonitor(xbmc.Monitor, object):
             self.detector.reset()
 
             # Reset popup time, restart tracking, and trigger a new popup
-            self.state.set_popup_time(playback['duration'])
-            self.state.set_tracking(playback['file'])
+            self.state.set_popup_time(play_info['duration'])
+            self.state.set_tracking(play_info['file'])
             utils.event('upnext_trigger', internal=True)
             return
 
@@ -419,18 +419,18 @@ class UpNextMonitor(xbmc.Monitor, object):
 
         # Get playback details and use VideoPlayer.Time infolabel over
         # xbmc.Player.getTime() as the infolabel appears to update quicker
-        playback = self._get_playback_details(use_infolabel=True)
+        play_info = self._get_playback_details(use_infolabel=True)
 
         # Update idle state for widget refresh
-        self._idle[0] = not playback
+        self._idle[0] = not play_info
 
         # Exit if not playing, paused, or rewinding
-        if not playback or playback['speed'] < 1:
+        if not play_info or play_info['speed'] < 1:
             self.log('Skip tracking: nothing playing', utils.LOGINFO)
             return
 
         # Stop tracking if new stream started
-        if self.state.get_tracked_file() != playback['file']:
+        if self.state.get_tracked_file() != play_info['file']:
             self.log('Unknown file playing', utils.LOGWARNING)
             self.state.set_tracking(False)
             return
@@ -438,15 +438,15 @@ class UpNextMonitor(xbmc.Monitor, object):
         # Determine time until popup is required, scaled to real time
         popup_delay = utils.calc_wait_time(
             end_time=self.state.get_popup_time(),
-            start_time=playback['time'],
-            rate=playback['speed']
+            start_time=play_info['time'],
+            rate=play_info['speed']
         )
 
         # Determine time until detector is required, scaled to real time
         detector_delay = utils.calc_wait_time(
             end_time=self.state.get_detect_time(),
-            start_time=playback['time'],
-            rate=playback['speed']
+            start_time=play_info['time'],
+            rate=play_info['speed']
         )
 
         # Schedule detector to start when required
