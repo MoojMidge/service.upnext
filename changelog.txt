@@ -1,4 +1,10 @@
 ## Releases
+### v2.0.20+dev.0 (2023-02-25)
+- Fix for blank/duplicate scraped airdate values
+- Prevent widget reload during video playback
+- Update TMDb Helper integration
+- Widget refresh is triggered when settings are changed
+
 ### v2.0.19+dev.0 (2023-02-14)
 - Improve handling of resume points
 - Widget refresh is triggered when screensaver is de-activated
