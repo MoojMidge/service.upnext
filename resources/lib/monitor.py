@@ -607,6 +607,8 @@ class UpNextMonitor(xbmc.Monitor, object):
         if SETTINGS.disabled and self._started:
             self.log('UpNext disabled', utils.LOGINFO)
             self.stop()
-        elif not SETTINGS.disabled and not self._started:
+        elif self._started:
+            self._widget_reload()
+        else:
             self.log('UpNext enabled', utils.LOGINFO)
             self.start()
