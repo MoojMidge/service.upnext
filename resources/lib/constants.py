@@ -129,3 +129,9 @@ PIL_RESIZE_METHODS = {
     4: 3,  # PIL.Image.BICUBIC
     5: 1,  # PIL.Image.LANCZOS
 }
+
+IDLE_STATE = {
+    'sleeping': 0,
+    'idle': 1,
+    'active': 2,
+}

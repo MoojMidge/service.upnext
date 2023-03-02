@@ -40,7 +40,7 @@ class UpNextMonitor(xbmc.Monitor, object):
 
         self.log('Init')
 
-        self._idle = [True, 0]
+        self._idle = [constants.IDLE_STATE['idle'], 0]
         self._monitoring = False
         self._queue_length = 0
         self._started = False
@@ -220,7 +220,7 @@ class UpNextMonitor(xbmc.Monitor, object):
             return
 
         # Update idle state for widget refresh
-        self._idle[0] = False
+        self._idle[0] = constants.IDLE_STATE['idle']
 
         # Delay event handler execution to allow events to queue up
         self.waitForAbort(1)
@@ -236,7 +236,7 @@ class UpNextMonitor(xbmc.Monitor, object):
 
     def _event_handler_screensaver_on(self, **_kwargs):
         # Update idle state for widget refresh
-        self._idle[0] = True
+        self._idle[0] = constants.IDLE_STATE['sleeping']
 
     def _event_handler_upnext_trigger(self, **_kwargs):
         # Remove remnants from previous operations
@@ -316,6 +316,9 @@ class UpNextMonitor(xbmc.Monitor, object):
             check_fail = False
         if check_fail:
             return None
+
+        # Update idle state for widget refresh
+        self._idle[0] = constants.IDLE_STATE['active']
 
         return play_info
 
@@ -406,9 +409,6 @@ class UpNextMonitor(xbmc.Monitor, object):
         # xbmc.Player.getTime() as the infolabel appears to update quicker
         play_info = self._get_playback_details(use_infolabel=True)
 
-        # Update idle state for widget refresh
-        self._idle[0] = play_info is not None
-
         # Exit if tracking disabled
         if not self.state.is_tracking():
             return
@@ -489,12 +489,13 @@ class UpNextMonitor(xbmc.Monitor, object):
                 self.log('Cleanup popuphandler')
 
     def _widget_reload(self, init=False):
-        if self._idle[0]:
+        if self._idle[0] != constants.IDLE_STATE['idle']:
             return 0
         now = int(time())
         if init:
-            self._idle = [xbmc.getCondVisibility('System.ScreenSaverActive'),
-                          now]
+            if xbmc.getCondVisibility('System.ScreenSaverActive'):
+                self._idle[0] = constants.IDLE_STATE['sleeping']
+            self._idle[1] = now
         delta = now - self._idle[1]
         if delta <= SETTINGS.widget_refresh_period - 10:
             return delta
