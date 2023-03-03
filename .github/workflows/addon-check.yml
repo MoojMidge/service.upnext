@@ -1,11 +1,12 @@
 name: Kodi Addon Checker
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches:
       - '**'
     tags-ignore:
-      - '**'  
+      - '**'
 jobs:
   tests:
     name: Addon checker
