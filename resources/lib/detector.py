@@ -249,7 +249,9 @@ class UpNextDetector(object):
 
     @staticmethod
     def _xor(bit1, bit2):
-        return 1 if ((bit1 or bit2) and (bit2 != bit1 is not None)) else 0
+        # bit1 and bit2 are bools
+        # bit1 may be None
+        return 0 if bit1 is None or bit1 == bit2 else 1
 
     @staticmethod
     def _generate_initial_hash(hash_width, hash_height, pad_height=0):
