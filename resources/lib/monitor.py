@@ -374,13 +374,14 @@ class UpNextMonitor(xbmc.Monitor, object):
 
         # Update playcount and reset resume point of previous file
         if not playback_cancelled and SETTINGS.mark_watched:
-            api.handle_just_watched(
-                item=self.state.current_item,
-                reset_playcount=(
-                    SETTINGS.mark_watched == constants.SETTING_OFF
-                ),
-                reset_resume=True
-            )
+            utils.run_threaded(target=api.handle_just_watched,
+                               delay=5,
+                               kwargs={
+                                   'item': self.state.current_item.copy(),
+                                   'reset_playcount': (SETTINGS.mark_watched ==
+                                                       constants.SETTING_OFF),
+                                   'reset_resume': True,
+                               })
 
         if not self.detector:
             self._stop_detector()
