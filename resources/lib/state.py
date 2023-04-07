@@ -68,7 +68,10 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         self.__init__(reset=True)  # pylint: disable=unnecessary-dunder-call
 
     def reset_item(self):
-        self.current_item = utils.create_item_details('empty')
+        if self.next_item:
+            self.current_item = self.next_item
+        else:
+            self.current_item = utils.create_item_details('empty')
         self.next_item = None
 
     def get_tracked_file(self):

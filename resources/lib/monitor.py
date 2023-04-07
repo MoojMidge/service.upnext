@@ -184,6 +184,9 @@ class UpNextMonitor(xbmc.Monitor, object):
         # video. Reset state if playback was not requested by UpNext
         if not self.state.playing_next and not self.state.starting:
             self.state.reset()
+        # Otherwise just ensure details of current/next item to play are reset
+        else:
+            self.state.reset_item()
         self.state.playing_next = False
 
         data, _ = utils.decode_data(serialised_json=kwargs.get('data'))
@@ -206,6 +209,9 @@ class UpNextMonitor(xbmc.Monitor, object):
         # Full reset of state if UpNext has not requested the next file to play
         if not self.state.playing_next and not self.state.starting:
             self.state.reset()
+        # Otherwise just ensure details of current/next item to play are reset
+        else:
+            self.state.reset_item()
 
     def _event_handler_screensaver_off(self, **kwargs):
         # Don't handle event if Kodi is shutting down
