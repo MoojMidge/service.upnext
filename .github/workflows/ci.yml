@@ -47,6 +47,9 @@ jobs:
     - name: Upload code coverage to CodeCov
       if: contains(env.TESTS_ENABLED, matrix.python-version)
       uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        verbose: true
       continue-on-error: true
     - name: Fix coverage.xml source path
       run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' coverage.xml

@@ -1,4 +1,3 @@
-codecov
 python-dateutil
 pillow
 kodi-addon-checker; python_version >= '3.7'
