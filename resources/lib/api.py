@@ -526,7 +526,6 @@ def play_playlist_item(position, resume=False):
     log('Playing from playlist position: {0}'.format(position))
 
     # JSON Player.Open can be too slow but is needed if resuming is enabled
-    # Unfortunately resuming from a playlist item does not seem to work...
     utils.jsonrpc(method='Player.Open',
                   params={'item': {'playlistid': get_playlistid(),
                                    # Convert 1 indexed to 0 indexed position

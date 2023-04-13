@@ -138,6 +138,14 @@ class UpNextPopupHandler(object):
     def _play_next_video(self, next_item, popup_state):
         forced = self.player.player_state.forced('playing')
         source = next_item['source']
+        if SETTINGS.enable_resume:
+            resume = next_item['details'].get('resume')
+            if resume and resume['total'] and resume['position']:
+                resume = 100 * resume['position'] / resume['total']
+            else:
+                resume = False
+        else:
+            resume = False
         # Primary method is to play next playlist item
         if source.endswith('playlist') or self.state.queued:
             # Can't just seek to end of file as this triggers inconsistent Kodi
@@ -152,22 +160,15 @@ class UpNextPopupHandler(object):
             # Can't just wait for next file to play as VideoPlayer closes all
             # video threads when the current file finishes
             if popup_state['play_now'] or popup_state['play_on_cue'] or forced:
-                api.play_playlist_item(
-                    position='next',
-                    resume=SETTINGS.enable_resume
-                )
+                api.play_playlist_item('next', resume)
 
         # Fallback plugin playback method, or if plugin provides play_info
         elif source.startswith('plugin'):
-            api.play_plugin_item(
-                self.state.data,
-                self.state.encoding,
-                SETTINGS.enable_resume
-            )
+            api.play_plugin_item(self.state.data, self.state.encoding, resume)
 
         # Fallback library playback method, not normally used
         else:
-            api.play_kodi_item(next_item, SETTINGS.enable_resume)
+            api.play_kodi_item(next_item, resume)
 
         # Determine playback method. Used for logging purposes
         self.log('Playback requested: {0}, from {1}{2}'.format(
