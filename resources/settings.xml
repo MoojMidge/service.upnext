@@ -794,6 +794,11 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
+                <setting id="widgetDebug" type="boolean" label="30828" help="30829">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="startTrigger" type="boolean" label="30830" help="30831">
 					<level>0</level>
 					<default>false</default>

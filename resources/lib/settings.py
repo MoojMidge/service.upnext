@@ -61,6 +61,7 @@ class UpNextSettings(object):
         'start_delay',
         'start_trigger',
         'unwatched_only',
+        'widget_debug',
         'widget_enable_cast',
         'widget_enable_tags',
         'widget_list_limit',
@@ -268,6 +269,7 @@ class UpNextSettings(object):
         self.detector_debug = self.get_bool('detectorDebug')
         self.detector_debug_save = (self.detector_save_path
                                     and self.get_bool('detectorDebugSave'))
+        self.widget_debug = self.get_bool('widgetDebug')
         self.start_trigger = self.get_bool('startTrigger')
 
         self._store = None

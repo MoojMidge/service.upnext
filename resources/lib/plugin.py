@@ -378,6 +378,7 @@ def play_plugin(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-arg
     Player(**kwargs).play(handle=addon_handle)
 
 
+@utils.Profiler(enabled=SETTINGS.widget_debug, lazy=True)
 def run(argv):
     addon_handle = int(argv[1])
     addon_id, addon_path, addon_args = utils.parse_url(argv[0] + argv[2])

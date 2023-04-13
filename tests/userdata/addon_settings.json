@@ -59,6 +59,7 @@
 		"startDelay": 5,
 		"startTrigger": "true",
 		"stopAfterClose": "true",
+		"widgetDebug": "true",
 		"widgetEnableCast": "false",
 		"widgetEnableTags": "false",
 		"widgetIncludeWatched": "true",

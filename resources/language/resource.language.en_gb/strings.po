@@ -710,6 +710,14 @@ msgctxt "#30827"
 msgid "Enable saving detector debug image output"
 msgstr ""
 
+msgctxt "#30828"
+msgid "Widget debug"
+msgstr ""
+
+msgctxt "#30829"
+msgid "Enable widget debug logging and profiling"
+msgstr ""
+
 msgctxt "#30830"
 msgid "Simulation trigger"
 msgstr ""
