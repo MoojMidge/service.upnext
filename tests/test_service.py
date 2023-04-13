@@ -23,8 +23,9 @@ def test_popup():
         assert True
         return
 
-    test_complete = script.run(['', 'test_window', 'upnext'])
-    assert test_complete is True
+    test_complete = [script.run(['', 'test_window', 'upnext']),
+                     script.run(['', 'test_window', 'stillwatching'])]
+    assert test_complete == [True, False]
 
 
 def test_plugin():
