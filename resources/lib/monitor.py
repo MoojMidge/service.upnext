@@ -133,7 +133,7 @@ class UpNextMonitor(xbmc.Monitor, object):
             play_info
         )
         if now_playing_item and now_playing_item['details']:
-            self.state.set_tracking(play_info['file'])
+            self.state.start_tracking(play_info['file'])
             self.state.reset_queue()
 
             # Store popup time and check if cue point was provided
@@ -350,7 +350,7 @@ class UpNextMonitor(xbmc.Monitor, object):
 
         # Stop second thread and popup from being created after next video
         # has been requested but not yet loaded
-        self.state.set_tracking(False)
+        self.state.stop_tracking()
 
         # Start popuphandler to show popup and handle playback of next video
         self.log('Popuphandler started at {time}s of {duration}s'.format(
@@ -395,7 +395,7 @@ class UpNextMonitor(xbmc.Monitor, object):
 
             # Reset popup time, restart tracking, and trigger a new popup
             self.state.set_popup_time(play_info['duration'])
-            self.state.set_tracking(play_info['file'])
+            self.state.start_tracking(play_info['file'])
             utils.event('upnext_trigger', internal=True)
             return
 
@@ -425,7 +425,7 @@ class UpNextMonitor(xbmc.Monitor, object):
         # Stop tracking if new stream started
         if self.state.get_tracked_file() != play_info['file']:
             self.log('Unknown file playing', utils.LOGWARNING)
-            self.state.set_tracking(False)
+            self.state.reset_tracking()
             return
 
         # Determine time until popup is required, scaled to real time

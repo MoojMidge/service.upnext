@@ -80,15 +80,19 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
     def is_tracking(self):
         return self.tracking
 
-    def set_tracking(self, filename):
-        if filename:
-            self.tracking = True
-            self.filename = filename
-            self.log('Tracking enabled: {0}'.format(filename), utils.LOGINFO)
-        else:
-            self.tracking = False
-            self.filename = None
-            self.log('Tracking disabled')
+    def start_tracking(self, filename):
+        self.tracking = True
+        self.filename = filename
+        self.log('Tracking enabled: {0}'.format(filename), utils.LOGINFO)
+
+    def stop_tracking(self):
+        self.tracking = False
+        self.log('Tracking stopped')
+
+    def reset_tracking(self):
+        self.tracking = False
+        self.filename = None
+        self.log('Tracking reset')
 
     def reset_queue(self):
         if self.queued:

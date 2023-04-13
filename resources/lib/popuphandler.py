@@ -283,10 +283,11 @@ class UpNextPopupHandler(object):
         # Current file can stop, or next file can start, while update loop is
         # running. Check state and abort popup update if required
         popup_abort = False
+        state = self.state
         while not (popup_abort
                    or check_fail
                    or popup_state['abort']
-                   or self.state.starting
+                   or state.starting
                    or self._sigstop.is_set()
                    or self._sigterm.is_set()):
             # Update popup time remaining
@@ -311,6 +312,8 @@ class UpNextPopupHandler(object):
             with utils.ContextManager(self, 'player') as check_fail:
                 if check_fail is AttributeError:
                     raise check_fail
+                if state.get_tracked_file() != self.player.getPlayingFile():
+                    break
                 play_time = self.player.getTime()
                 speed = self.player.get_speed()
                 check_fail = False
