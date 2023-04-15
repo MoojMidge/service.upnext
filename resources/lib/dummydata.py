@@ -280,31 +280,29 @@ LIBRARY = {
 
 
 def update_library_ids():
-    tvshow_ids = []
-    episode_ids = []
-    set_ids = []
-    movie_ids = []
+    tvshow_ids = [None]
+    episode_ids = [None]
+    set_ids = [None]
+    movie_ids = [None]
 
     for idx, tvshow in enumerate(LIBRARY['tvshows'], start=1):
-        min_id = idx * 10
-        max_id = min_id + 9
-        tvshow_id = randint(min_id, max_id)
-        while tvshow_id in tvshow_ids:
-            tvshow_id = randint(min_id, max_id)
-        tvshow_ids.append(tvshow_id)
+        end = idx * -10
+        item_id = None
+        while item_id in tvshow_ids:
+            item_id = randint(end - 9, end)
+        tvshow_ids.append(item_id)
         LIBRARY['tvshows'][tvshow]['type'] = 'tvshow'
-        LIBRARY['tvshows'][tvshow]['tvshowid'] = tvshow_id
+        LIBRARY['tvshows'][tvshow]['tvshowid'] = item_id
         LIBRARY['tvshows'][tvshow]['title'] = tvshow
 
     for idx, episode in enumerate(LIBRARY['episodes'], start=1):
-        min_id = idx * 10
-        max_id = min_id + 9
-        episode_id = randint(min_id, max_id)
-        while episode_id in episode_ids:
-            episode_id = randint(min_id, max_id)
-        episode_ids.append(episode_id)
+        end = idx * -10
+        item_id = None
+        while item_id in episode_ids:
+            item_id = randint(end - 9, end)
+        episode_ids.append(item_id)
         episode['type'] = 'episode'
-        episode['episodeid'] = episode_id
+        episode['episodeid'] = item_id
 
         tvshow = LIBRARY['tvshows'].get(episode['showtitle'], {})
         tvshow['episode'] += 1
@@ -319,24 +317,22 @@ def update_library_ids():
         episode['tvshowid'] = tvshow.get('tvshowid', constants.UNDEFINED)
 
     for idx, _set in enumerate(LIBRARY['sets'], start=1):
-        min_id = idx * 10
-        max_id = min_id + 9
-        set_id = randint(min_id, max_id)
-        while set_id in set_ids:
-            set_id = randint(min_id, max_id)
-        set_ids.append(set_id)
-        LIBRARY['sets'][_set]['setid'] = set_id
+        end = idx * -10
+        item_id = None
+        while item_id in set_ids:
+            item_id = randint(end - 9, end)
+        set_ids.append(item_id)
+        LIBRARY['sets'][_set]['setid'] = item_id
         LIBRARY['sets'][_set]['title'] = _set
 
     for idx, movie in enumerate(LIBRARY['movies'], start=1):
-        min_id = idx * 10
-        max_id = min_id + 9
-        movie_id = randint(min_id, max_id)
-        while movie_id in movie_ids:
-            movie_id = randint(min_id, max_id)
-        movie_ids.append(movie_id)
+        end = idx * -10
+        item_id = None
+        while item_id in movie_ids:
+            item_id = randint(end - 9, end)
+        movie_ids.append(item_id)
         movie['type'] = 'movie'
-        movie['movieid'] = movie_id
+        movie['movieid'] = item_id
 
         _set = LIBRARY['sets'].get(movie['set'], {})
         movie['setid'] = _set.get('setid', constants.UNDEFINED)
