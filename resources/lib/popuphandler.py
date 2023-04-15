@@ -283,12 +283,13 @@ class UpNextPopupHandler(object):
         # Current file can stop, or next file can start, while update loop is
         # running. Check state and abort popup update if required
         popup_abort = False
+        remaining = 0
         state = self.state
         while not (popup_abort
                    or check_fail
                    or popup_state['abort']
                    or state.starting
-                   or self._sigstop.is_set()
+                   or (self._sigstop.is_set() and remaining > 1)
                    or self._sigterm.is_set()):
             # Update popup time remaining
             remaining = total_time - play_time
