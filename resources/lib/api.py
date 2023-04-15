@@ -545,12 +545,15 @@ def get_playlist_position(offset=0):
         return None, None
 
     playlist = xbmc.PlayList(playlistid)
+    position = playlist.getposition()
+    # PlayList().getposition() starts from zero unless playlist not active
+    if position < 0:
+        return None, None
     playlist_size = playlist.size()
     # Use 1 based index value for playlist position
-    position = playlist.getposition() + 1 + offset
+    position += (offset + 1)
 
     # A playlist with only one element has no next item
-    # PlayList().getposition() starts counting from zero
     if playlist_size > 1 and position <= playlist_size:
         log('playlistid: {0}, position - {1}/{2}'.format(
             playlistid, position, playlist_size
