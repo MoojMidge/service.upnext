@@ -1,4 +1,7 @@
 ## Releases
+### v2.0.22+dev.0 (2023-04-17)
+- Lots of additional bug fixes/workarounds for Kodi event order issues
+
 ### v2.0.21+dev.0 (2023-04-08)
 - Tidy up code
 - Fix/improve workarounds for bugs with Kodi event order
