@@ -44,9 +44,9 @@ def handle_sim_mode(player, state, now_playing_item):
     if not SETTINGS.sim_seek:
         return _EVENT_TRIGGERED['general']
 
-    with utils.ContextManager(handler=player) as check_fail:
-        if check_fail is AttributeError:
-            raise check_fail
+    with utils.ContextManager(handler=player) as (_, error):
+        if error is AttributeError:
+            raise error
         # Seek to 15s before end of video
         if SETTINGS.sim_seek == constants.SIM_SEEK_15S:
             seek_time = player.getTotalTime() - 15
@@ -66,8 +66,8 @@ def handle_sim_mode(player, state, now_playing_item):
             log('Seek workaround')
             player.seekTime(seek_time + 3)
 
-        check_fail = False
-    if check_fail:
+        error = False
+    if error:
         log('Nothing playing', utils.LOGWARNING)
 
     _EVENT_TRIGGERED['general'] = True

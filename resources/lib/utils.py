@@ -37,7 +37,7 @@ class ContextManager(object):
         return handler or super(ContextManager, cls).__new__(cls)
 
     def __enter__(self):
-        return AttributeError
+        return None, AttributeError
 
     def __exit__(self, exc_type, exc_value, traceback):
         return True
@@ -411,7 +411,7 @@ def event(message, data=None, sender=None, encoding='base64', internal=False):
     return jsonrpc(method='JSONRPC.NotifyAll',
                    params={'sender': '{0}.SIGNAL'.format(sender),
                            'message': message,
-                           'data': data,})
+                           'data': data})
 
 
 def get_global_setting(setting):

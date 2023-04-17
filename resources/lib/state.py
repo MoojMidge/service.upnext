@@ -369,7 +369,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             upnext.send_signal(sender='UpNext.TMDBHelper',
                                upnext_info={'current_video': current_video,
                                             'play_url': None,
-                                            'player': addon_id,})
+                                            'player': addon_id})
             return
 
         tmdb_id, current_video = TMDB().get_id_details(title, season, episode)  # pylint: disable=no-value-for-parameter

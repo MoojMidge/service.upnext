@@ -89,7 +89,7 @@ class UpNextPlayer(xbmc.Player, object):
     # __enter__ and __exit__ allow UpNextPlayer to be used as a contextmanager
     # to check whether video is actually playing when getting video details
     def __enter__(self):
-        return True
+        return (self, True)
 
     def __exit__(self, exc_type, exc_value, traceback):
         return exc_type == RuntimeError

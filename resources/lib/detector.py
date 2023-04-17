@@ -675,11 +675,11 @@ class UpNextDetector(object):
         while not (abort or self._sigterm.is_set() or self._sigstop.is_set()):
             loop_start = timeit.default_timer()
 
-            with utils.ContextManager(self, 'player') as check_fail:
-                if check_fail is AttributeError:
-                    raise check_fail
-                check_fail = self.player.get_speed() < 1
-            if check_fail:
+            with utils.ContextManager(self, 'player') as (player, error):
+                if error is AttributeError:
+                    raise error
+                error = player.get_speed() < 1
+            if error:
                 self.log('Stop capture: nothing playing')
                 break
 
@@ -754,18 +754,18 @@ class UpNextDetector(object):
         queue = self.queue
 
         while not (self._sigterm.is_set() or self._sigstop.is_set()):
-            with utils.ContextManager(self, 'player') as check_fail:
-                if check_fail is AttributeError:
-                    raise check_fail
-                play_time = self.player.getTime()
+            with utils.ContextManager(self, 'player') as (player, error):
+                if error is AttributeError:
+                    raise error
+                play_time = player.getTime()
                 self.hash_index['current'] = (
-                    int(self.player.getTotalTime() - play_time),
+                    int(player.getTotalTime() - play_time),
                     int(play_time),
                     self.hashes.group_idx
                 )
                 # Only capture if playing at normal speed
-                check_fail = self.player.get_speed() < 1
-            if check_fail:
+                error = player.get_speed() < 1
+            if error:
                 self.log('No file is playing')
                 break
 

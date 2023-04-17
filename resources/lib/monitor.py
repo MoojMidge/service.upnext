@@ -297,23 +297,23 @@ class UpNextMonitor(xbmc.Monitor, object):
             item_details = {}
             player_details = None
 
-        with utils.ContextManager(self, 'player') as check_fail:
-            if check_fail is AttributeError:
-                raise check_fail
+        with utils.ContextManager(self, 'player') as (_player, error):
+            if error is AttributeError:
+                raise error
             play_info = {
                 'playerid': (player_details.get('playerid') if player_details
                              else None),
-                'file': self.player.getPlayingFile(),
+                'file': _player.getPlayingFile(),
                 'item': item_details,
                 'type': (item_details.get('type') if item_details
-                         else self.player.get_media_type()),
+                         else _player.get_media_type()),
                 'speed': (player_details.get('speed') if player_details
-                          else self.player.get_speed()),
-                'time': self.player.getTime(use_infolabel),
-                'duration': self.player.getTotalTime(use_infolabel),
+                          else _player.get_speed()),
+                'time': _player.getTime(use_infolabel),
+                'duration': _player.getTotalTime(use_infolabel),
             }
-            check_fail = False
-        if check_fail:
+            error = False
+        if error:
             return None
 
         # Update idle state for widget refresh

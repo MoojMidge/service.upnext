@@ -53,7 +53,7 @@ class UpNextPopup(xbmcgui.WindowXMLDialog, object):
     # __enter__ and __exit__ allows UpNextPopup to be used as a contextmanager
     # to check whether popup is still open before accessing attributes
     def __enter__(self):
-        return True
+        return (self, True)
 
     def __exit__(self, exc_type, exc_value, traceback):
         return exc_type == AttributeError
