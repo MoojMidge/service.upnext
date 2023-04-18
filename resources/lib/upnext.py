@@ -392,11 +392,11 @@ def create_listitem(item, kwargs=None, infolabels=None, properties=None):
     if 'details' in item:
         item = item['details']
 
-    if media_type == 'tvshow' or 'watchedepisodes' in item:
-        return create_tvshow_listitem(item, kwargs, infolabels, properties)
-
     if media_type == 'episode' or 'tvshowid' in item:
         return create_episode_listitem(item, kwargs, infolabels, properties)
+
+    if media_type == 'tvshow' or 'watchedepisodes' in item:
+        return create_tvshow_listitem(item, kwargs, infolabels, properties)
 
     if media_type == 'movie' or 'setid' in item:
         return create_movie_listitem(item, kwargs, infolabels, properties)
