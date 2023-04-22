@@ -530,6 +530,14 @@ msgctxt "#30714"
 msgid "Creates a playlist of all remaining episodes in a TVShow, rather than only retrieving the details of the next episode after each current episode finishes."
 msgstr ""
 
+msgctxt "#30715"
+msgid "Max resume point"
+msgstr ""
+
+msgctxt "#30716"
+msgid "Percent from end of a video to ignore/reset existing resume point."
+msgstr ""
+
 msgctxt "#30730"
 msgid "Additional detector settings"
 msgstr ""

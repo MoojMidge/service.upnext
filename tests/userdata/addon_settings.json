@@ -55,6 +55,7 @@
 		"popupCustomAccentColourR": 255,
 		"popupPosition": 2,
 		"queueFromTMDB": "true",
+		"resumeFromEnd": 10,
 		"simpleMode": "false",
 		"startDelay": 5,
 		"startTrigger": "true",

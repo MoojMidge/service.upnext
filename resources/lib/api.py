@@ -983,7 +983,7 @@ def get_details_from_library(db_type=None,
     return result, detail_type
 
 
-def handle_just_watched(item, reset_playcount=False, reset_resume=True):
+def handle_just_watched(item, reset_playcount=False, resume_from_end=0.1):
     """Function to update playcount and resume point of just watched video"""
 
     details = get_details_from_library(item=item,
@@ -1004,8 +1004,9 @@ def handle_just_watched(item, reset_playcount=False, reset_resume=True):
         params['playcount'] = playcount + 1
 
     # If resume point has been saved then reset it
-    if reset_resume and utils.get_int(resume, 'position', 0):
-        params['resume'] = {'position': 0, 'total': resume['total']}
+    total = utils.get_int(resume, 'total', 0)
+    if utils.get_int(resume, 'position', 0) >= (1 - resume_from_end) * total:
+        params['resume'] = {'position': 0, 'total': total}
 
     # Only update library if playcount or resume point needs to change
     if params:
@@ -1026,7 +1027,8 @@ def handle_just_watched(item, reset_playcount=False, reset_resume=True):
 
 def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-locals
                                      next_season=True,
-                                     unwatched_only=False):
+                                     unwatched_only=False,
+                                     resume_from_end=0.1):
     """Function to get in-progress and next episode details from Kodi library"""
 
     if next_season:
@@ -1067,7 +1069,7 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
             continue
 
         resume = episode['resume']
-        if 0 < resume['position'] < 0.9 * resume['total']:
+        if 0 < resume['position'] < (1 - resume_from_end) * resume['total']:
             upnext_episode = episode
         else:
             FILTER_THIS_SEASON['value'] = str(episode['season'])
@@ -1102,7 +1104,8 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
 
 def get_upnext_movies_from_library(limit=25,
                                    movie_sets=True,
-                                   unwatched_only=False):
+                                   unwatched_only=False,
+                                   resume_from_end=0.1):
     """Function to get in-progress and next movie details from Kodi library"""
 
     inprogress, _ = get_videos_from_library(db_type='movies',
@@ -1134,7 +1137,7 @@ def get_upnext_movies_from_library(limit=25,
             continue
 
         resume = movie['resume']
-        if 0 < resume['position'] <= 0.9 * resume['total']:
+        if 0 < resume['position'] < (1 - resume_from_end) * resume['total']:
             upnext_movie = movie
         elif movie_sets and setid != constants.UNDEFINED:
             FILTER_SET['value'] = movie['set']

@@ -51,6 +51,7 @@ class UpNextSettings(object):
         'popup_durations',
         'popup_position',
         'queue_from_tmdb',
+        'resume_from_end',
         'show_stop_button',
         'sim_cue',
         'sim_mode',
@@ -240,6 +241,8 @@ class UpNextSettings(object):
                                  and self.get_bool('exactTMDBMatch'))
         self.queue_from_tmdb = (self.enable_tmdbhelper_fallback
                                 and self.get_bool('queueFromTMDB'))
+
+        self.resume_from_end = self.get_int('resumeFromEnd') / 100
 
         self.start_delay = self.get_int('startDelay')
         self.api_retry_attempts = self.get_int('apiRetryAttempts')

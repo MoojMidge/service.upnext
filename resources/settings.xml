@@ -542,6 +542,19 @@
                     </dependency>
                 </dependencies>
             </setting>
+            <setting id="resumeFromEnd" type="integer" label="30715" help="30716">
+                <level>0</level>
+                <default>10</default>
+                <constraints>
+                    <minimum>0</minimum>
+                    <step>1</step>
+                    <maximum>25</maximum>
+                </constraints>
+                <control type="slider" format="integer">
+                    <popup>false</popup>
+                    <formatlabel>14047</formatlabel>
+                </control>
+            </setting>
             <group id="troubleshooting" label="30701">
                 <setting id="logLevel" type="integer" label="30705" help="">
                     <level>0</level>

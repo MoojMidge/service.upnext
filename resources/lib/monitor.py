@@ -379,7 +379,7 @@ class UpNextMonitor(xbmc.Monitor, object):
                                    'item': self.state.current_item.copy(),
                                    'reset_playcount': (SETTINGS.mark_watched ==
                                                        constants.SETTING_OFF),
-                                   'reset_resume': True,
+                                   'resume_from_end': SETTINGS.resume_from_end,
                                })
 
         if not self.detector:
