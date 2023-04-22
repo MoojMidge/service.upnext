@@ -198,7 +198,6 @@ class UpNextSettings(object):
             self.get_int('pluginMainLabelToken2'),
             self.get_int('pluginMainLabelToken3')
         )
-
         self.plugin_secondary_label = (
             self.get_int('pluginSecondaryLabelToken1'),
             self.get_int('pluginSecondaryLabelToken2'),
@@ -211,6 +210,7 @@ class UpNextSettings(object):
             if self.auto_play and self.get_bool('enableStillWatching')
             else 0
         )
+
         self.mark_watched = self.get_int('markWatched')
         self.enable_resume = self.get_bool('enableResume')
 
@@ -218,11 +218,6 @@ class UpNextSettings(object):
         self.next_season = self.get_bool('nextSeason')
         self.enable_playlist = self.get_bool('enablePlaylist')
         self.enable_movieset = self.get_bool('enableMovieset')
-        self.enable_tmdbhelper_fallback = self.get_bool('enableTMDBHelper')
-        self.exact_tmdb_match = (self.enable_tmdbhelper_fallback
-                                 and self.get_bool('exactTMDBMatch'))
-        self.queue_from_tmdb = (self.enable_tmdbhelper_fallback
-                                and self.get_bool('queueFromTMDB'))
 
         self.auto_play_delay = self.get_int('autoPlayCountdown')
         self.popup_durations = {
@@ -238,10 +233,17 @@ class UpNextSettings(object):
         self.detect_enabled = self.get_bool('detectPlayTime')
         self.detect_period = self.get_int('detectPeriod')
 
-        self.start_delay = self.get_int('startDelay')
-        self.disabled = self.get_bool('disableNextUp')
-        self.api_retry_attempts = self.get_int('apiRetryAttempts')
         self.enable_queue = self.get_bool('enableQueue')
+
+        self.enable_tmdbhelper_fallback = self.get_bool('enableTMDBHelper')
+        self.exact_tmdb_match = (self.enable_tmdbhelper_fallback
+                                 and self.get_bool('exactTMDBMatch'))
+        self.queue_from_tmdb = (self.enable_tmdbhelper_fallback
+                                and self.get_bool('queueFromTMDB'))
+
+        self.start_delay = self.get_int('startDelay')
+        self.api_retry_attempts = self.get_int('apiRetryAttempts')
+        self.disabled = self.get_bool('disableNextUp')
 
         # Create valid directory here so that it can be used whenever settings
         # are changed rather than only when a module is imported i.e. on addon
@@ -270,6 +272,7 @@ class UpNextSettings(object):
         self.detector_debug_save = (self.detector_save_path
                                     and self.get_bool('detectorDebugSave'))
         self.widget_debug = self.get_bool('widgetDebug')
+
         self.start_trigger = self.get_bool('startTrigger')
 
         self._store = None
