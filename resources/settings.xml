@@ -1,51 +1,51 @@
 <?xml version="1.0" ?>
 <settings version="1">
-	<section id="service.upnext">
-		<category id="appearance" label="30500" help="">
-			<group id="popupDisplay" label="30501">
-				<setting id="simpleMode" type="boolean" label="30503" help="">
-					<level>0</level>
-					<default>false</default>
-					<control type="toggle"/>
-				</setting>
-				<setting id="stopAfterClose" type="boolean" label="30505" help="">
-					<level>0</level>
-					<default>true</default>
-					<control type="toggle"/>
-				</setting>
-			</group>
-			<group id="skinIntegration" label="30502">
-				<setting id="enablePopupSkin" type="boolean" label="30504" help="30530">
-					<level>0</level>
-					<default>true</default>
-					<control type="toggle"/>
-				</setting>
-				<setting id="popupPosition" type="integer" label="30506" help="30530">
-					<level>0</level>
-					<default>0</default>
-					<constraints>
-						<options>
-							<option label="30507">0</option>
-							<option label="30508">1</option>
-							<option label="30509">2</option>
-						</options>
-					</constraints>
-					<control type="spinner" format="string"/>
-				</setting>
-				<setting id="popupAccentColour" type="integer" label="30510" help="30530">
-					<level>0</level>
-					<default>0</default>
-					<constraints>
-						<options>
-							<option label="30511">0</option>
-							<option label="30512">1</option>
-							<option label="30513">2</option>
-							<option label="30514">3</option>
-							<option label="30515">4</option>
-						</options>
-					</constraints>
-					<control type="list" format="string"/>
-				</setting>
+    <section id="service.upnext">
+        <category id="appearance" label="30500" help="">
+            <group id="popupDisplay" label="30501">
+                <setting id="simpleMode" type="boolean" label="30503" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="stopAfterClose" type="boolean" label="30505" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+            </group>
+            <group id="skinIntegration" label="30502">
+                <setting id="enablePopupSkin" type="boolean" label="30504" help="30530">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="popupPosition" type="integer" label="30506" help="30530">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30507">0</option>
+                            <option label="30508">1</option>
+                            <option label="30509">2</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string"/>
+                </setting>
+                <setting id="popupAccentColour" type="integer" label="30510" help="30530">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30511">0</option>
+                            <option label="30512">1</option>
+                            <option label="30513">2</option>
+                            <option label="30514">3</option>
+                            <option label="30515">4</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string"/>
+                </setting>
                 <setting id="popupCustomAccentColour" type="string" label="30520" help="30530" parent="popupAccentColour">
                     <level>0</level>
                     <default>FFFF4081</default>
@@ -55,92 +55,92 @@
                                 <condition operator="is" setting="popupAccentColour">4</condition>
                                 <condition on="property" name="infobool">String.StartsWith(System.BuildVersionShort,2)</condition>
                             </and>
-						</dependency>
+                        </dependency>
                     </dependencies>
                     <control type="colorbutton"/>
                 </setting>
-				<setting id="popupCustomAccentColourA" type="integer" label="30516" help="30530" parent="popupAccentColour">
-					<level>0</level>
-					<default>255</default>
-					<constraints>
-						<minimum>0</minimum>
-						<step>1</step>
-						<maximum>255</maximum>
-					</constraints>
-					<dependencies>
+                <setting id="popupCustomAccentColourA" type="integer" label="30516" help="30530" parent="popupAccentColour">
+                    <level>0</level>
+                    <default>255</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>1</step>
+                        <maximum>255</maximum>
+                    </constraints>
+                    <dependencies>
                         <dependency type="visible">
                             <and>
                                 <condition operator="is" setting="popupAccentColour">4</condition>
                                 <condition on="property" name="infobool">!String.StartsWith(System.BuildVersionShort,2)</condition>
                             </and>
-						</dependency>
+                        </dependency>
                     </dependencies>
-					<control type="slider" format="integer">
-						<popup>false</popup>
-					</control>
-				</setting>
-				<setting id="popupCustomAccentColourR" type="integer" label="30517" help="30530" parent="popupAccentColour">
-					<level>0</level>
-					<default>255</default>
-					<constraints>
-						<minimum>0</minimum>
-						<step>1</step>
-						<maximum>255</maximum>
-					</constraints>
-					<dependencies>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="popupCustomAccentColourR" type="integer" label="30517" help="30530" parent="popupAccentColour">
+                    <level>0</level>
+                    <default>255</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>1</step>
+                        <maximum>255</maximum>
+                    </constraints>
+                    <dependencies>
                         <dependency type="visible">
                             <and>
                                 <condition operator="is" setting="popupAccentColour">4</condition>
                                 <condition on="property" name="infobool">!String.StartsWith(System.BuildVersionShort,2)</condition>
                             </and>
-						</dependency>
+                        </dependency>
                     </dependencies>
-					<control type="slider" format="integer">
-						<popup>false</popup>
-					</control>
-				</setting>
-				<setting id="popupCustomAccentColourG" type="integer" label="30518" help="30530" parent="popupAccentColour">
-					<level>0</level>
-					<default>64</default>
-					<constraints>
-						<minimum>0</minimum>
-						<step>1</step>
-						<maximum>255</maximum>
-					</constraints>
-					<dependencies>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="popupCustomAccentColourG" type="integer" label="30518" help="30530" parent="popupAccentColour">
+                    <level>0</level>
+                    <default>64</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>1</step>
+                        <maximum>255</maximum>
+                    </constraints>
+                    <dependencies>
                         <dependency type="visible">
                             <and>
                                 <condition operator="is" setting="popupAccentColour">4</condition>
                                 <condition on="property" name="infobool">!String.StartsWith(System.BuildVersionShort,2)</condition>
                             </and>
-						</dependency>
+                        </dependency>
                     </dependencies>
-					<control type="slider" format="integer">
-						<popup>false</popup>
-					</control>
-				</setting>
-				<setting id="popupCustomAccentColourB" type="integer" label="30519" help="30530" parent="popupAccentColour">
-					<level>0</level>
-					<default>129</default>
-					<constraints>
-						<minimum>0</minimum>
-						<step>1</step>
-						<maximum>255</maximum>
-					</constraints>
-					<dependencies>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="popupCustomAccentColourB" type="integer" label="30519" help="30530" parent="popupAccentColour">
+                    <level>0</level>
+                    <default>129</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>1</step>
+                        <maximum>255</maximum>
+                    </constraints>
+                    <dependencies>
                         <dependency type="visible">
                             <and>
                                 <condition operator="is" setting="popupAccentColour">4</condition>
                                 <condition on="property" name="infobool">!String.StartsWith(System.BuildVersionShort,2)</condition>
                             </and>
-						</dependency>
+                        </dependency>
                     </dependencies>
-					<control type="slider" format="integer">
-						<popup>false</popup>
-					</control>
-				</setting>
-			</group>
-			<group id="widgetPluginListings" label="30540">
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+            </group>
+            <group id="widgetPluginListings" label="30540">
                 <setting id="widgetListLimit" type="integer" label="30542" help="">
                     <level>0</level>
                     <default>25</default>
@@ -148,8 +148,8 @@
                         <minimum>5</minimum>
                         <step>10</step>
                         <maximum>100</maximum>
-					</constraints>
-					<control type="slider" format="integer">
+                    </constraints>
+                    <control type="slider" format="integer">
                         <formatlabel>21436</formatlabel>
                     </control>
                 </setting>
@@ -160,31 +160,31 @@
                         <minimum>5</minimum>
                         <step>5</step>
                         <maximum>60</maximum>
-					</constraints>
-					<control type="slider" format="integer">
+                    </constraints>
+                    <control type="slider" format="integer">
                         <formatlabel>14044</formatlabel>
                     </control>
                 </setting>
                 <setting id="widgetRefreshAll" type="boolean" label="30545" help="" parent="widgetRefreshPeriod">
-					<level>0</level>
-					<default>false</default>
-					<control type="toggle"/>
-				</setting>
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="widgetEnableCast" type="boolean" label="30546" help="30548">
-					<level>0</level>
-					<default>false</default>
-					<control type="toggle"/>
-				</setting>
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="widgetEnableTags" type="boolean" label="30547" help="30548">
-					<level>0</level>
-					<default>false</default>
-					<control type="toggle"/>
-				</setting>
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="widgetIncludeWatched" type="boolean" label="30549" help="">
-					<level>0</level>
-					<default>True</default>
-					<control type="toggle"/>
-				</setting>
+                    <level>0</level>
+                    <default>True</default>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="pluginMainLabelToken1" type="integer" label="30551" help="">
                     <level>0</level>
                     <default>1</default>
@@ -270,243 +270,243 @@
                     <control type="list" format="string"/>
                 </setting>
             </group>
-		</category>
-		<category id="behaviour" label="30600" help="">
-			<group id="playback" label="30601">
-				<setting id="autoPlayMode" type="integer" label="30603" help="30604">
-					<level>0</level>
-					<default>0</default>
-					<constraints>
-						<options>
-							<option label="30041">0</option>
-							<option label="30040">1</option>
-						</options>
-					</constraints>
-					<control type="spinner" format="string"/>
-				</setting>
-				<setting id="enableStillWatching" type="boolean" label="30606" help="30607">
-					<level>0</level>
-					<default>true</default>
-					<dependencies>
-						<dependency type="enable">
-							<condition operator="is" setting="autoPlayMode">1</condition>
-						</dependency>
-					</dependencies>
-					<control type="toggle"/>
-				</setting>
-				<setting id="playedInARow" type="integer" label="21408" help="30607" parent="enableStillWatching">
-					<level>0</level>
-					<default>3</default>
-					<constraints>
-						<minimum>1</minimum>
-						<step>1</step>
-						<maximum>15</maximum>
-					</constraints>
-					<dependencies>
-						<dependency type="visible">
-							<condition operator="is" setting="enableStillWatching">true</condition>
-						</dependency>
-					</dependencies>
-					<control type="slider" format="integer">
-						<popup>false</popup>
+        </category>
+        <category id="behaviour" label="30600" help="">
+            <group id="playback" label="30601">
+                <setting id="autoPlayMode" type="integer" label="30603" help="30604">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30041">0</option>
+                            <option label="30040">1</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string"/>
+                </setting>
+                <setting id="enableStillWatching" type="boolean" label="30606" help="30607">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition operator="is" setting="autoPlayMode">1</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="playedInARow" type="integer" label="21408" help="30607" parent="enableStillWatching">
+                    <level>0</level>
+                    <default>3</default>
+                    <constraints>
+                        <minimum>1</minimum>
+                        <step>1</step>
+                        <maximum>15</maximum>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enableStillWatching">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
                         <formatlabel>30608</formatlabel>
-					</control>
-				</setting>
-				<setting id="markWatched" type="integer" label="30634" help="30635">
-					<level>0</level>
-					<default>1</default>
-					<constraints>
-						<options>
-							<option label="30050">0</option>
-							<option label="30051">1</option>
-							<option label="30052">2</option>
-						</options>
-					</constraints>
-					<control type="spinner" format="string"/>
-				</setting>
-				<setting id="enableResume" type="boolean" label="30636" help="30637">
-					<level>0</level>
-					<default>true</default>
-					<control type="toggle"/>
-				</setting>
-			</group>
-			<group id="nextSelection" label="30640">
-				<setting id="includeWatched" type="boolean" label="30642" help="">
-					<level>0</level>
-					<default>true</default>
-					<control type="toggle"/>
-				</setting>
-				<setting id="nextSeason" type="boolean" label="30644" help="">
-					<level>0</level>
-					<default>true</default>
-					<control type="toggle"/>
-				</setting>
-				<setting id="enablePlaylist" type="boolean" label="30646" help="">
-					<level>0</level>
-					<default>true</default>
-					<control type="toggle"/>
-				</setting>
-				<setting id="enableMovieset" type="boolean" label="30648" help="">
-					<level>0</level>
-					<default>true</default>
-					<control type="toggle"/>
-				</setting>
-			</group>
-			<group id="knownEndCreditsTime" label="30609">
-				<setting id="autoPlayCountdown" type="integer" label="30611" help="">
-					<level>0</level>
-					<default>5</default>
-					<constraints>
-						<minimum>1</minimum>
-						<step>5</step>
-						<maximum>120</maximum>
-					</constraints>
-					<control type="slider" format="integer">
-						<popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="markWatched" type="integer" label="30634" help="30635">
+                    <level>0</level>
+                    <default>1</default>
+                    <constraints>
+                        <options>
+                            <option label="30050">0</option>
+                            <option label="30051">1</option>
+                            <option label="30052">2</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string"/>
+                </setting>
+                <setting id="enableResume" type="boolean" label="30636" help="30637">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+            </group>
+            <group id="nextSelection" label="30640">
+                <setting id="includeWatched" type="boolean" label="30642" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="nextSeason" type="boolean" label="30644" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="enablePlaylist" type="boolean" label="30646" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="enableMovieset" type="boolean" label="30648" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+            </group>
+            <group id="knownEndCreditsTime" label="30609">
+                <setting id="autoPlayCountdown" type="integer" label="30611" help="">
+                    <level>0</level>
+                    <default>5</default>
+                    <constraints>
+                        <minimum>1</minimum>
+                        <step>5</step>
+                        <maximum>120</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
                         <formatlabel>14045</formatlabel>
-					</control>
-				</setting>
-			</group>
-			<group id="unknownEndCreditsTime" label="30613">
-				<setting id="customAutoPlayTime" type="boolean" label="30615" help="">
-					<level>0</level>
-					<default>false</default>
-					<control type="toggle"/>
-				</setting>
-				<setting id="autoPlaySeasonTime" type="integer" label="30617" help="" parent="customAutoPlayTime">
-					<level>0</level>
-					<default>10</default>
-					<constraints>
-						<minimum>5</minimum>
-						<step>5</step>
-						<maximum>300</maximum>
-					</constraints>
-					<dependencies>
-						<dependency type="visible">
-							<condition operator="is" setting="customAutoPlayTime">false</condition>
-						</dependency>
-					</dependencies>
-					<control type="slider" format="integer">
-						<popup>false</popup>
+                    </control>
+                </setting>
+            </group>
+            <group id="unknownEndCreditsTime" label="30613">
+                <setting id="customAutoPlayTime" type="boolean" label="30615" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="autoPlaySeasonTime" type="integer" label="30617" help="" parent="customAutoPlayTime">
+                    <level>0</level>
+                    <default>10</default>
+                    <constraints>
+                        <minimum>5</minimum>
+                        <step>5</step>
+                        <maximum>300</maximum>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="customAutoPlayTime">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
                         <formatlabel>14045</formatlabel>
-					</control>
-				</setting>
-				<setting id="autoPlayTimeXS" type="integer" label="30619" help="" parent="customAutoPlayTime">
-					<level>0</level>
-					<default>15</default>
-					<constraints>
-						<minimum>5</minimum>
-						<step>5</step>
-						<maximum>300</maximum>
-					</constraints>
-					<dependencies>
-						<dependency type="visible">
-							<condition operator="is" setting="customAutoPlayTime">true</condition>
-						</dependency>
-					</dependencies>
-					<control type="slider" format="integer">
-						<popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="autoPlayTimeXS" type="integer" label="30619" help="" parent="customAutoPlayTime">
+                    <level>0</level>
+                    <default>15</default>
+                    <constraints>
+                        <minimum>5</minimum>
+                        <step>5</step>
+                        <maximum>300</maximum>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="customAutoPlayTime">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
                         <formatlabel>14045</formatlabel>
-					</control>
-				</setting>
-				<setting id="autoPlayTimeS" type="integer" label="30621" help="" parent="customAutoPlayTime">
-					<level>0</level>
-					<default>30</default>
-					<constraints>
-						<minimum>5</minimum>
-						<step>5</step>
-						<maximum>300</maximum>
-					</constraints>
-					<dependencies>
-						<dependency type="visible">
-							<condition operator="is" setting="customAutoPlayTime">true</condition>
-						</dependency>
-					</dependencies>
-					<control type="slider" format="integer">
-						<popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="autoPlayTimeS" type="integer" label="30621" help="" parent="customAutoPlayTime">
+                    <level>0</level>
+                    <default>30</default>
+                    <constraints>
+                        <minimum>5</minimum>
+                        <step>5</step>
+                        <maximum>300</maximum>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="customAutoPlayTime">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
                         <formatlabel>14045</formatlabel>
-					</control>
-				</setting>
-				<setting id="autoPlayTimeM" type="integer" label="30623" help="" parent="customAutoPlayTime">
-					<level>0</level>
-					<default>40</default>
-					<constraints>
-						<minimum>5</minimum>
-						<step>5</step>
-						<maximum>300</maximum>
-					</constraints>
-					<dependencies>
-						<dependency type="visible">
-							<condition operator="is" setting="customAutoPlayTime">true</condition>
-						</dependency>
-					</dependencies>
-					<control type="slider" format="integer">
-						<popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="autoPlayTimeM" type="integer" label="30623" help="" parent="customAutoPlayTime">
+                    <level>0</level>
+                    <default>40</default>
+                    <constraints>
+                        <minimum>5</minimum>
+                        <step>5</step>
+                        <maximum>300</maximum>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="customAutoPlayTime">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
                         <formatlabel>14045</formatlabel>
-					</control>
-				</setting>
-				<setting id="autoPlayTimeL" type="integer" label="30625" help="" parent="customAutoPlayTime">
-					<level>0</level>
-					<default>50</default>
-					<constraints>
-						<minimum>5</minimum>
-						<step>5</step>
-						<maximum>300</maximum>
-					</constraints>
-					<dependencies>
-						<dependency type="visible">
-							<condition operator="is" setting="customAutoPlayTime">true</condition>
-						</dependency>
-					</dependencies>
-					<control type="slider" format="integer">
-						<popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="autoPlayTimeL" type="integer" label="30625" help="" parent="customAutoPlayTime">
+                    <level>0</level>
+                    <default>50</default>
+                    <constraints>
+                        <minimum>5</minimum>
+                        <step>5</step>
+                        <maximum>300</maximum>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="customAutoPlayTime">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
                         <formatlabel>14045</formatlabel>
-					</control>
-				</setting>
-				<setting id="autoPlayTimeXL" type="integer" label="30627" help="" parent="customAutoPlayTime">
-					<level>0</level>
-					<default>60</default>
-					<constraints>
-						<minimum>5</minimum>
-						<step>5</step>
-						<maximum>300</maximum>
-					</constraints>
-					<dependencies>
-						<dependency type="visible">
-							<condition operator="is" setting="customAutoPlayTime">true</condition>
-						</dependency>
-					</dependencies>
-					<control type="slider" format="integer">
-						<popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="autoPlayTimeXL" type="integer" label="30627" help="" parent="customAutoPlayTime">
+                    <level>0</level>
+                    <default>60</default>
+                    <constraints>
+                        <minimum>5</minimum>
+                        <step>5</step>
+                        <maximum>300</maximum>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="customAutoPlayTime">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
                         <formatlabel>14045</formatlabel>
-					</control>
-				</setting>
-				<setting id="detectPlayTime" type="boolean" label="30630" help="">
-					<level>0</level>
-					<default>true</default>
-					<control type="toggle"/>
-				</setting>
-				<setting id="detectPeriod" type="integer" label="30631" help="30632" parent="detectPlayTime">
-					<level>0</level>
-					<default>300</default>
-					<constraints>
-						<minimum>30</minimum>
-						<step>30</step>
-						<maximum>600</maximum>
-					</constraints>
-					<dependencies>
-						<dependency type="visible">
-							<condition operator="is" setting="detectPlayTime">true</condition>
-						</dependency>
-					</dependencies>
-					<control type="slider" format="integer">
-						<popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="detectPlayTime" type="boolean" label="30630" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="detectPeriod" type="integer" label="30631" help="30632" parent="detectPlayTime">
+                    <level>0</level>
+                    <default>300</default>
+                    <constraints>
+                        <minimum>30</minimum>
+                        <step>30</step>
+                        <maximum>600</maximum>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="detectPlayTime">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
                         <formatlabel>30633</formatlabel>
-					</control>
-				</setting>
-			</group>
-		</category>
-		<category id="expert" label="30700" help="">
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="expert" label="30700" help="">
             <setting id="enableQueue" type="boolean" label="30707" help="30708">
                 <level>0</level>
                 <default>true</default>
@@ -542,269 +542,269 @@
                     </dependency>
                 </dependencies>
             </setting>
-			<group id="troubleshooting" label="30701">
+            <group id="troubleshooting" label="30701">
                 <setting id="logLevel" type="integer" label="30705" help="">
-					<level>0</level>
-					<default>0</default>
-					<constraints>
-						<options>
-							<option label="30042">0</option>
-							<option label="30043">1</option>
-							<option label="30044">2</option>
-						</options>
-					</constraints>
-					<control type="spinner" format="string"/>
-				</setting>
-				<setting id="startDelay" type="integer" label="30702" help="">
-					<level>0</level>
-					<default>5</default>
-					<constraints>
-						<minimum>1</minimum>
-						<step>1</step>
-						<maximum>10</maximum>
-					</constraints>
-					<control type="slider" format="integer">
-						<popup>false</popup>
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30042">0</option>
+                            <option label="30043">1</option>
+                            <option label="30044">2</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string"/>
+                </setting>
+                <setting id="startDelay" type="integer" label="30702" help="">
+                    <level>0</level>
+                    <default>5</default>
+                    <constraints>
+                        <minimum>1</minimum>
+                        <step>1</step>
+                        <maximum>10</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
                         <formatlabel>14045</formatlabel>
-					</control>
-				</setting>
-				<setting id="apiRetryAttempts" type="integer" label="30706" help="">
-					<level>0</level>
-					<default>3</default>
-					<constraints>
-						<minimum>0</minimum>
-						<step>1</step>
-						<maximum>10</maximum>
-					</constraints>
-					<control type="slider" format="integer">
-						<popup>false</popup>
-					</control>
-				</setting>
+                    </control>
+                </setting>
+                <setting id="apiRetryAttempts" type="integer" label="30706" help="">
+                    <level>0</level>
+                    <default>3</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>1</step>
+                        <maximum>10</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
                 <setting id="disableNextUp" type="boolean" label="30703" help="">
-					<level>0</level>
-					<default>false</default>
-					<control type="toggle"/>
-				</setting>
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
             </group>
-			<group id="additionalDetectorSettings" label="30730">
-				<setting id="detectorSavePath" type="path" label="30731" help="30750">
-					<level>0</level>
-					<default>special://profile/addon_data/service.upnext/detector/</default>
-					<constraints>
-						<sources>
-							<source/>
-						</sources>
-					</constraints>
-					<control type="button" format="path">
-						<heading>30731</heading>
-					</control>
-				</setting>
-				<setting id="detectorThreads" type="integer" label="30732" help="30751">
-					<level>0</level>
-					<default>3</default>
-					<constraints>
-						<minimum>2</minimum>
-						<step>1</step>
-						<maximum>6</maximum>
-					</constraints>
-					<control type="slider" format="integer">
-						<popup>false</popup>
-					</control>
-				</setting>
-				<setting id="detectorDataLimit" type="integer" label="30733" help="30752">
-					<level>0</level>
-					<default>32</default>
-					<constraints>
-						<minimum>8</minimum>
-						<step>8</step>
-						<maximum>256</maximum>
-					</constraints>
-					<control type="slider" format="integer">
-						<popup>false</popup>
+            <group id="additionalDetectorSettings" label="30730">
+                <setting id="detectorSavePath" type="path" label="30731" help="30750">
+                    <level>0</level>
+                    <default>special://profile/addon_data/service.upnext/detector/</default>
+                    <constraints>
+                        <sources>
+                            <source/>
+                        </sources>
+                    </constraints>
+                    <control type="button" format="path">
+                        <heading>30731</heading>
+                    </control>
+                </setting>
+                <setting id="detectorThreads" type="integer" label="30732" help="30751">
+                    <level>0</level>
+                    <default>3</default>
+                    <constraints>
+                        <minimum>2</minimum>
+                        <step>1</step>
+                        <maximum>6</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="detectorDataLimit" type="integer" label="30733" help="30752">
+                    <level>0</level>
+                    <default>32</default>
+                    <constraints>
+                        <minimum>8</minimum>
+                        <step>8</step>
+                        <maximum>256</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
                         <formatlabel>14049</formatlabel>
-					</control>
-				</setting>
-				<setting id="detectorFilter" type="boolean" label="30734" help="30753">
-					<level>0</level>
-					<default>true</default>
-					<control type="toggle"/>
-				</setting>
-				<setting id="detectorResizeMethod" type="integer" label="30735" help="30754">
-					<level>0</level>
-					<default>1</default>
-					<constraints>
-						<options>
-							<option label="30736">0</option>
-							<option label="30737">1</option>
-							<option label="30738">2</option>
-							<option label="30739">3</option>
-							<option label="30740">4</option>
-							<option label="30741">5</option>
-						</options>
-					</constraints>
-					<control type="list" format="string"/>
-				</setting>
-				<setting id="detectLevel" type="integer" label="30742" help="30755">
-					<level>0</level>
-					<default>90</default>
-					<constraints>
-						<minimum>50</minimum>
-						<step>1</step>
-						<maximum>100</maximum>
-					</constraints>
-					<control type="slider" format="integer">
-						<popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="detectorFilter" type="boolean" label="30734" help="30753">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="detectorResizeMethod" type="integer" label="30735" help="30754">
+                    <level>0</level>
+                    <default>1</default>
+                    <constraints>
+                        <options>
+                            <option label="30736">0</option>
+                            <option label="30737">1</option>
+                            <option label="30738">2</option>
+                            <option label="30739">3</option>
+                            <option label="30740">4</option>
+                            <option label="30741">5</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string"/>
+                </setting>
+                <setting id="detectLevel" type="integer" label="30742" help="30755">
+                    <level>0</level>
+                    <default>90</default>
+                    <constraints>
+                        <minimum>50</minimum>
+                        <step>1</step>
+                        <maximum>100</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
                         <formatlabel>14047</formatlabel>
-					</control>
-				</setting>
-				<setting id="detectSignificance" type="integer" label="30743" help="30756">
-					<level>0</level>
-					<default>25</default>
-					<constraints>
-						<minimum>1</minimum>
-						<step>1</step>
-						<maximum>50</maximum>
-					</constraints>
-					<control type="slider" format="integer">
-						<popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="detectSignificance" type="integer" label="30743" help="30756">
+                    <level>0</level>
+                    <default>25</default>
+                    <constraints>
+                        <minimum>1</minimum>
+                        <step>1</step>
+                        <maximum>50</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
                         <formatlabel>14047</formatlabel>
-					</control>
-				</setting>
-				<setting id="detectMatches" type="integer" label="30744" help="30757">
-					<level>0</level>
-					<default>5</default>
-					<constraints>
-						<minimum>1</minimum>
-						<step>1</step>
-						<maximum>10</maximum>
-					</constraints>
-					<control type="slider" format="integer">
-						<popup>false</popup>
-					</control>
-				</setting>
-				<setting id="detectMismatches" type="integer" label="30745" help="30758">
-					<level>0</level>
-					<default>3</default>
-					<constraints>
-						<minimum>1</minimum>
-						<step>1</step>
-						<maximum>10</maximum>
-					</constraints>
-					<control type="slider" format="integer">
-						<popup>false</popup>
-					</control>
-				</setting>
-			</group>
-		</category>
-		<category id="developer" label="30800" help="">
-			<group id="popupTest" label="30801">
-				<setting id="testUpNextPopup" type="action" label="30805" help="">
-					<level>0</level>
-					<data>RunScript(service.upnext,test_window,upnext)</data>
-					<constraints>
-						<allowempty>true</allowempty>
-					</constraints>
-					<control type="button" format="action"/>
-				</setting>
-				<setting id="testUpNextSimplePopup" type="action" label="30807" help="">
-					<level>0</level>
-					<data>RunScript(service.upnext,test_window,upnext,simple)</data>
-					<constraints>
-						<allowempty>true</allowempty>
-					</constraints>
-					<control type="button" format="action"/>
-				</setting>
-				<setting id="testStillWatchingPopup" type="action" label="30809" help="">
-					<level>0</level>
-					<data>RunScript(service.upnext,test_window,stillwatching)</data>
-					<constraints>
-						<allowempty>true</allowempty>
-					</constraints>
-					<control type="button" format="action"/>
-				</setting>
-				<setting id="testStillWatchingSimplePopup" type="action" label="30811" help="">
-					<level>0</level>
-					<data>RunScript(service.upnext,test_window,stillwatching,simple)</data>
-					<constraints>
-						<allowempty>true</allowempty>
-					</constraints>
-					<control type="button" format="action"/>
-				</setting>
-			</group>
-			<group id="simMode" label="30813">
-				<setting id="enableSimMode" type="boolean" label="30815" help="30816">
-					<level>0</level>
-					<default>false</default>
-					<control type="toggle"/>
-				</setting>
-				<setting id="simSeek" type="integer" label="30817" help="30818" parent="enableSimMode">
-					<level>0</level>
-					<default>0</default>
-					<constraints>
-						<options>
-							<option label="30045">0</option>
-							<option label="30046">1</option>
-							<option label="30047">2</option>
-							<option label="30048">3</option>
-						</options>
-					</constraints>
-					<dependencies>
-						<dependency type="visible">
-							<condition operator="is" setting="enableSimMode">true</condition>
-						</dependency>
-					</dependencies>
-					<control type="list" format="string"/>
-				</setting>
-				<setting id="simCue" type="integer" label="30819" help="30820" parent="enableSimMode">
-					<level>0</level>
-					<default>0</default>
-					<constraints>
-						<options>
-							<option label="30050">0</option>
-							<option label="30051">1</option>
-							<option label="30052">2</option>
-						</options>
-					</constraints>
-					<dependencies>
-						<dependency type="visible">
-							<condition operator="is" setting="enableSimMode">true</condition>
-						</dependency>
-					</dependencies>
-					<control type="spinner" format="string"/>
-				</setting>
-				<setting id="simPlugin" type="boolean" label="30821" help="30822" parent="enableSimMode">
-					<level>0</level>
-					<default>false</default>
-					<dependencies>
-						<dependency type="visible">
-							<condition operator="is" setting="enableSimMode">true</condition>
-						</dependency>
-					</dependencies>
-					<control type="toggle"/>
-				</setting>
-			</group>
-			<group id="additionalDeveloperSettings" label="30823">
-				<setting id="detectorDebug" type="boolean" label="30824" help="30825">
-					<level>0</level>
-					<default>false</default>
-					<control type="toggle"/>
-				</setting>
-				<setting id="detectorDebugSave" type="boolean" label="30826" help="30827">
-					<level>0</level>
-					<default>false</default>
-					<control type="toggle"/>
-				</setting>
+                    </control>
+                </setting>
+                <setting id="detectMatches" type="integer" label="30744" help="30757">
+                    <level>0</level>
+                    <default>5</default>
+                    <constraints>
+                        <minimum>1</minimum>
+                        <step>1</step>
+                        <maximum>10</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="detectMismatches" type="integer" label="30745" help="30758">
+                    <level>0</level>
+                    <default>3</default>
+                    <constraints>
+                        <minimum>1</minimum>
+                        <step>1</step>
+                        <maximum>10</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="developer" label="30800" help="">
+            <group id="popupTest" label="30801">
+                <setting id="testUpNextPopup" type="action" label="30805" help="">
+                    <level>0</level>
+                    <data>RunScript(service.upnext,test_window,upnext)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action"/>
+                </setting>
+                <setting id="testUpNextSimplePopup" type="action" label="30807" help="">
+                    <level>0</level>
+                    <data>RunScript(service.upnext,test_window,upnext,simple)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action"/>
+                </setting>
+                <setting id="testStillWatchingPopup" type="action" label="30809" help="">
+                    <level>0</level>
+                    <data>RunScript(service.upnext,test_window,stillwatching)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action"/>
+                </setting>
+                <setting id="testStillWatchingSimplePopup" type="action" label="30811" help="">
+                    <level>0</level>
+                    <data>RunScript(service.upnext,test_window,stillwatching,simple)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action"/>
+                </setting>
+            </group>
+            <group id="simMode" label="30813">
+                <setting id="enableSimMode" type="boolean" label="30815" help="30816">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="simSeek" type="integer" label="30817" help="30818" parent="enableSimMode">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30045">0</option>
+                            <option label="30046">1</option>
+                            <option label="30047">2</option>
+                            <option label="30048">3</option>
+                        </options>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enableSimMode">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="list" format="string"/>
+                </setting>
+                <setting id="simCue" type="integer" label="30819" help="30820" parent="enableSimMode">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30050">0</option>
+                            <option label="30051">1</option>
+                            <option label="30052">2</option>
+                        </options>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enableSimMode">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="spinner" format="string"/>
+                </setting>
+                <setting id="simPlugin" type="boolean" label="30821" help="30822" parent="enableSimMode">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enableSimMode">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+            </group>
+            <group id="additionalDeveloperSettings" label="30823">
+                <setting id="detectorDebug" type="boolean" label="30824" help="30825">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="detectorDebugSave" type="boolean" label="30826" help="30827">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="widgetDebug" type="boolean" label="30828" help="30829">
-					<level>0</level>
-					<default>false</default>
-					<control type="toggle"/>
-				</setting>
-				<setting id="startTrigger" type="boolean" label="30830" help="30831">
-					<level>0</level>
-					<default>false</default>
-					<control type="toggle"/>
-				</setting>
-			</group>
-		</category>
-	</section>
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="startTrigger" type="boolean" label="30830" help="30831">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+            </group>
+            </category>
+    </section>
 </settings>
