@@ -1265,12 +1265,13 @@ class InfoTagComparator(object):
     del re_compile
 
     def __init__(self, infotags, limit=constants.UNDEFINED,
+                 cast_limit=constants.CAST_LIMIT,
                  _set=set,
                  _get=dict.get):
 
         self.cast_crew = (
             _set(cast['name'] for cast in _get(infotags, 'cast', [])
-                 if cast['order'] <= 5)
+                 if cast['order'] <= cast_limit)
             | _set(_get(infotags, 'director', []))
             | _set(_get(infotags, 'writer', []))
         )
@@ -1294,6 +1295,7 @@ class InfoTagComparator(object):
         )
 
     def compare(self, infotags,  # pylint: disable=too-many-arguments, too-many-branches, too-many-locals
+                cast_limit=constants.CAST_LIMIT,
                 _set=set,
                 _get=dict.get,
                 _len=len,
@@ -1320,7 +1322,7 @@ class InfoTagComparator(object):
         if cast_crew_stored:
             cast_crew = (
                 _set(cast['name'] for cast in _get(infotags, 'cast', [])
-                     if cast['order'] <= 5)
+                     if cast['order'] <= cast_limit)
                 | _set(_get(infotags, 'director', []))
                 | _set(_get(infotags, 'writer', []))
             )
@@ -1376,6 +1378,7 @@ class InfoTagComparator(object):
 
     @classmethod
     def tokenise(cls, values, split=_token_split,  # pylint: disable=too-many-arguments,
+                 min_length=constants.TOKEN_LENGTH,
                  _empty=frozenset((None, )),
                  _add=set.add,
                  _len=len,
@@ -1392,10 +1395,10 @@ class InfoTagComparator(object):
         processed_tokens = _set()
         for token in tokens:
             length = _len(token)
-            if length < 3:
+            if length < min_length:
                 continue
             upper = token.upper()
-            if length == 3 and token != upper:
+            if length == min_length and token != upper:
                 continue
             if cls.PUNCTUATION & _set(upper):
                 upper = upper.translate(cls.PUNCTUATION_TRANSLATION_TABLE)

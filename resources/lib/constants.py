@@ -135,3 +135,6 @@ IDLE_STATE = {
     'idle': 1,
     'active': 2,
 }
+
+CAST_LIMIT = 5
+TOKEN_LENGTH = 3
