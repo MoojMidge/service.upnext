@@ -507,54 +507,56 @@
             </group>
         </category>
         <category id="expert" label="30700" help="">
-            <setting id="enableQueue" type="boolean" label="30707" help="30708">
-                <level>0</level>
-                <default>true</default>
-                <control type="toggle"/>
-            </setting>
-            <setting id="enableTMDBHelper" type="boolean" label="30709" help="30710">
-                <level>0</level>
-                <default>true</default>
-                <control type="toggle"/>
-                <dependencies>
-                    <dependency type="enable">
-                        <condition on="property" name="infobool">System.HasAddon(plugin.video.themoviedb.helper)</condition>
-                    </dependency>
-                </dependencies>
-            </setting>
-            <setting id="exactTMDBMatch" type="boolean" label="30711" help="30712" parent="enableTMDBHelper">
-                <level>0</level>
-                <default>true</default>
-                <control type="toggle"/>
-                <dependencies>
-                    <dependency type="visible">
-                        <condition operator="is" setting="enableTMDBHelper">true</condition>
-                    </dependency>
-                </dependencies>
-            </setting>
-            <setting id="queueFromTMDB" type="boolean" label="30713" help="30714" parent="enableTMDBHelper">
-                <level>0</level>
-                <default>true</default>
-                <control type="toggle"/>
-                <dependencies>
-                    <dependency type="visible">
-                        <condition operator="is" setting="enableTMDBHelper">true</condition>
-                    </dependency>
-                </dependencies>
-            </setting>
-            <setting id="resumeFromEnd" type="integer" label="30715" help="30716">
-                <level>0</level>
-                <default>10</default>
-                <constraints>
-                    <minimum>0</minimum>
-                    <step>1</step>
-                    <maximum>25</maximum>
-                </constraints>
-                <control type="slider" format="integer">
-                    <popup>false</popup>
-                    <formatlabel>14047</formatlabel>
-                </control>
-            </setting>
+            <group id="general" label="30717">
+                <setting id="enableQueue" type="boolean" label="30707" help="30708">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="enableTMDBHelper" type="boolean" label="30709" help="30710">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition on="property" name="infobool">System.HasAddon(plugin.video.themoviedb.helper)</condition>
+                        </dependency>
+                    </dependencies>
+                </setting>
+                <setting id="exactTMDBMatch" type="boolean" label="30711" help="30712" parent="enableTMDBHelper">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enableTMDBHelper">true</condition>
+                        </dependency>
+                    </dependencies>
+                </setting>
+                <setting id="queueFromTMDB" type="boolean" label="30713" help="30714" parent="enableTMDBHelper">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enableTMDBHelper">true</condition>
+                        </dependency>
+                    </dependencies>
+                </setting>
+                <setting id="resumeFromEnd" type="integer" label="30715" help="30716">
+                    <level>0</level>
+                    <default>10</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>1</step>
+                        <maximum>25</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                        <formatlabel>14047</formatlabel>
+                    </control>
+                </setting>
+            </group>
             <group id="troubleshooting" label="30701">
                 <setting id="logLevel" type="integer" label="30705" help="">
                     <level>0</level>

@@ -538,6 +538,10 @@ msgctxt "#30716"
 msgid "Percent from end of a video to ignore/reset existing resume point."
 msgstr ""
 
+msgctxt "#30717"
+msgid "General"
+msgstr ""
+
 msgctxt "#30730"
 msgid "Additional detector settings"
 msgstr ""
