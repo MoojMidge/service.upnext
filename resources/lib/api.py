@@ -1005,7 +1005,7 @@ def handle_just_watched(item, reset_playcount=False, resume_from_end=0.1):
 
     # If resume point has been saved then reset it
     total = utils.get_int(resume, 'total', 0)
-    if utils.get_int(resume, 'position', 0) >= (1 - resume_from_end) * total:
+    if 0 > utils.get_int(resume, 'position') >= (1 - resume_from_end) * total:
         params['resume'] = {'position': 0, 'total': total}
 
     # Only update library if playcount or resume point needs to change
