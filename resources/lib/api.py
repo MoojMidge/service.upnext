@@ -831,9 +831,12 @@ def get_next_movie_from_library(movie=constants.UNDEFINED,
             utils.LOGWARNING)
         return None
 
-    setid = utils.get_int(movie, 'setid')
-    if not setid or setid == constants.UNDEFINED:
-        log('No next movie found, invalid movie setid', utils.LOGWARNING)
+    set_name = movie['set']
+    set_id = utils.get_int(movie, 'setid')
+    if not set_name or not set_id or set_id == constants.UNDEFINED:
+        log('No next movie found, invalid movie set "{0}" ({1})'.format(
+            set_name, set_id
+        ), utils.LOGWARNING)
         return None
 
     (path, filename) = os.path.split(movie['file'])
@@ -841,7 +844,7 @@ def get_next_movie_from_library(movie=constants.UNDEFINED,
     FILTER_NOT_PATH['value'] = path
     filters = [FILTER_NOT_FILEPATH]
 
-    FILTER_SET['value'] = movie['set']
+    FILTER_SET['value'] = set_name
     filters.append(FILTER_SET)
 
     if unwatched_only:
@@ -1132,15 +1135,16 @@ def get_upnext_movies_from_library(limit=25,
     upnext_movies = []
     set_index = set()
     for movie in movies:
-        setid = movie['setid'] or constants.UNDEFINED
-        if setid != constants.UNDEFINED and setid in set_index:
+        set_name = movie['set']
+        set_id = movie['setid'] or constants.UNDEFINED
+        if set_id != constants.UNDEFINED and set_id in set_index:
             continue
 
         resume = movie['resume']
         if 0 < resume['position'] < (1 - resume_from_end) * resume['total']:
             upnext_movie = movie
-        elif movie_sets and setid != constants.UNDEFINED:
-            FILTER_SET['value'] = movie['set']
+        elif movie_sets and set_name and set_id != constants.UNDEFINED:
+            FILTER_SET['value'] = set_name
             FILTER_NEXT_MOVIE['value'] = str(movie['year'])
 
             upnext_movie, _ = get_videos_from_library(db_type='movies',
@@ -1149,7 +1153,7 @@ def get_upnext_movies_from_library(limit=25,
                                                       filters=filters)
 
             if not upnext_movie:
-                set_index.add(setid)
+                set_index.add(set_id)
                 continue
         else:
             continue
@@ -1158,7 +1162,7 @@ def get_upnext_movies_from_library(limit=25,
         upnext_movie['lastplayed'] = movie['lastplayed']
         art_fallbacks(upnext_movie)
         upnext_movies.append(upnext_movie)
-        set_index.add(setid)
+        set_index.add(set_id)
 
     return upnext_movies
 
