@@ -172,18 +172,25 @@ JSON_MAP = {
     'episodes': {
         'get_method': 'VideoLibrary.GetEpisodes',
         'properties': EPISODE_PROPERTIES,
-        'result': 'episodes'
+        'result': 'episodes',
+        'mapping': {
+            'type': 'episode',
+        },
     },
     'movies': {
         'get_method': 'VideoLibrary.GetMovies',
         'properties': MOVIE_PROPERTIES,
-        'result': 'movies'
+        'result': 'movies',
+        'mapping': {
+            'type': 'episode',
+        },
     },
     'tvshows': {
         'get_method': 'VideoLibrary.GetTVShows',
         'properties': TVSHOW_PROPERTIES,
         'mapping': {
             'episode': 'totalepisodes',
+            'type': 'tvshow',
         },
         'result': 'tvshows'
     },
@@ -981,7 +988,7 @@ def get_details_from_library(db_type=None,
                                    'properties': properties})
 
     result = result.get('result', {}).get(detail_type['result'], {})
-    if result and 'mapping' in detail_type:
+    if result and properties:
         map_properties(result, mapping=detail_type['mapping'])
     return result, detail_type
 
@@ -1207,7 +1214,10 @@ def get_videos_from_library(db_type,  # pylint: disable=too-many-arguments
     videos = videos.get('result', {}).get(detail_type['result'], [])
 
     if videos and limit == 1:
-        return videos[0], detail_type
+        video = videos[0]
+        if properties:
+            map_properties(video, mapping=detail_type['mapping'])
+        return video, detail_type
     return videos, detail_type
 
 
@@ -1508,8 +1518,7 @@ def get_similar_from_library(db_type,  # pylint: disable=too-many-arguments, too
                 break
             if similarity:
                 art_fallbacks(video)
-                if 'mapping' in detail_type:
-                    map_properties(video, mapping=detail_type['mapping'])
+                map_properties(video, mapping=detail_type['mapping'])
                 video['__similarity__'] = similarity
                 selected.append(video)
         else:
