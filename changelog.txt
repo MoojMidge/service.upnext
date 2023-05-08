@@ -1,4 +1,12 @@
 ## Releases
+### v2.0.23+dev.0 (2023-05-09)
+- Fix episodes widgets being displayed as tvshows
+- Add genre details for widget listitems
+- Add setting to ignore/reset resume point after percentage watched
+- Update setting structure
+- Handle (ignore) movie sets without a name
+- Fix getting next video from library failing under some conditions
+
 ### v2.0.22+dev.0 (2023-04-17)
 - Lots of additional bug fixes/workarounds for Kodi event order issues
 
