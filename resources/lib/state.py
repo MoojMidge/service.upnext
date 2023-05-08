@@ -301,12 +301,10 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             return None
 
         if current_video['type'] == 'movie':
-            return (
-                current_video
-                if current_video['set']
-                    and utils.get_int(current_video, 'setid') > 0
-                else None
-            )
+            return current_video if (
+                current_video['set']
+                and utils.get_int(current_video, 'setid') > 0
+            ) else None
 
         # Previously resolved listitems may lose infotags that are set when the
         # listitem is resolved. Fallback to Player notification data.

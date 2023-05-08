@@ -1142,7 +1142,6 @@ def get_upnext_movies_from_library(limit=25,
     upnext_movies = []
     set_index = set()
     for movie in movies:
-        set_name = movie['set']
         set_id = movie['setid'] or constants.UNDEFINED
         if set_id != constants.UNDEFINED and set_id in set_index:
             continue
@@ -1150,8 +1149,8 @@ def get_upnext_movies_from_library(limit=25,
         resume = movie['resume']
         if 0 < resume['position'] < (1 - resume_from_end) * resume['total']:
             upnext_movie = movie
-        elif movie_sets and set_name and set_id != constants.UNDEFINED:
-            FILTER_SET['value'] = set_name
+        elif movie_sets and movie['set'] and set_id != constants.UNDEFINED:
+            FILTER_SET['value'] = movie['set']
             FILTER_NEXT_MOVIE['value'] = str(movie['year'])
 
             upnext_movie, _ = get_videos_from_library(db_type='movies',

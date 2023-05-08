@@ -37,7 +37,7 @@ class ContextManager(object):
         return handler or super(ContextManager, cls).__new__(cls)
 
     def __enter__(self):
-        return None, AttributeError
+        return (None, AttributeError)
 
     def __exit__(self, exc_type, exc_value, traceback):
         return True
