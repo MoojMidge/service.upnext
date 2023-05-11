@@ -678,7 +678,7 @@ class UpNextDetector(object):
             with utils.ContextManager(self, 'player') as (player, error):
                 if error is AttributeError:
                     raise error
-                error = player.get_speed() < 1
+                error = player.get_speed() != 1
             if error:
                 self.log('Stop capture: nothing playing')
                 break
@@ -764,7 +764,7 @@ class UpNextDetector(object):
                     self.hashes.group_idx
                 )
                 # Only capture if playing at normal speed
-                error = player.get_speed() < 1
+                error = player.get_speed() != 1
             if error:
                 self.log('No file is playing')
                 break

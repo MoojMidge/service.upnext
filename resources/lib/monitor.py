@@ -147,7 +147,7 @@ class UpNextMonitor(xbmc.Monitor, object):
             )
 
             if not skip_tracking:
-                self._start_tracking()
+                self._start_tracking(play_info)
             return
 
         self.log('Skip video check: UpNext unable to handle playing item')
@@ -161,14 +161,20 @@ class UpNextMonitor(xbmc.Monitor, object):
         if self._queue_length != 1:
             return
 
+        # Get playback details and use VideoPlayer.Time infolabel over
+        # xbmc.Player.getTime() as the infolabel appears to update quicker
+        play_info = self._get_playback_details(use_infolabel=True)
+
         # Update stored video resolution if detector is running
         if self.detector and not self.detector.credits_detected():
             self.detector.get_video_resolution(_cache=[None])
-            if not self.detector.is_alive():
-                self.detector.start()
+            if (play_info and play_info['speed'] == 1
+                    and not self.state.is_tracking()
+                    and not self.detector.is_alive()):
+                utils.run_threaded(self.detector.start)
 
         # Restart tracking if previously enabled
-        self._start_tracking()
+        self._start_tracking(play_info)
 
     def _event_handler_player_start(self, **kwargs):
         # Delay event handler execution to allow events to queue up
@@ -326,7 +332,8 @@ class UpNextMonitor(xbmc.Monitor, object):
         self._detector = None
 
         play_info = self._get_playback_details()
-        if not play_info:
+        # Exit if not playing, paused, or rewinding
+        if not play_info or play_info['speed'] < 1:
             return
 
         # Start detector to detect end credits and trigger popup
@@ -403,10 +410,11 @@ class UpNextMonitor(xbmc.Monitor, object):
         # Stop detector and release resources
         self._stop_detector(terminate=True, store=True)
 
-    def _start_tracking(self):
+    def _start_tracking(self, play_info=None):
         # Get playback details and use VideoPlayer.Time infolabel over
         # xbmc.Player.getTime() as the infolabel appears to update quicker
-        play_info = self._get_playback_details(use_infolabel=True)
+        if not play_info:
+            play_info = self._get_playback_details(use_infolabel=True)
 
         # Exit if tracking disabled
         if not self.state.is_tracking():
