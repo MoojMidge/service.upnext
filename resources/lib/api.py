@@ -182,7 +182,7 @@ JSON_MAP = {
         'properties': MOVIE_PROPERTIES,
         'result': 'movies',
         'mapping': {
-            'type': 'episode',
+            'type': 'movie',
         },
     },
     'tvshows': {
