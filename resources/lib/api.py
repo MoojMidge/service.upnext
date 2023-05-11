@@ -164,7 +164,7 @@ JSON_MAP = {
         'id_name': 'tvshowid',
         'properties': TVSHOW_PROPERTIES,
         'mapping': {
-            'episode': 'totalepisodes',
+            '__rename__': {'episode': 'totalepisodes'},
             'type': 'tvshow',
         },
         'result': 'tvshowdetails'
@@ -189,7 +189,7 @@ JSON_MAP = {
         'get_method': 'VideoLibrary.GetTVShows',
         'properties': TVSHOW_PROPERTIES,
         'mapping': {
-            'episode': 'totalepisodes',
+            '__rename__': {'episode': 'totalepisodes'},
             'type': 'tvshow',
         },
         'result': 'tvshows'
@@ -428,8 +428,10 @@ def map_properties(item, db_type=None, mapping=None):
         return item
 
     for old, new in mapping.items():
-        if old in item:
-            item[new] = item.pop(old)
+        if old == '__rename__':
+            for original, replacement in new.items():
+                if original in item:
+                    item[replacement] = item.pop(original)
         else:
             item[old] = new
 
