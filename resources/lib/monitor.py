@@ -379,7 +379,7 @@ class UpNextMonitor(xbmc.Monitor, object):
         self._stop_popuphandler(terminate=True)
 
         # Update playcount and reset resume point of previous file
-        if not playback_cancelled and SETTINGS.mark_watched:
+        if not playback_cancelled and SETTINGS.mark_watched and self.state:
             utils.run_threaded(target=api.handle_just_watched,
                                delay=5,
                                kwargs={
