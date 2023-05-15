@@ -1,4 +1,7 @@
 ## Releases
+### v2.0.24+dev.0 (2023-05-15)
+- Bunch of bug fixes
+
 ### v2.0.23+dev.0 (2023-05-09)
 - Fix episodes widgets being displayed as tvshows
 - Add genre details for widget listitems
