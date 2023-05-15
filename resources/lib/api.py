@@ -1294,7 +1294,7 @@ class InfoTagComparator(object):
                                    _get(infotags, 'title')])
         self.genres = _set(_get(infotags, 'genre', []))
         self.set_name = self.tokenise([_get(infotags, 'set')])
-        self.tags = self.tokenise([_get(infotags, 'tag')], split=False)
+        self.tags = self.tokenise(_get(infotags, 'tag', []), split=False)
 
         self.count = dict.fromkeys(self.genres, 0)
         self.count['__len__'] = len(self.genres)
@@ -1367,7 +1367,7 @@ class InfoTagComparator(object):
                 threshold -= self.K_SET_NAME / 5
 
         if tags_stored:
-            tags = self.tokenise([_get(infotags, 'tag')], split=False)
+            tags = self.tokenise(_get(infotags, 'tag', []), split=False)
             if tags:
                 similarity += self.K_TAGS * _min(1, (
                     (2 * _len(tags & tags_stored)) ** 2
