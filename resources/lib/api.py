@@ -1399,13 +1399,9 @@ class InfoTagComparator(object):
                  _len=len,
                  _set=set):
 
-        if split:
-            tokens = _set()
-            for value in values:
-                if value:
-                    tokens |= _set(split(value))
-        else:
-            tokens = _set(values) - _empty
+        tokens = {
+            token for value in values if value for token in split(value)
+        } if split else _set(values) - _empty
 
         processed_tokens = _set()
         for token in tokens:
