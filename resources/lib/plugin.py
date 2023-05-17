@@ -98,7 +98,8 @@ def generate_watched_movies_list(addon_handle, addon_id, **kwargs):  # pylint: d
         )
         listitem = upnext.create_movie_listitem(
             movie,
-            properties={'isPlayable': 'false', 'isFolder': True}
+            properties={'isPlayable': 'false', 'isFolder': True},
+            infolabels={'path': path},
         )
         listing += ((path, listitem, True),)
 
@@ -173,7 +174,8 @@ def generate_watched_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: 
         )
         listitem = upnext.create_tvshow_listitem(
             tvshow,
-            properties={'isPlayable': 'false', 'isFolder': True}
+            properties={'isPlayable': 'false', 'isFolder': True},
+            infolabels={'path': path},
         )
         listing += ((path, listitem, True),)
 
@@ -212,7 +214,8 @@ def generate_similar_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: 
                 'widget': label,        # For AH2 skin integration
                 'similartitle': title,  # SHS compatibility
                 'isFolder': True
-            }
+            },
+            infolabels={'path': path},
         )
         listing += ((path, listitem, True),)
 
@@ -337,7 +340,8 @@ def generate_similar_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
                 'widget': label,        # For AH2 skin integration
                 'similartitle': title,  # SHS compatibility
                 'isFolder': is_folder
-            }
+            },
+            infolabels={'path': path},
         )
         listing += ((path, listitem, is_folder),)
 
