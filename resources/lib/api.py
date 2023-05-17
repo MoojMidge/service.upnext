@@ -1285,8 +1285,8 @@ class InfoTagComparator(object):
                  _get=dict.get):
 
         self.cast_crew = (
-            _set(cast['name'] for cast in _get(infotags, 'cast', [])
-                 if cast['order'] <= cast_limit)
+            {cast['name'] for cast in _get(infotags, 'cast', [])
+             if cast['order'] <= cast_limit}
             | _set(_get(infotags, 'director', []))
             | _set(_get(infotags, 'writer', []))
         )
@@ -1336,8 +1336,8 @@ class InfoTagComparator(object):
 
         if cast_crew_stored:
             cast_crew = (
-                _set(cast['name'] for cast in _get(infotags, 'cast', [])
-                     if cast['order'] <= cast_limit)
+                {cast['name'] for cast in _get(infotags, 'cast', [])
+                 if cast['order'] <= cast_limit}
                 | _set(_get(infotags, 'director', []))
                 | _set(_get(infotags, 'writer', []))
             )
