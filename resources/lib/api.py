@@ -1244,6 +1244,8 @@ class InfoTagComparator(object):
     K_TAGS = 12.5
     MAX_SIMILARITY = K_CAST_CREW + K_FUZZ + K_GENRES + K_SET_NAME + K_TAGS
 
+    STR_TYPE = type('')
+
     IGNORE_WORDS = frozenset({
         '',
         'ABOUT',
@@ -1281,8 +1283,8 @@ class InfoTagComparator(object):
 
     def __init__(self, infotags, limit=constants.UNDEFINED,
                  cast_limit=constants.CAST_LIMIT,
-                 _set=set,
-                 _get=dict.get):
+                 _get=dict.get,
+                 _set=set):
 
         self.cast_crew = (
             {cast['name'] for cast in _get(infotags, 'cast', [])
@@ -1311,10 +1313,10 @@ class InfoTagComparator(object):
 
     def compare(self, infotags,  # pylint: disable=too-many-arguments, too-many-branches, too-many-locals
                 cast_limit=constants.CAST_LIMIT,
-                _set=set,
                 _get=dict.get,
                 _len=len,
-                _min=min):
+                _min=min,
+                _set=set):
 
         cast_crew_stored = self.cast_crew
         fuzz_stored = self.fuzz
@@ -1391,31 +1393,35 @@ class InfoTagComparator(object):
             return similarity if counted else 0
         return 0
 
-    @classmethod
-    def tokenise(cls, values, split=_token_split,  # pylint: disable=too-many-arguments,
+    @staticmethod
+    def tokenise(values, split=_token_split,  # pylint: disable=too-many-arguments, dangerous-default-value
                  min_length=constants.TOKEN_LENGTH,
-                 _empty=frozenset((None, )),
-                 _add=set.add,
+                 compare_set=PUNCTUATION,
+                 translation_table=PUNCTUATION_TRANSLATION_TABLE,
+                 ignore_set=IGNORE_WORDS,
+                 _istitle=STR_TYPE.istitle,
+                 _isupper=STR_TYPE.isupper,
                  _len=len,
-                 _set=set):
+                 _set=set,
+                 _translate=STR_TYPE.translate,
+                 _upper=STR_TYPE.upper):
 
         tokens = {
             token for value in values if value for token in split(value)
-        } if split else _set(values) - _empty
+        } if split else _set(values)
 
-        processed_tokens = _set()
-        for token in tokens:
-            length = _len(token)
-            if length < min_length:
-                continue
-            upper = token.upper()
-            if length == min_length and token != upper:
-                continue
-            if cls.PUNCTUATION & _set(upper):
-                upper = upper.translate(cls.PUNCTUATION_TRANSLATION_TABLE)
-            _add(processed_tokens, upper)
+        processed_tokens = {
+            _upper(
+                _translate(token, translation_table)
+                if compare_set & _set(token)
+                else token
+            )
+            for token in tokens
+            if _len(token) > min_length
+            or _isupper(token) and not _istitle(token)
+        }
 
-        return processed_tokens - cls.IGNORE_WORDS
+        return processed_tokens - ignore_set
 
 
 def get_similar_from_library(db_type,  # pylint: disable=too-many-arguments, too-many-locals, too-many-statements, too-many-branches
