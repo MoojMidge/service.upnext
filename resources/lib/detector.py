@@ -44,7 +44,7 @@ class UpNextHashStore(object):
         self.hash_size = kwargs.get('hash_size', (8, 8))
         item = kwargs.get('item', {})
         self.group_name = item.get('group_name', '')
-        self.group_idx = item.get('group_idx', constants.UNDEFINED)
+        self.group_idx = item.get('group_idx') or constants.UNDEFINED
         self.data = kwargs.get('data', {})
         self.timestamps = kwargs.get('timestamps', {self.group_idx: None})
 
@@ -126,6 +126,7 @@ class UpNextHashStore(object):
                 utils.get_int(group_idx):
                     hashes['timestamps'][group_idx]
                 for group_idx in hashes['timestamps']
+                if group_idx != 'null'
             }
 
         self.log('Hashes loaded from {0}'.format(target))

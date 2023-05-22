@@ -624,12 +624,12 @@ def create_item_details(item, source=None, position=None):
             str(get_int(item, 'setid')),
             item.get('set', constants.UNTITLED),
         ))
-        group_idx = position
+        group_idx = constants.UNDEFINED
 
     else:
         db_id = get_int(item, 'id')
         group_name = constants.UNKNOWN
-        group_idx = position
+        group_idx = constants.UNDEFINED
 
     item_details = {
         'details': item,
