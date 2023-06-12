@@ -715,7 +715,7 @@ def get_player_speed():
     result = utils.jsonrpc(method='Player.GetProperties',
                            params={'playerid': get_playerid(),
                                    'properties': ['speed']})
-    result = utils.get_int(result.get('result', {}), 'speed', 1)
+    result = utils.get_float(result.get('result', {}), 'speed', 1.0)
 
     return result
 

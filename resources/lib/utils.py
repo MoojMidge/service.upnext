@@ -330,6 +330,21 @@ def get_int(obj, key=None, default=constants.UNDEFINED, strict=False):
         return default if strict or not val else val
 
 
+def get_float(obj, key=None, default=constants.UNDEFINED, strict=False):
+    """Returns an object or value for the given key in object, as a float.
+       Returns default value if key or object is not available.
+       Returns value if value cannot be converted to float."""
+
+    try:
+        val = obj.get(key, default) if key else obj
+    except (AttributeError, TypeError):
+        return default
+    try:
+        return float(val)
+    except (ValueError, TypeError):
+        return default if strict or not val else val
+
+
 def encode_data(data, encoding='base64'):
     """Encode data for a notification event"""
 
