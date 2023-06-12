@@ -15,7 +15,7 @@ import xbmc
 class UpNextPlayerState(dict):
     def __getattr__(self, name):
         try:
-            return self[name]['value']
+            return self[name].get('value')
         except KeyError as error:
             raise AttributeError(error)  # pylint: disable=raise-missing-from
 
@@ -25,13 +25,11 @@ class UpNextPlayerState(dict):
     def forced(self, name):
         # If playing is forced all other player properties are also considered
         # to be forced
-        forced = self.get(name, {}).get('force')
-        if forced or name == 'playing':
-            return forced
-        return self.get('playing', {}).get('force')
-
-    def actual(self, name):
-        return self[name].get('actual')
+        if name not in self:
+            return None
+        if name == 'playing':
+            return self['playing'].get('force')
+        return self[name].get('force') or self['playing'].get('force')
 
     def set(self, name, *args, **kwargs):
         if name not in self:
@@ -40,24 +38,15 @@ class UpNextPlayerState(dict):
                 'force': False,
                 'actual': None
             }
+        attr = self[name]
 
-        has_force = 'force' in kwargs
-        has_value = bool(args)
-
-        if has_force and has_value:
-            self[name]['value'] = args[0]
-            self[name]['force'] = kwargs['force']
-
-        elif has_force and not has_value:
-            self[name]['value'] = self[name].get('actual')
-            self[name]['force'] = kwargs['force']
-
-        elif self.forced(name) and not has_force and has_value:
-            self[name]['actual'] = args[0]
-
-        elif has_value:
-            self[name]['value'] = args[0]
-            self[name]['actual'] = args[0]
+        if 'force' in kwargs:
+            attr['value'] = args[0] if args else attr.get('actual')
+            attr['force'] = kwargs['force']
+        elif args:
+            attr['actual'] = args[0]
+            if not self.forced(name):
+                attr['value'] = args[0]
 
 
 class UpNextPlayer(xbmc.Player, object):
@@ -72,8 +61,8 @@ class UpNextPlayer(xbmc.Player, object):
 
         # Used to override player state for testing
         self.player_state = UpNextPlayerState()
-        self.player_state.external_player = False
         self.player_state.playing = False
+        self.player_state.external_player = False
         self.player_state.paused = False
         self.player_state.playing_file = None
         self.player_state.speed = 0
@@ -101,7 +90,7 @@ class UpNextPlayer(xbmc.Player, object):
     def isExternalPlayer(self):  # pylint: disable=invalid-name
         # Use inbuilt method to store actual value
         actual = (
-            getattr(xbmc.Player, 'isExternalPlayer')(self)
+            xbmc.Player.isExternalPlayer(self)
             if utils.supports_python_api(18)
             else False
         )
@@ -109,9 +98,13 @@ class UpNextPlayer(xbmc.Player, object):
         # Return actual value or forced value if forced
         return self.player_state.external_player
 
-    def isPlaying(self):  # pylint: disable=invalid-name
+    def isPlaying(self, use_infolabel=True):  # pylint: disable=invalid-name, arguments-differ
         # Use inbuilt method to store actual value
-        actual = getattr(xbmc.Player, 'isPlaying')(self)
+        actual = (
+            xbmc.getCondVisibility('Player.HasMedia')
+            if use_infolabel else
+            xbmc.Player.isPlaying(self)
+        )
         self.player_state.playing = actual
         # Return actual value or forced value if forced
         return self.player_state.playing
@@ -129,46 +122,56 @@ class UpNextPlayer(xbmc.Player, object):
             actual = self.player_state.type
         # Use inbuilt method to store actual value if playing not forced
         else:
-            actual = self.getVideoInfoTag().getMediaType()
-            actual = actual if actual else constants.UNKNOWN
-        actual = statichelper.from_bytes(actual)
+            actual = statichelper.from_bytes(
+                xbmc.Player.getVideoInfoTag(self).getMediaType()
+            ) or constants.UNKNOWN
         self.player_state.type = actual
         # Return actual value or forced value if forced
         return self.player_state.type
 
-    def getPlayingFile(self):  # pylint: disable=invalid-name
+    def getPlayingFile(self, use_infolabel=True):  # pylint: disable=invalid-name, arguments-differ
         # Use current stored value if playing forced
         if self.player_state.forced('playing_file'):
             actual = self.player_state.playing_file
         # Use inbuilt method to store actual value if playing not forced
         else:
-            actual = getattr(xbmc.Player, 'getPlayingFile')(self)
-        actual = statichelper.from_bytes(actual)
+            actual = statichelper.from_bytes(
+                xbmc.getInfoLabel('Player.FilenameAndPath')
+                if use_infolabel else
+                xbmc.Player.getPlayingFile(self)
+            )
         self.player_state.playing_file = actual
         # Return actual value or forced value if forced
         return self.player_state.playing_file
 
-    def get_speed(self):
+    def get_speed(self, use_infolabel=True):
         # Use current stored value if playing forced
         if self.player_state.forced('speed'):
             actual = self.player_state.speed
         # Use inbuilt method to store actual value if playing not forced
         else:
-            actual = api.get_player_speed()
+            actual = (
+                utils.get_float(xbmc.getInfoLabel('Player.PlaySpeed'),
+                                default=1.0)
+                if use_infolabel else
+                api.get_player_speed()
+            )
         self.player_state.speed = actual
         # Return actual value or forced value if forced
         return self.player_state.speed
 
-    def getTime(self, use_infolabel=False):  # pylint: disable=invalid-name, arguments-differ
+    def getTime(self, use_infolabel=True):  # pylint: disable=invalid-name, arguments-differ
         # Use current stored value if playing forced
         if self.player_state.forced('time'):
             actual = self.player_state.time
         # Use inbuilt method to store actual value if playing not forced
         else:
             actual = (
+                xbmc.Player.getTime(self)
+                if not use_infolabel else
+                utils.get_int(xbmc.getInfoLabel('Player.Time(secs)'))
+                if utils.supports_python_api(18) else
                 utils.time_to_seconds(xbmc.getInfoLabel('Player.Time'))
-                if use_infolabel
-                else getattr(xbmc.Player, 'getTime')(self)
             )
         self.player_state.time = actual
 
@@ -192,16 +195,18 @@ class UpNextPlayer(xbmc.Player, object):
         # Return actual value or forced value if forced
         return self.player_state.time
 
-    def getTotalTime(self, use_infolabel=False):  # pylint: disable=invalid-name, arguments-differ
+    def getTotalTime(self, use_infolabel=True):  # pylint: disable=invalid-name, arguments-differ
         # Use current stored value if playing forced
         if self.player_state.forced('total_time'):
             actual = self.player_state.total_time
         # Use inbuilt method to store actual value if playing not forced
         else:
             actual = (
+                xbmc.Player.getTotalTime(self)
+                if not use_infolabel else
+                utils.get_int(xbmc.getInfoLabel('Player.Duration(secs)'))
+                if utils.supports_python_api(18) else
                 utils.time_to_seconds(xbmc.getInfoLabel('Player.Duration'))
-                if use_infolabel
-                else getattr(xbmc.Player, 'getTotalTime')(self)
             )
         self.player_state.total_time = actual
         # Return actual value or forced value if forced
@@ -217,7 +222,7 @@ class UpNextPlayer(xbmc.Player, object):
             self.player_state.set('playing', bool(next_file), force=True)
         # Use inbuilt method if not forced
         else:
-            getattr(xbmc.Player, 'playnext')(self)
+            xbmc.Player.playnext(self)
 
     def seekTime(self, seekTime):  # pylint: disable=invalid-name
         # Set fake value if playing forced
@@ -225,7 +230,7 @@ class UpNextPlayer(xbmc.Player, object):
             self.player_state.set('time', seekTime, force=True)
         # Use inbuilt method if not forced
         else:
-            getattr(xbmc.Player, 'seekTime')(self, seekTime)
+            xbmc.Player.seekTime(self, seekTime)
 
     def stop(self):
         # Set fake value if playing forced
@@ -233,4 +238,4 @@ class UpNextPlayer(xbmc.Player, object):
             self.player_state.set('playing', False, force=True)
         # Use inbuilt method if not forced
         else:
-            getattr(xbmc.Player, 'stop')(self)
+            xbmc.Player.stop(self)

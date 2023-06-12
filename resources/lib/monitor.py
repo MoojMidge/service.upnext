@@ -77,7 +77,7 @@ class UpNextMonitor(xbmc.Monitor, object):
 
         # Get video details, exit if no video playing
         api.cache_invalidate()
-        play_info = self._get_playback_details(player_data, use_infolabel=True)
+        play_info = self._get_playback_details(player_data)
         if not play_info:
             self.log('Skip video check: nothing playing', utils.LOGWARNING)
             self.state.starting = 0
@@ -161,9 +161,7 @@ class UpNextMonitor(xbmc.Monitor, object):
         if self._queue_length != 1:
             return
 
-        # Get playback details and use VideoPlayer.Time infolabel over
-        # xbmc.Player.getTime() as the infolabel appears to update quicker
-        play_info = self._get_playback_details(use_infolabel=True)
+        play_info = self._get_playback_details()
 
         # Update stored video resolution if detector is running
         if self.detector and not self.detector.credits_detected():
@@ -250,9 +248,7 @@ class UpNextMonitor(xbmc.Monitor, object):
         if self.popuphandler:
             return
 
-        # Get playback details and use VideoPlayer.Time infolabel over
-        # xbmc.Player.getTime() as the infolabel appears to update quicker
-        play_info = self._get_playback_details(use_infolabel=True)
+        play_info = self._get_playback_details()
 
         # Exit if not playing, paused, or rewinding
         if not play_info or play_info['speed'] < 1:
@@ -295,7 +291,7 @@ class UpNextMonitor(xbmc.Monitor, object):
         # Initial processing of data to start tracking
         self._check_video(plugin_data=(decoded_data, encoding))
 
-    def _get_playback_details(self, player_data=None, use_infolabel=False):
+    def _get_playback_details(self, player_data=None):
         if player_data:
             item_details = player_data.get('item', {})
             player_details = player_data.get('player')
@@ -315,8 +311,8 @@ class UpNextMonitor(xbmc.Monitor, object):
                          else _player.get_media_type()),
                 'speed': (player_details.get('speed') if player_details
                           else _player.get_speed()),
-                'time': _player.getTime(use_infolabel),
-                'duration': _player.getTotalTime(use_infolabel),
+                'time': _player.getTime(),
+                'duration': _player.getTotalTime(),
             }
             error = False
         if error:
@@ -411,10 +407,8 @@ class UpNextMonitor(xbmc.Monitor, object):
         self._stop_detector(terminate=True, store=True)
 
     def _start_tracking(self, play_info=None):
-        # Get playback details and use VideoPlayer.Time infolabel over
-        # xbmc.Player.getTime() as the infolabel appears to update quicker
         if not play_info:
-            play_info = self._get_playback_details(use_infolabel=True)
+            play_info = self._get_playback_details()
 
         # Exit if tracking disabled
         if not self.state.is_tracking():
