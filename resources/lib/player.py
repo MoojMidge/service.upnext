@@ -56,6 +56,18 @@ class UpNextPlayer(xbmc.Player, object):
         'player_state',
     )
 
+    MEDIA_TYPES = {
+        'episode': 'VideoPlayer(episodes)',
+        'movie': 'VideoPlayer(movies)',
+        # Other media types are not handled
+        # 'video': 'VideoPlayer(files)',
+        # 'musicvideo': 'VideoPlayer(musicvideos)',
+        # 'channel': 'VideoPlayer(livetv)',
+    }
+
+    _get_status = staticmethod(xbmc.getCondVisibility)
+    _get_info = staticmethod(xbmc.getInfoLabel)
+
     def __init__(self):
         self.log('Init')
 
@@ -98,11 +110,11 @@ class UpNextPlayer(xbmc.Player, object):
         # Return actual value or forced value if forced
         return self.player_state.external_player
 
-    def isPlaying(self, use_infolabel=True):  # pylint: disable=invalid-name, arguments-differ
+    def isPlaying(self, use_infobool=True):  # pylint: disable=invalid-name, arguments-differ
         # Use inbuilt method to store actual value
         actual = (
-            xbmc.getCondVisibility('Player.HasMedia')
-            if use_infolabel else
+            self._get_status('Player.HasMedia')
+            if use_infobool else
             xbmc.Player.isPlaying(self)
         )
         self.player_state.playing = actual
@@ -111,16 +123,23 @@ class UpNextPlayer(xbmc.Player, object):
 
     def is_paused(self):
         # Use inbuilt method to store actual value
-        actual = xbmc.getCondVisibility('Player.Paused')
+        actual = self._get_status('Player.Paused')
         self.player_state.paused = actual
         # Return actual value or forced value if forced
         return self.player_state.paused
 
-    def get_media_type(self):
+    def get_media_type(self, use_infobool=True):
         # Use current stored value if playing forced
         if self.player_state.forced('type'):
             actual = self.player_state.type
         # Use inbuilt method to store actual value if playing not forced
+        elif use_infobool:
+            for media_type, info_bool in UpNextPlayer.MEDIA_TYPES.items():
+                if self._get_status(info_bool):
+                    actual = media_type
+                    break
+            else:
+                actual = constants.UNKNOWN
         else:
             actual = statichelper.from_bytes(
                 xbmc.Player.getVideoInfoTag(self).getMediaType()
@@ -136,7 +155,7 @@ class UpNextPlayer(xbmc.Player, object):
         # Use inbuilt method to store actual value if playing not forced
         else:
             actual = statichelper.from_bytes(
-                xbmc.getInfoLabel('Player.FilenameAndPath')
+                self._get_info('Player.FilenameAndPath')
                 if use_infolabel else
                 xbmc.Player.getPlayingFile(self)
             )
@@ -151,7 +170,7 @@ class UpNextPlayer(xbmc.Player, object):
         # Use inbuilt method to store actual value if playing not forced
         else:
             actual = (
-                utils.get_float(xbmc.getInfoLabel('Player.PlaySpeed'),
+                utils.get_float(self._get_info('Player.PlaySpeed'),
                                 default=1.0)
                 if use_infolabel else
                 api.get_player_speed()
@@ -169,9 +188,9 @@ class UpNextPlayer(xbmc.Player, object):
             actual = (
                 xbmc.Player.getTime(self)
                 if not use_infolabel else
-                utils.get_int(xbmc.getInfoLabel('Player.Time(secs)'))
+                utils.get_int(self._get_info('Player.Time(secs)'))
                 if utils.supports_python_api(18) else
-                utils.time_to_seconds(xbmc.getInfoLabel('Player.Time'))
+                utils.time_to_seconds(self._get_info('Player.Time'))
             )
         self.player_state.time = actual
 
@@ -204,9 +223,9 @@ class UpNextPlayer(xbmc.Player, object):
             actual = (
                 xbmc.Player.getTotalTime(self)
                 if not use_infolabel else
-                utils.get_int(xbmc.getInfoLabel('Player.Duration(secs)'))
+                utils.get_int(self._get_info('Player.Duration(secs)'))
                 if utils.supports_python_api(18) else
-                utils.time_to_seconds(xbmc.getInfoLabel('Player.Duration'))
+                utils.time_to_seconds(self._get_info('Player.Duration'))
             )
         self.player_state.total_time = actual
         # Return actual value or forced value if forced
