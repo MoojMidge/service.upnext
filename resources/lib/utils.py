@@ -16,7 +16,7 @@ try:
 except ImportError:
     from urlparse import parse_qsl, urlparse
 
-from dateutil.parser import parse as dateutil_parse
+from dateutil.parser import parse as dateutil_parse  # pylint: disable=wrong-import-order
 
 import constants
 import statichelper
