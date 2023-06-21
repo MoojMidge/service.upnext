@@ -44,7 +44,7 @@ def test_popup(popup_type='upnext', simple_style=False):
         test_state.played_in_a_row = SETTINGS.played_limit
 
     # Create test player object
-    test_player = player.UpNextPlayer()
+    test_player = player.UpNextPlayer(use_info=False)
     # Simulate player state
     test_player.player_state.update({
         # 'external_player': {'value': False, 'force': False},
@@ -104,7 +104,7 @@ def test_upnext(popup_type='upnext', simple_style=False):
         test_state.played_in_a_row = SETTINGS.played_limit
 
     # Create test player object
-    test_player = player.UpNextPlayer()
+    test_player = player.UpNextPlayer(use_info=False)
     # Simulate player state
     test_player.player_state.update({
         # 'external_player': {'value': False, 'force': False},
