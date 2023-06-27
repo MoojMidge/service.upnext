@@ -1,4 +1,13 @@
 ## Releases
+### v2.0.25+dev.0 (2023-06-27)
+- Minor speed improvements to recommendation widgets
+- Fix widget navigation in Chorus/Kore. Unfortunately this breaks the context menu for the widgets in Kodi
+- Minor improvement to detection of scrolling credits
+- Fix for saving invalid detector data
+- Fix for not using correct speed when player tempo is changed
+- Use Player infobools and infolabels rather than xbmc.Player methods
+- Update CI workflow to deal with Python 2 deprecation
+
 ### v2.0.24+dev.0 (2023-05-15)
 - Bunch of bug fixes
 
