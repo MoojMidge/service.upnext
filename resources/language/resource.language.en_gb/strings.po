@@ -454,6 +454,14 @@ msgctxt "#30637"
 msgid "Automatically try to resume on next video playback. Disable to play next video from start"
 msgstr ""
 
+msgctxt "#30638"
+msgid "Pause after \"Watch now\""
+msgstr ""
+
+msgctxt "#30639"
+msgid "Pause current video until next video starts playing when \"Watch now\" or \"Continue watching\" is selected from popup"
+msgstr ""
+
 msgctxt "#30640"
 msgid "Next selection"
 msgstr ""

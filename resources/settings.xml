@@ -329,6 +329,11 @@
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
+                <setting id="pauseUntilNext" type="boolean" label="30638" help="30639">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
             </group>
             <group id="nextSelection" label="30640">
                 <setting id="includeWatched" type="boolean" label="30642" help="">

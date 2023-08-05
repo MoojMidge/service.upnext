@@ -235,6 +235,15 @@ class UpNextPlayer(xbmc.Player, object):
         # Return actual value or forced value if forced
         return self.player_state.total_time
 
+    def pause(self):
+        # Set fake value if paused state forced
+        if self.player_state.forced('paused'):
+            toggle = not self.player_state.paused
+            self.player_state.set('paused', toggle, force=True)
+        # Use inbuilt method if not forced
+        else:
+            xbmc.Player.pause(self)
+
     def playnext(self):
         # Simulate playing next file if forced
         if (self.player_state.forced('playnext')

@@ -44,6 +44,7 @@ class UpNextSettings(object):
         'exact_tmdb_match',
         'mark_watched',
         'next_season',
+        'pause_until_next',
         'played_limit',
         'plugin_main_label',
         'plugin_secondary_label',
@@ -214,6 +215,7 @@ class UpNextSettings(object):
 
         self.mark_watched = self.get_int('markWatched')
         self.enable_resume = self.get_bool('enableResume')
+        self.pause_until_next = self.get_bool('pauseUntilNext')
 
         self.unwatched_only = not self.get_bool('includeWatched')
         self.next_season = self.get_bool('nextSeason')

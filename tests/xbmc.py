@@ -224,6 +224,10 @@ class Player(object):
         ''' A stub constructor for the xbmc Player class '''
         self._count = 0
 
+    def pause(self):
+        ''' A stub implementation for the xbmc Player class pause() method '''
+        return
+
     def play(self, item='', listitem=None, windowed=False, startpos=-1):  # pylint: disable=unused-argument
         ''' A stub implementation for the xbmc Player class play() method '''
         Player.file = item

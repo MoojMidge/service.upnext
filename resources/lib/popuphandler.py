@@ -146,6 +146,8 @@ class UpNextPopupHandler(object):
                 resume = False
         else:
             resume = False
+
+        keep_playing = not SETTINGS.pause_until_next
         # Primary method is to play next playlist item
         if source.endswith('playlist') or self.state.queued:
             # Can't just seek to end of file as this triggers inconsistent Kodi
@@ -161,6 +163,8 @@ class UpNextPopupHandler(object):
             # video threads when the current file finishes
             if popup_state['play_now'] or popup_state['play_on_cue'] or forced:
                 api.play_playlist_item('next', resume)
+            else:
+                keep_playing = True
 
         # Fallback plugin playback method, or if plugin provides play_info
         elif source.startswith('plugin'):
@@ -174,6 +178,7 @@ class UpNextPopupHandler(object):
         self.log('Playback requested: {0}, from {1}{2}'.format(
             popup_state, source, ' using queue' if self.state.queued else ''
         ))
+        return keep_playing
 
     def _remove_popup(self):
         with utils.ContextManager(self, 'popup') as (popup, error):
@@ -241,10 +246,9 @@ class UpNextPopupHandler(object):
             next_item = None
 
         else:
-            # Request playback of next file based on source and type
-            self._play_next_video(next_item, popup_state)
             play_next = True
-            keep_playing = True
+            # Request playback of next file based on source and type
+            keep_playing = self._play_next_video(next_item, popup_state)
             # Update played in a row count if auto_play otherwise reset
             self.state.played_in_a_row = (1 if popup_state['play_now']
                                           else self.state.played_in_a_row + 1)
@@ -345,10 +349,15 @@ class UpNextPopupHandler(object):
             state.playing_next = play_next
             state.keep_playing = keep_playing
 
-            # Stop playback and dequeue if not playing next file
             if not keep_playing:
-                self.log('Stopping playback', utils.LOGINFO)
-                player.stop()
+                # Pause playback until next file starts
+                if play_next:
+                    self.log('Pause playback', utils.LOGINFO)
+                    player.pause()
+                # Stop playback and dequeue if not playing next file
+                else:
+                    self.log('Stopping playback', utils.LOGINFO)
+                    player.stop()
             if not play_next and state.queued:
                 state.queued = api.dequeue_next_item()
 
