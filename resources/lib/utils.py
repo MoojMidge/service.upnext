@@ -461,6 +461,9 @@ def log(msg, name=__name__, level=LOGINFO):
     # Only log important messages
     elif LOG_ENABLE_SETTING == constants.LOG_ENABLE_INFO:
         log_enable = LOGDEBUG < level < LOGNONE
+    # Enable logging if Kodi debug logging is enabled
+    elif DEBUG_LOG_ENABLE:
+        log_enable = True
     # Log nothing
     else:
         log_enable = False
