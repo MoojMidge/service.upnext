@@ -518,6 +518,16 @@
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
+                <setting id="earlyQueueReset" type="boolean" label="30704" help="" parent="enableQueue">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enableQueue">true</condition>
+                        </dependency>
+                    </dependencies>
+                </setting>
                 <setting id="enableTMDBHelper" type="boolean" label="30709" help="30710">
                     <level>0</level>
                     <default>true</default>

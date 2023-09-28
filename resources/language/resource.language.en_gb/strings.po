@@ -498,6 +498,10 @@ msgctxt "#30703"
 msgid "Disable UpNext"
 msgstr ""
 
+msgctxt "#30704"
+msgid "Pre-emptive UpNext queue reset"
+msgstr ""
+
 msgctxt "#30705"
 msgid "Log level"
 msgstr ""

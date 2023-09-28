@@ -36,6 +36,7 @@ class UpNextSettings(object):
         'detector_save_path',
         'detector_threads',
         'disabled',
+        'early_queue_reset',
         'enable_movieset',
         'enable_playlist',
         'enable_tmdbhelper_fallback',
@@ -237,6 +238,7 @@ class UpNextSettings(object):
         self.detect_period = self.get_int('detectPeriod')
 
         self.enable_queue = self.get_bool('enableQueue')
+        self.early_queue_reset = self.get_bool('earlyQueueReset')
 
         self.enable_tmdbhelper_fallback = self.get_bool('enableTMDBHelper')
         self.exact_tmdb_match = (self.enable_tmdbhelper_fallback

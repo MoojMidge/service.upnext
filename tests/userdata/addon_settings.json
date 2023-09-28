@@ -27,6 +27,7 @@
 		"detectorSavePath": "special://profile/addon_data/service.upnext/detector/",
 		"detectorThreads": 3,
 		"disableNextUp": "false",
+		"earlyQueueReset": "true",
 		"enableSimMode": "true",
 		"enableMovieset": "true",
 		"enablePlaylist": "true",

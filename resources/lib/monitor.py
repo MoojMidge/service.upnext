@@ -154,27 +154,7 @@ class UpNextMonitor(xbmc.Monitor, object):
         if self.state.is_tracking():
             self.state.reset()
 
-    def _event_handler_player_general(self, **_kwargs):
-        # Delay event handler execution to allow events to queue up
-        self.waitForAbort(1)
-        # Only process this event if it is the last in the queue
-        if self._queue_length != 1:
-            return
-
-        play_info = self._get_playback_details()
-
-        # Update stored video resolution if detector is running
-        if self.detector and not self.detector.credits_detected():
-            self.detector.get_video_resolution(_cache=[None])
-            if (play_info and play_info['speed'] == 1
-                    and not self.state.is_tracking()
-                    and not self.detector.is_alive()):
-                utils.run_threaded(self.detector.start)
-
-        # Restart tracking if previously enabled
-        self._start_tracking(play_info)
-
-    def _event_handler_player_start(self, **kwargs):
+    def _event_handler_av_start(self, **kwargs):
         # Delay event handler execution to allow events to queue up
         self.waitForAbort(1)
         # Clear queue to stop processing additional queued events
@@ -196,6 +176,31 @@ class UpNextMonitor(xbmc.Monitor, object):
         data, _ = utils.decode_data(serialised_json=kwargs.get('data'))
         # Check whether UpNext can start tracking
         self._check_video(player_data=data)
+
+    def _event_handler_player_general(self, **_kwargs):
+        # Delay event handler execution to allow events to queue up
+        self.waitForAbort(1)
+        # Only process this event if it is the last in the queue
+        if self._queue_length != 1:
+            return
+
+        play_info = self._get_playback_details()
+
+        # Update stored video resolution if detector is running
+        if self.detector and not self.detector.credits_detected():
+            self.detector.get_video_resolution(_cache=[None])
+            if (play_info and play_info['speed'] == 1
+                    and not self.state.is_tracking()
+                    and not self.detector.is_alive()):
+                utils.run_threaded(self.detector.start)
+
+        # Restart tracking if previously enabled
+        self._start_tracking(play_info)
+
+    def _event_handler_player_start(self, **_kwargs):
+        # Workaround for service.trakt failing to track watched time if current
+        # playlist position changes after its onAVStarted callback executes
+        self.state.reset_queue()
 
     def _event_handler_player_stop(self, **_kwargs):
         # Delay event handler execution to allow events to queue up
@@ -560,7 +565,7 @@ class UpNextMonitor(xbmc.Monitor, object):
         'Other.upnext_credits_detected': _event_handler_upnext_trigger,
         'Other.upnext_data': _event_handler_upnext_signal,
         'Other.upnext_trigger': _event_handler_upnext_trigger,
-        'Other.OnAVStart': _event_handler_player_start,
+        'Other.OnAVStart': _event_handler_av_start,
         'GUI.OnScreensaverActivated': _event_handler_screensaver_on,
         'GUI.OnScreensaverDeactivated': _event_handler_screensaver_off,
         'Player.OnPause': _event_handler_player_general,
@@ -575,10 +580,11 @@ class UpNextMonitor(xbmc.Monitor, object):
             else None
         ),
         # Use OnAVStart if available as OnPlay can fire too early for UpNext
-        'Player.OnAVStart': _event_handler_player_start,
+        'Player.OnAVStart': _event_handler_av_start,
         'Player.OnPlay': (
-            _event_handler_player_start
+            _event_handler_av_start
             if not utils.supports_python_api(18)
+            else _event_handler_player_start if SETTINGS.early_queue_reset
             else None
         ),
         'Player.OnStop': _event_handler_player_stop
