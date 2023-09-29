@@ -1,4 +1,8 @@
 ## Releases
+### v2.0.27+dev.0 (2023-09-30)
+- Add workaround for Trakt plugin playlist handling
+- Update addon.xml to target Kodi 19+ only
+
 ### v2.0.26+dev.0 (2023-09-15)
 - Add option to pause video until next video starts
 - Fix for ignoring Kodi debug logging
