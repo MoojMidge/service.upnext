@@ -18,7 +18,7 @@ jobs:
       - name: Get Leia filename
         id: get-leia-filename
         run: |
-          echo "filename=$(cd ..;ls service.upnext*.zip | grep -v '+matrix.' | head -1)" >> $GITHUB_OUTPUT
+          echo "filename=$(cd ..;ls service.upnext*+leia.*.zip | head -1)" >> $GITHUB_OUTPUT
       - name: Get Matrix filename
         id: get-matrix-filename
         run: |

@@ -70,19 +70,19 @@ build: clean
 	@printf "$(white)=$(blue) Successfully wrote package as: $(white)../$(zip_name)$(reset)"
 
 multizip: clean
+	@cp -a addon.xml addon.xml.orig
 	@-$(foreach abi,$(KODI_PYTHON_ABIS), \
-		xmlstarlet ed -L -d '/addon/requires/import[@addon="xbmc.python"][@version="$(abi)"]/@optional' addon.xml; \
-		xmlstarlet ed -L -d '/addon/requires/import[@addon="xbmc.python"][@optional]' addon.xml; \
 		xmlstarlet ed -L -u '/addon/requires/import[@addon="xbmc.python"]/@version' -v $(abi) addon.xml; \
 		matrix="$(findstring $(abi), $(word 1,$(KODI_PYTHON_ABIS)))"; \
 		if [ ! -z "$$matrix" ]; then \
-			version="$(version)+matrix.1"; \
+			version="$(subst +,+matrix.,$(version))"; \
 		else \
-			version="$(version)"; \
+			version="$(subst +,+leia.,$(version))"; \
 		fi; \
 		xmlstarlet ed -L -u '/addon/@version' -v $$version addon.xml; \
 		make build; \
 	)
+	@mv -f addon.xml.orig addon.xml
 
 codecov:
 	@printf "$(white)=$(blue) Test codecov.yml syntax$(reset)\n"
