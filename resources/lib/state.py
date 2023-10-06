@@ -36,7 +36,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         'keep_playing',
     )
 
-    def __init__(self, reset=None):
+    def __init__(self, reset=False, test=False):
         self.log('Reset' if reset else 'Init')
 
         # Plugin data
@@ -59,6 +59,9 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         self.queued = False
         self.playing_next = False
         self.keep_playing = False
+
+        if test:
+            api.DISABLE_RETRY = True
 
     @classmethod
     def log(cls, msg, level=utils.LOGDEBUG):

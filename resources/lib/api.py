@@ -385,6 +385,8 @@ SORT_RATING = {
     'order': 'descending'
 }
 
+DISABLE_RETRY = False
+
 _CACHE = {
     'playerid': None,
     'playlistid': None
@@ -660,9 +662,9 @@ def get_playerid(retry=3):
         return _CACHE['playerid']
 
     # Sometimes Kodi gets confused and uses a music playlist for video content,
-    # so get the first active player instead, default to video player. Wait 1s
-    # and retry in case of delay in getting response.
-    attempts_left = 1 + retry
+    # so get the first active player instead, default to video player. Wait 2s
+    # per retry in case of delay in getting response.
+    attempts_left = 1 if DISABLE_RETRY else 1 + retry
     while attempts_left > 0:
         result = utils.jsonrpc(method='Player.GetActivePlayers').get('result')
 
@@ -724,7 +726,7 @@ def get_now_playing(properties, retry=3):
     """Function to get detail of currently playing item"""
 
     # Retry in case of delay in getting response.
-    attempts_left = 1 + retry
+    attempts_left = 1 if DISABLE_RETRY else 1 + retry
     while attempts_left > 0:
         result = utils.jsonrpc(method='Player.GetItem',
                                params={'playerid': get_playerid(retry=0),

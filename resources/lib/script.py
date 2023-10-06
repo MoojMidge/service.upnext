@@ -28,7 +28,7 @@ def test_popup(popup_type='upnext', simple_style=False):
     test_next_video = dummydata.LIBRARY[db_type][selection + 1]
 
     # Create test state object
-    test_state = state.UpNextState()
+    test_state = state.UpNextState(test=True)
     # Simulate after file has started
     test_state.starting = 0
 
@@ -93,7 +93,7 @@ def test_upnext(popup_type='upnext', simple_style=False):
     test_next_video = dummydata.LIBRARY[db_type][selection + 1]
 
     # Create test state object
-    test_state = state.UpNextState()
+    test_state = state.UpNextState(test=True)
     # Simulate after file has started
     test_state.starting = 0
 
