@@ -727,7 +727,7 @@ def get_now_playing(properties, retry=3):
     attempts_left = 1 + retry
     while attempts_left > 0:
         result = utils.jsonrpc(method='Player.GetItem',
-                               params={'playerid': get_playerid(retry=retry),
+                               params={'playerid': get_playerid(retry=0),
                                        'properties': properties})
         result = result.get('result', {}).get('item')
 
