@@ -619,11 +619,12 @@ def import_data(input_data, buffer_size=None, to_rgba=False):
     if isinstance(input_data, Image.Image):
         return input_data
 
+    # Convert captured image data from BGRA to RGBA. Not enabled by default
+    # as the mixed up colour channels does not effect saturation levels
     if to_rgba:
-        # Convert captured image data from BGRA to RGBA. Not enabled by default
-        # as the mixed up colour channels does not effect saturation levels
         input_data[0::4], input_data[2::4] = input_data[2::4], input_data[0::4]
 
+    # Actually input_date will be BGRA if to_rgba is False
     image = Image.frombuffer(
         'RGBA', buffer_size, input_data, 'raw', 'RGBA', 0, 1
     )
