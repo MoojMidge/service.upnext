@@ -136,15 +136,24 @@ class UpNextPopup(xbmcgui.WindowXMLDialog, object):
                 'videolibrary.showunwatchedplots'
             ) if utils.supports_python_api(18) else constants.DEFAULT_SPOILERS
 
+            date, date_string = utils.localize_date(
+                str(details.get('firstaired', ''))
+            )
+            self.setProperty('firstaired', date_string)
+            self.setProperty('premiered', date_string)
+
             art = details.get('art')
             if media_type == 'episode':
+                self.setProperty('year', date_string)
                 if constants.UNWATCHED_EPISODE_THUMB in show_spoilers:
                     art = api.art_fallbacks(
                         art=art, art_map=api.EPISODE_ART_MAP, replace=False
                     )
                 else:
                     art = constants.NO_SPOILER_ART
+
             elif media_type == 'movie':
+                self.setProperty('year', date.year if date else date_string)
                 art = api.art_fallbacks(art=art)
 
             self.setProperty('fanart', art.get('fanart', ''))
@@ -169,15 +178,6 @@ class UpNextPopup(xbmcgui.WindowXMLDialog, object):
                 'seasonepisode',
                 episode if season is None or episode == ''
                 else constants.SEASON_EPISODE.format(season, episode)
-            )
-            firstaired, firstaired_string = utils.localize_date(
-                str(details.get('firstaired', ''))
-            )
-            self.setProperty('firstaired', firstaired_string)
-            self.setProperty('premiered', firstaired_string)
-            self.setProperty(
-                'year',
-                firstaired.year if firstaired else firstaired_string
             )
             rating = details.get('rating')
             self.setProperty(
