@@ -187,9 +187,9 @@ class UpNextMonitor(xbmc.Monitor, object):
         play_info = self._get_playback_details()
 
         # Update stored video resolution if detector is running
-        if self.detector and not self.detector.credits_detected():
+        if play_info and self.detector and not self.detector.credits_detected():
             self.detector.get_video_resolution(_cache=[None])
-            if (play_info and play_info['speed'] == 1
+            if (play_info['speed'] == 1
                     and not self.state.is_tracking()
                     and not self.detector.is_alive()):
                 utils.run_threaded(self.detector.start)
