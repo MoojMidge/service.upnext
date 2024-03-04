@@ -225,7 +225,9 @@ class UpNextPopupHandler(object):
         # occur if fast forwarding through popup or if race condition occurs
         # between player starting and popup terminating)
         keep_playing = not popup_state['stop'] and (
-            popup_state['show_upnext'] or self._sigcont.is_set()
+            popup_state['show_upnext']
+            or self._sigcont.is_set()
+            or popup_state['cancel']
         )
         restart = self._sigcont.is_set()
 
