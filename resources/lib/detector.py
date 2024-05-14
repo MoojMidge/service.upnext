@@ -67,7 +67,6 @@ class UpNextHashStore(object):
         utils.log(msg, name=cls.__name__, level=level)
 
     def is_valid(self, item=None, for_saving=False):
-
         if item:
             group_name = item.get('group_name')
             group_idx = item.get('group_idx')
