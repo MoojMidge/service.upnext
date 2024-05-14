@@ -135,7 +135,7 @@ class UpNextPopupHandler(object):
         }
         return current_state
 
-    def _play_next_video(self, next_item, popup_state):
+    def _play_next_video(self, next_item, popup_state, queued):
         forced = self.player.player_state.forced('playing')
         source = next_item['source']
         if SETTINGS.enable_resume:
@@ -149,7 +149,7 @@ class UpNextPopupHandler(object):
 
         keep_playing = not SETTINGS.pause_until_next
         # Primary method is to play next playlist item
-        if source.endswith('playlist') or self.state.queued:
+        if source.endswith('playlist') or queued:
             # Can't just seek to end of file as this triggers inconsistent Kodi
             # behaviour:
             # - Will sometimes continue playing past the end of the file
@@ -176,7 +176,7 @@ class UpNextPopupHandler(object):
 
         # Determine playback method. Used for logging purposes
         self.log('Playback requested: {0}, from {1}{2}'.format(
-            popup_state, source, ' using queue' if self.state.queued else ''
+            popup_state, source, ' using queue' if queued else ''
         ))
         return keep_playing
 
@@ -202,7 +202,11 @@ class UpNextPopupHandler(object):
         # Add next file to playlist if existing playlist is not being used
         if (SETTINGS.enable_queue
                 and not next_item['source'].endswith(('playlist', 'direct'))):
-            self.state.queued = api.queue_next_item(self.state.data, next_item)
+            self.state.queued = queued = api.queue_next_item(
+                self.state.data, next_item
+            )
+        else:
+            queued = False
 
         # Create Kodi dialog to show UpNext or Still Watching? popup
         popup_state = self._create_popup(next_item)
@@ -250,7 +254,7 @@ class UpNextPopupHandler(object):
         else:
             play_next = True
             # Request playback of next file based on source and type
-            keep_playing = self._play_next_video(next_item, popup_state)
+            keep_playing = self._play_next_video(next_item, popup_state, queued)
             # Update played in a row count if auto_play otherwise reset
             self.state.played_in_a_row = (1 if popup_state['play_now']
                                           else self.state.played_in_a_row + 1)
