@@ -59,7 +59,8 @@ class UpNextMonitor(xbmc.Monitor, object):
     def log(cls, msg, level=utils.LOGDEBUG):
         utils.log(msg, name=cls.__name__, level=level)
 
-    def _check_video(self, plugin_data=None, player_data=None):  # pylint: disable=too-many-return-statements
+    # pylint: disable=too-many-return-statements
+    def _check_video(self, plugin_data=None, player_data=None):
         # Only process one start at a time unless plugin data has been received
         if self.state.starting and not plugin_data:
             return
@@ -92,9 +93,10 @@ class UpNextMonitor(xbmc.Monitor, object):
         self.state.starting = 0
 
         if (play_info['file'].startswith((
-                'bluray://', 'dvd://', 'udf://', 'iso9660://', 'cdda://'))
-                or play_info['file'].endswith((
-                    '.bdmv', '.iso', '.ifo'))):
+                    'bluray://', 'dvd://', 'udf://', 'iso9660://', 'cdda://',
+                )) or play_info['file'].endswith((
+                    '.bdmv', '.iso', '.ifo',
+                ))):
             self.log('Skip video check: Blu-ray/DVD/CD playing')
             return
 
@@ -369,7 +371,8 @@ class UpNextMonitor(xbmc.Monitor, object):
                 state=self.state
             )
         # Check if popuphandler found a video to play next
-        has_next_item = self.popuphandler.start()  # pylint: disable=assignment-from-no-return
+        # pylint: disable=assignment-from-no-return
+        has_next_item = self.popuphandler.start()
         # And check whether popup/playback was cancelled/stopped by the user
         playback_cancelled = (
             has_next_item
@@ -590,7 +593,8 @@ class UpNextMonitor(xbmc.Monitor, object):
         'Player.OnStop': _event_handler_player_stop
     }
 
-    def onNotification(self, sender, method, data=None):  # pylint: disable=invalid-name
+    # pylint: disable=invalid-name
+    def onNotification(self, sender, method, data=None):
         """Handler for Kodi events and data transfer from plugins"""
 
         if SETTINGS.disabled:
