@@ -309,6 +309,8 @@ class UpNextMonitor(xbmc.Monitor, object):
         with utils.ContextManager(self, 'player') as (_player, error):
             if error is AttributeError:
                 raise error
+            if not _player.isPlaying(use_info=False):
+                return None
             play_info = {
                 'playerid': (player_details.get('playerid') if player_details
                              else None),
