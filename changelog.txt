@@ -1,4 +1,12 @@
 ## Releases
+### v2.0.28+dev.0 (2024-05-23)
+- Prevent unnecessary retries in api methods and when testing
+- Update date display in popups
+- Fix possible divide by zero error
+- Use back to close/cancel popup without stopping playback #28
+- Fix double playback issue with pre-emptive queue reset #30
+- Force playback details check to raise a RuntimeError if not actually playing anything #31
+
 ### v2.0.27+dev.0 (2023-09-30)
 - Add workaround for Trakt plugin playlist handling
 - Update addon.xml to target Kodi 19+ only
