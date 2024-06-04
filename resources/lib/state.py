@@ -366,6 +366,8 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         addon_id, _, addon_args = utils.parse_url(url)
         if addon_id == constants.ADDON_ID and 'player' in addon_args:
             addon_id = addon_args['player']
+        if addon_id == 'plugin.video.themoviedb.helper':
+            addon_id = None
 
         # TMDBHelper not importable, use plugin url instead
         if not TMDB.is_initialised():
@@ -380,7 +382,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             return
 
         player = Player(query=title, season=season, episode=episode,  # pylint: disable=no-value-for-parameter,unexpected-keyword-arg
-                        tbdb_id=tmdb_id, tmdb_type='tv',
+                        tmdb_id=tmdb_id, tmdb_type='tv',
                         player=addon_id, mode='play')
 
         if SETTINGS.queue_from_tmdb:
