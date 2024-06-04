@@ -93,9 +93,9 @@ class UpNextMonitor(xbmc.Monitor, object):
         self.state.starting = 0
 
         if (play_info['file'].startswith((
-            'bluray://', 'dvd://', 'udf://', 'iso9660://', 'cdda://'
+                'bluray://', 'dvd://', 'udf://', 'iso9660://', 'cdda://'
         )) or play_info['file'].endswith((
-            '.bdmv', '.iso', '.ifo'
+                '.bdmv', '.iso', '.ifo'
         ))):
             self.log('Skip video check: Blu-ray/DVD/CD playing')
             return
@@ -377,9 +377,9 @@ class UpNextMonitor(xbmc.Monitor, object):
         has_next_item = self.popuphandler.start()
         # And check whether popup/playback was cancelled/stopped by the user
         playback_cancelled = (
-            has_next_item
-            and self.state.keep_playing
-            and not self.state.playing_next
+                has_next_item
+                and self.state.keep_playing
+                and not self.state.playing_next
         )
         # Stop popuphandler and release resources
         self._stop_popuphandler(terminate=True)

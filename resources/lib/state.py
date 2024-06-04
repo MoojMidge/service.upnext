@@ -104,8 +104,6 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
     def get_next(self):
         """Get next video to play, based on current video source"""
 
-        next_video = None
-        source = None
         next_position, _ = api.get_playlist_position(offset=1)
         plugin_type = self.get_plugin_type(next_position)
 
@@ -140,12 +138,13 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
             # Show Still Watching? popup if next episode is from next season or
             # next item is a movie
-            if next_video and (next_video['type'] == 'movie' or (
-                    not self.shuffle_on and len({
-                        constants.SPECIALS,
-                        next_video['season'],
-                        self.current_item['details']['season']
-                    }) == 3)):
+            if (next_video and (
+                    next_video['type'] == 'movie'
+                    or (not self.shuffle_on
+                        and len({constants.SPECIALS,
+                                 next_video['season'],
+                                 self.current_item['details']['season']}) == 3)
+            )):
                 self.played_in_a_row = SETTINGS.played_limit
 
         if next_video:
@@ -157,7 +156,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         return self.detect_time
 
     def _set_detect_time(self):
-        # Don't use detection time period if an plugin cue point was provided,
+        # Don't use detection time period if a plugin cue point was provided,
         # or end credits detection is disabled
         if self.popup_cue or not SETTINGS.detect_enabled:
             self.detect_time = None
@@ -275,13 +274,12 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         if self.data:
             # Fallback to now playing info if plugin does not provide current
             # episode details
-            current_video = (
-                self.data.get('current_video')
-                or api.get_now_playing(
+            current_video = self.data.get('current_video')
+            if not current_video:
+                current_video = api.get_now_playing(
                     properties=api.get_json_properties(play_info),
-                    retry=SETTINGS.api_retry_attempts
+                    retry=SETTINGS.api_retry_attempts,
                 )
-            )
         else:
             current_video = None
 
@@ -292,7 +290,8 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         return current_video
 
     @classmethod
-    def _get_library_now_playing(cls, play_info):  # pylint: disable=too-many-branches, too-many-return-statements
+    # pylint: disable-next=too-many-branches, too-many-return-statements
+    def _get_library_now_playing(cls, play_info):
         if 'id' in play_info['item']:
             current_video = api.get_from_library(item=play_info['item'])
         else:
@@ -304,10 +303,10 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             return None
 
         if current_video['type'] == 'movie':
-            return current_video if (
-                current_video['set']
-                and utils.get_int(current_video, 'setid') > 0
-            ) else None
+            if (current_video['set']
+                    and utils.get_int(current_video, 'setid') > 0):
+                return current_video
+            return None
 
         # Previously resolved listitems may lose infotags that are set when the
         # listitem is resolved. Fallback to Player notification data.
@@ -324,9 +323,8 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         if not title or constants.UNDEFINED in (season, episode):
             return None
 
-        filepath = current_video.get('file', '')
-        mediapath = current_video.get('mediapath', '')
-        for plugin_url in (filepath, mediapath):
+        for plugin_url in ('mediapath', 'file'):
+            plugin_url = current_video.get(plugin_url, '')
             if plugin_url.startswith('plugin://'):
                 break
         else:
@@ -346,10 +344,8 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         current_video['tvshowid'] = tvshowid
 
         # Get current episode id or search in library if detail missing
-        episodeid = (
-            utils.get_int(current_video, 'episodeid', None)
-            or utils.get_int(current_video, 'id')
-        )
+        episodeid = (utils.get_int(current_video, 'episodeid', None)
+                     or utils.get_int(current_video, 'id'))
         if episodeid == constants.UNDEFINED:
             episodeid = api.get_episodeid(tvshowid, season, episode)
         # Now playing episode not found in library
@@ -377,11 +373,13 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
                                             'player': addon_id})
             return
 
-        tmdb_id, current_video = TMDB().get_id_details(title, season, episode)  # pylint: disable=no-value-for-parameter
+        # pylint: disable-next=no-value-for-parameter
+        tmdb_id, current_video = TMDB().get_id_details(title, season, episode)
         if not tmdb_id or not current_video:
             return
 
-        player = Player(query=title, season=season, episode=episode,  # pylint: disable=no-value-for-parameter,unexpected-keyword-arg
+        # pylint: disable-next=no-value-for-parameter,unexpected-keyword-arg
+        player = Player(query=title, season=season, episode=episode,
                         tmdb_id=tmdb_id, tmdb_type='tv',
                         player=addon_id, mode='play')
 

@@ -11,6 +11,7 @@ import constants
 import utils
 import xbmc
 
+
 EPISODE_PROPERTIES = frozenset({
     'title',
     'playcount',
@@ -106,8 +107,8 @@ MOVIE_PROPERTIES = frozenset({
 })
 
 COMMON_ART_MAP = {
-    'thumb': ('poster', ),
-    'icon': ('poster', ),
+    'thumb': ('poster',),
+    'icon': ('poster',),
 }
 EPISODE_ART_MAP = {
     'poster': ('season.poster', 'tvshow.poster'),
@@ -134,7 +135,7 @@ RECOMMENDATION_PROPERTIES = {
 
 PLAYER_PLAYLIST = {
     'video': xbmc.PLAYLIST_VIDEO,  # 1
-    'audio': xbmc.PLAYLIST_MUSIC   # 0
+    'audio': xbmc.PLAYLIST_MUSIC,  # 0
 }
 
 JSON_MAP = {
@@ -403,7 +404,8 @@ def log(msg, level=utils.LOGDEBUG):
     utils.log(msg, name=__name__, level=level)
 
 
-def art_fallbacks(item=None, art=None, art_map=COMMON_ART_MAP, replace=True):  # pylint: disable=dangerous-default-value
+# pylint: disable=dangerous-default-value
+def art_fallbacks(item=None, art=None, art_map=COMMON_ART_MAP, replace=True):
     if item:
         art = item.get('art')
     if not art:
@@ -611,8 +613,8 @@ def get_from_playlist(position, properties, unwatched_only=False):
     if not item.get('title'):
         item['title'] = item.get('label', '')
     item['episodeid'] = (
-        utils.get_int(item, 'episodeid', None)
-        or utils.get_int(item, 'id')
+            utils.get_int(item, 'episodeid', None)
+            or utils.get_int(item, 'id')
     )
     item['tvshowid'] = utils.get_int(item, 'tvshowid')
     # If missing season/episode, change to empty string to avoid episode
@@ -1039,7 +1041,8 @@ def handle_just_watched(item, reset_playcount=False, resume_from_end=0.1):
     ), utils.LOGDEBUG)
 
 
-def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-locals
+# pylint: disable=too-many-locals
+def get_upnext_episodes_from_library(limit=25,
                                      next_season=True,
                                      unwatched_only=False,
                                      resume_from_end=0.1):
@@ -1092,12 +1095,13 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
             FILTER_AIRED['value'] = aired.split()[0]
             FILTER_NEXT_AIRED['value'] = aired
 
-            upnext_episode, _ = get_videos_from_library(db_type='episodes',
-                                                        limit=1,
-                                                        sort=sort,
-                                                        filters=filters[2],
-                                                        params={'tvshowid':
-                                                                tvshowid})
+            upnext_episode, _ = get_videos_from_library(
+                db_type='episodes',
+                limit=1,
+                sort=sort,
+                filters=filters[2],
+                params={'tvshowid': tvshowid},
+            )
 
             if not upnext_episode:
                 tvshow_index.add(tvshowid)
@@ -1107,8 +1111,9 @@ def get_upnext_episodes_from_library(limit=25,  # pylint: disable=too-many-local
         upnext_episode['lastplayed'] = episode['lastplayed']
         art_fallbacks(upnext_episode, art_map=EPISODE_ART_MAP, replace=False)
         # Combine tvshow details with episode details
-        tvshow_details, _ = get_details_from_library(db_type='tvshow',
-                                                     db_id=tvshowid)
+        tvshow_details, _ = get_details_from_library(
+            db_type='tvshow', db_id=tvshowid,
+        )
         tvshow_details.update(upnext_episode)
         upnext_episodes.append(tvshow_details)
         tvshow_index.add(tvshowid)
@@ -1280,7 +1285,7 @@ class InfoTagComparator(object):
     PUNCTUATION_TRANSLATION_TABLE = dict.fromkeys(map(ord, string_punctuation))
     del string_punctuation
 
-    _token_split = re_compile(r'[_\.,]* |[\|/\\]').split
+    _token_split = re_compile(r'[_.,]* |[|/\\]').split
     del re_compile
 
     def __init__(self, infotags, limit=constants.UNDEFINED,
@@ -1289,10 +1294,11 @@ class InfoTagComparator(object):
                  _set=set):
 
         self.cast_crew = (
-            {cast['name'] for cast in _get(infotags, 'cast', [])
-             if cast['order'] <= cast_limit}
-            | _set(_get(infotags, 'director', []))
-            | _set(_get(infotags, 'writer', []))
+                {cast['name']
+                 for cast in _get(infotags, 'cast', [])
+                 if cast['order'] <= cast_limit}
+                | _set(_get(infotags, 'director', []))
+                | _set(_get(infotags, 'writer', []))
         )
         self.fuzz = self.tokenise([_get(infotags, 'plot'),
                                    _get(infotags, 'title')])
@@ -1313,7 +1319,9 @@ class InfoTagComparator(object):
             (self.K_TAGS + self.K_SET_NAME) / 5
         )
 
-    def compare(self, infotags,  # pylint: disable=too-many-arguments, too-many-branches, too-many-locals
+    # pylint: disable=too-many-arguments, too-many-branches, too-many-locals
+    def compare(self,
+                infotags,
                 cast_limit=constants.CAST_LIMIT,
                 _get=dict.get,
                 _len=len,
@@ -1334,21 +1342,22 @@ class InfoTagComparator(object):
             return 0
 
         similarity = self.K_GENRES * (
-            _len(genres & genres_stored)
-            / _len(genres | genres_stored)
+                _len(genres & genres_stored)
+                / _len(genres | genres_stored)
         )
 
         if cast_crew_stored:
             cast_crew = (
-                {cast['name'] for cast in _get(infotags, 'cast', [])
-                 if cast['order'] <= cast_limit}
-                | _set(_get(infotags, 'director', []))
-                | _set(_get(infotags, 'writer', []))
+                    {cast['name']
+                     for cast in _get(infotags, 'cast', [])
+                     if cast['order'] <= cast_limit}
+                    | _set(_get(infotags, 'director', []))
+                    | _set(_get(infotags, 'writer', []))
             )
             if cast_crew:
                 similarity += self.K_CAST_CREW * (
-                    _len(cast_crew & cast_crew_stored)
-                    / _len(cast_crew | cast_crew_stored)
+                        _len(cast_crew & cast_crew_stored)
+                        / _len(cast_crew | cast_crew_stored)
                 )
 
         if fuzz_stored:
@@ -1356,16 +1365,16 @@ class InfoTagComparator(object):
                                   _get(infotags, 'title')])
             if fuzz:
                 similarity += self.K_FUZZ * _min(1, (
-                    (2 * _len(fuzz & fuzz_stored)) ** 2
-                    / _len(fuzz | fuzz_stored)
+                        (2 * _len(fuzz & fuzz_stored)) ** 2
+                        / _len(fuzz | fuzz_stored)
                 ))
 
         if set_name_stored:
             set_name = self.tokenise([_get(infotags, 'set')])
             if set_name:
                 similarity += self.K_SET_NAME * (
-                    _len(set_name & set_name_stored)
-                    / _len(set_name | set_name_stored)
+                        _len(set_name & set_name_stored)
+                        / _len(set_name | set_name_stored)
                 )
             else:
                 threshold -= self.K_SET_NAME / 5
@@ -1374,8 +1383,8 @@ class InfoTagComparator(object):
             tags = self.tokenise(_get(infotags, 'tag', []), split=False)
             if tags:
                 similarity += self.K_TAGS * _min(1, (
-                    (2 * _len(tags & tags_stored)) ** 2
-                    / _len(tags | tags_stored)
+                        (2 * _len(tags & tags_stored)) ** 2
+                        / _len(tags | tags_stored)
                 ))
             else:
                 threshold -= self.K_TAGS / 5
@@ -1396,7 +1405,9 @@ class InfoTagComparator(object):
         return 0
 
     @staticmethod
-    def tokenise(values, split=_token_split,  # pylint: disable=too-many-arguments, dangerous-default-value
+    # pylint: disable-next=too-many-arguments, dangerous-default-value
+    def tokenise(values,
+                 split=_token_split,
                  min_length=constants.TOKEN_LENGTH,
                  compare_set=PUNCTUATION,
                  translation_table=PUNCTUATION_TRANSLATION_TABLE,
@@ -1413,20 +1424,20 @@ class InfoTagComparator(object):
         } if split else _set(values)
 
         processed_tokens = {
-            _upper(
-                _translate(token, translation_table)
-                if compare_set & _set(token)
-                else token
-            )
+            _upper(_translate(token, translation_table)
+                   if compare_set & _set(token) else
+                   token)
             for token in tokens
-            if _len(token) > min_length
-            or _isupper(token) and not _istitle(token)
+            if (_len(token) > min_length
+                or _isupper(token)
+                and not _istitle(token))
         }
 
         return processed_tokens - ignore_set
 
 
-def get_similar_from_library(db_type,  # pylint: disable=too-many-arguments, too-many-locals, too-many-statements, too-many-branches
+# pylint: disable=too-many-arguments, too-many-locals, too-many-statements, too-many-branches
+def get_similar_from_library(db_type,
                              limit=25,
                              original=None,
                              db_id=constants.UNDEFINED,
@@ -1438,19 +1449,19 @@ def get_similar_from_library(db_type,  # pylint: disable=too-many-arguments, too
 
     if use_cast and use_tag:
         properties = (
-            RECOMMENDATION_PROPERTIES[db_type]
-            | RECOMMENDATION_PROPERTIES['cast']
-            | RECOMMENDATION_PROPERTIES['tag']
+                RECOMMENDATION_PROPERTIES[db_type]
+                | RECOMMENDATION_PROPERTIES['cast']
+                | RECOMMENDATION_PROPERTIES['tag']
         )
     elif use_cast:
         properties = (
-            RECOMMENDATION_PROPERTIES[db_type]
-            | RECOMMENDATION_PROPERTIES['cast']
+                RECOMMENDATION_PROPERTIES[db_type]
+                | RECOMMENDATION_PROPERTIES['cast']
         )
     elif use_tag:
         properties = (
-            RECOMMENDATION_PROPERTIES[db_type]
-            | RECOMMENDATION_PROPERTIES['tag']
+                RECOMMENDATION_PROPERTIES[db_type]
+                | RECOMMENDATION_PROPERTIES['tag']
         )
     else:
         properties = RECOMMENDATION_PROPERTIES[db_type]

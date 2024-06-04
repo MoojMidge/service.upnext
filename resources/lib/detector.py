@@ -116,8 +116,9 @@ class UpNextHashStore(object):
         if 'data' in hashes:
             hash_size = self.hash_size[0] * self.hash_size[1]
             self.data = {
-                tuple([utils.get_int(i) for i in key[1:-1].split(', ')]):  # pylint: disable=consider-using-generator
-                self.int_to_hash(hashes['data'][key], hash_size)
+                # pylint: disable-next=consider-using-generator
+                tuple([utils.get_int(i) for i in key[1:-1].split(', ')]):
+                    self.int_to_hash(hashes['data'][key], hash_size)
                 for key in hashes['data']
             }
         if 'timestamps' in hashes:
@@ -180,12 +181,12 @@ class UpNextHashStore(object):
         return {
             hash_index: self.data[hash_index]
             for hash_index in self.data
-            if hash_index[2] in selected_episodes
-            and hash_index[2] not in excluded_episodes
-            and (
-                min_start_time <= hash_index[1] <= max_start_time
-                or min_end_time <= hash_index[0] <= max_end_time
-            )
+            if (hash_index[2] in selected_episodes
+                and hash_index[2] not in excluded_episodes
+                and (
+                        min_start_time <= hash_index[1] <= max_start_time
+                        or min_end_time <= hash_index[0] <= max_end_time
+                ))
         }
 
 
@@ -255,10 +256,10 @@ class UpNextDetector(object):
 
     @staticmethod
     def _generate_initial_hash(hash_width, hash_height, **kwargs):
-        blank_token = (0, )
-        pixel_token = (1, )
-        border_token = (0, )
-        ignore_token = (None, )
+        blank_token = (0,)
+        pixel_token = (1,)
+        border_token = (0,)
+        ignore_token = (None,)
 
         pad_height = kwargs.get('pad_height', 0)
         pad_width = kwargs.get('pad_width', 3)
@@ -268,6 +269,7 @@ class UpNextDetector(object):
         pad_width = (pad_width * hash_width // 16) - (hash_width // 16)
         pad_width_alt = (pad_width_alt * hash_width // 16) - (hash_width // 16)
 
+        # noinspection IncorrectFormatting
         return (
             border_token * hash_width * pad_height
             + (
@@ -398,9 +400,9 @@ class UpNextDetector(object):
         bits_xor_compare = sum(map(cls._and, bits_xor, compare_hash))
 
         weighted_total = (
-            num_pixels
-            - baseline_hash.count(None)
-            - (min(baseline_hash.count(0), compare_hash.count(0)) / 2)
+                num_pixels
+                - baseline_hash.count(None)
+                - (min(baseline_hash.count(0), compare_hash.count(0)) / 2)
         )
         bit_compare = bits_eq - bits_xor_baseline - bits_xor_compare
 
@@ -444,31 +446,38 @@ class UpNextDetector(object):
         row_length = size[0]
 
         hashes = [image_hash if image_hash and len(image_hash) == num_bits
-                  else (0, ) * num_bits
+                  else (0,) * num_bits
                   for image_hash in hashes]
 
-        cls.log('\n\t\t\t'.join([
-            prefix,
-            '{0}|{1}|'.format(
-                size,
-                '|'.join(str(UpNextHashStore.hash_to_int(image_hash))
-                         for image_hash in hashes)
-            )
-        ] + ['{0:>3}|{1}|'.format(
-            row,
-            '|'.join(' '.join('+' if bit else '-' if bit is None else ' '
-                              for bit in image_hash[row:row + row_length])
-                     for image_hash in hashes)
-        ) for row in range(0, num_bits, row_length)]))
+        cls.log('\n\t\t\t'.join(
+            [
+                prefix,
+                '{0}|{1}|'.format(
+                    size,
+                    '|'.join([
+                        str(UpNextHashStore.hash_to_int(image_hash))
+                        for image_hash in hashes
+                    ])
+                )
+            ] + [
+                '{0:>3}|{1}|'.format(
+                    row,
+                    '|'.join([
+                        ' '.join([
+                            '+' if bit else '-' if bit is None else ' '
+                            for bit in image_hash[row:row + row_length]
+                        ])
+                        for image_hash in hashes
+                    ])
+                ) for row in range(0, num_bits, row_length)
+            ]
+        ))
 
     @classmethod
     def log(cls, msg, level=utils.LOGDEBUG):
         utils.log(msg, name=cls.__name__, level=level)
 
     def _evaluate_similarity(self, image, filtered_image, hash_size):
-        is_match = False
-        possible_match = False
-
         stats = {
             # Similarity to representative end credits hash
             'credits': constants.UNDEFINED,
@@ -520,8 +529,8 @@ class UpNextDetector(object):
         # Match if current hash matches representative hash or if current hash
         # is blank
         is_match = (
-            not any(image_hash)
-            or stats['credits'] >= SETTINGS.detect_level
+                not any(image_hash)
+                or stats['credits'] >= SETTINGS.detect_level
         )
         # Unless debugging, return if match found, otherwise continue checking
         if is_match and not SETTINGS.detector_debug:
@@ -537,11 +546,11 @@ class UpNextDetector(object):
         possible_match = stats['previous'] >= SETTINGS.detect_level
         # Match if detection estimate indicates result was relevant
         is_match = is_match or (
-            possible_match and
-            stats['detected'] >= (
-                SETTINGS.detect_level -
-                (0.004 * stats['previous'] * stats['credits'])
-            )
+                possible_match and
+                stats['detected'] >= (
+                        SETTINGS.detect_level -
+                        (0.004 * stats['previous'] * stats['credits'])
+                )
         )
         # Unless debugging, return if match found, otherwise continue checking
         if is_match and not SETTINGS.detector_debug:
@@ -573,7 +582,7 @@ class UpNextDetector(object):
             self.match_counts['hits'] += 1
             self.match_counts['misses'] = 0
             self.match_counts['detected'] = self.match_counts['detected'] or (
-                self.match_counts['hits'] >= self.match_number
+                    self.match_counts['hits'] >= self.match_number
             )
 
     def _hash_match_miss(self):
@@ -699,9 +708,8 @@ class UpNextDetector(object):
                 self.log('Capture failed using {0}kB data limit'.format(
                     SETTINGS.detector_data_limit
                 ), utils.LOGWARNING)
-                SETTINGS.detector_data_limit = (
-                    SETTINGS.detector_data_limit - 8
-                ) or 8
+                if SETTINGS.detector_data_limit >= 16:
+                    SETTINGS.detector_data_limit -= 8
 
                 image_data = None
                 size = self._get_video_capture_resolution(
@@ -872,7 +880,8 @@ class UpNextDetector(object):
         return self.match_counts['detected']
 
     @staticmethod
-    def get_video_resolution(_cache=[None]):  # pylint: disable=dangerous-default-value
+    # pylint: disable-next=dangerous-default-value
+    def get_video_resolution(_cache=[None]):
         """Method to detect playing video resolution and aspect ratio"""
 
         # We don't need to get resolution every time, cache and reuse instead

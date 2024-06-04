@@ -31,13 +31,15 @@ class Import(object):  # pylint: disable=too-few-public-methods
                 module.__dict__.update(mod_attrs)
         except ImportError:
             from traceback import format_exc
+
             log('ImportError: {0}'.format(format_exc()))
             module = None
         return module
 
 
 class ObjectImport(Import):  # pylint: disable=too-few-public-methods
-    def __new__(cls, name, obj_name, obj_attrs=None, **kwargs):  # pylint: disable=arguments-differ
+    # pylint: disable-next=arguments-differ
+    def __new__(cls, name, obj_name, obj_attrs=None, **kwargs):
         module = super(ObjectImport, cls).__new__(cls, name, **kwargs)
         try:
             imported_obj = getattr(module, obj_name)
@@ -45,6 +47,7 @@ class ObjectImport(Import):  # pylint: disable=too-few-public-methods
                 imported_obj.__dict__.update(obj_attrs)
         except AttributeError:
             from traceback import format_exc
+
             log('ImportError: {0}'.format(format_exc()))
             imported_obj = None
         return imported_obj
@@ -60,6 +63,7 @@ class ClassImport(ObjectImport):  # pylint: disable=too-few-public-methods
                 if cls._initialised:
                     return func
                 from functools import wraps
+
                 return wraps(func)(wrapper)
 
             if func:
@@ -88,14 +92,37 @@ class ClassImport(ObjectImport):  # pylint: disable=too-few-public-methods
         }
         if obj_attrs is not None:
             _dict.update(obj_attrs)
-        return type(obj_name, (imported_obj, ), _dict)
+        return type(obj_name, (imported_obj,), _dict)
 
 
-TMDb = ClassImport('tmdbhelper_lib.api.tmdb.api', 'TMDb', obj_attrs={'api_key': 'b5004196f5004839a7b0a89e623d3bd2'})  # pylint: disable=invalid-name
-get_next_episodes = ObjectImport('tmdbhelper_lib.player.details', 'get_next_episodes', mod_attrs={'TMDb': TMDb})  # pylint: disable=invalid-name
-get_item_details = ObjectImport('tmdbhelper_lib.player.details', 'get_item_details', mod_attrs={'TMDb': TMDb})  # pylint: disable=invalid-name
-Players = ClassImport('tmdbhelper_lib.player.players', 'Players', mod_attrs={'TMDb': TMDb, 'get_item_details': get_item_details})  # pylint: disable=invalid-name
-make_playlist = ObjectImport('tmdbhelper_lib.player.putils', 'make_playlist')  # pylint: disable=invalid-name
+# pylint: disable=invalid-name
+TMDb = ClassImport(
+    'tmdbhelper_lib.api.tmdb.api',
+    'TMDb',
+    obj_attrs={'api_key': 'b5004196f5004839a7b0a89e623d3bd2'},
+)
+get_next_episodes = ObjectImport(
+    'tmdbhelper_lib.player.details',
+    'get_next_episodes',
+    mod_attrs={'TMDb': TMDb},
+)
+get_item_details = ObjectImport(
+    'tmdbhelper_lib.player.details',
+    'get_item_details',
+    mod_attrs={'TMDb': TMDb},
+)
+Players = ClassImport(
+    'tmdbhelper_lib.player.players',
+    'Players',
+    mod_attrs={
+        'TMDb': TMDb,
+        'get_item_details': get_item_details,
+    },
+)
+make_playlist = ObjectImport(
+    'tmdbhelper_lib.player.putils',
+    'make_playlist'
+)
 
 
 class TMDB(TMDb):  # pylint: disable=inherit-non-class,too-few-public-methods
@@ -111,11 +138,13 @@ class TMDB(TMDb):  # pylint: disable=inherit-non-class,too-few-public-methods
         return tmdb_id, details
 
 
-class Player(Players):  # pylint: disable=inherit-non-class,too-few-public-methods
+# pylint: disable=inherit-non-class,too-few-public-methods
+class Player(Players):
     @Players._substitute  # pylint: disable=no-member
     def __init__(self, **kwargs):
         if 'tmdb_id' not in kwargs:
-            kwargs['tmdb_id'] = TMDB().get_tmdb_id(**kwargs)  # pylint: disable=no-value-for-parameter,not-callable
+            # pylint: disable-next=no-value-for-parameter,not-callable
+            kwargs['tmdb_id'] = TMDB().get_tmdb_id(**kwargs)
         super(Player, self).__init__(**kwargs)
         self._success = False
 
@@ -138,7 +167,8 @@ class Player(Players):  # pylint: disable=inherit-non-class,too-few-public-metho
             )
             if {'showname', 'season', 'episode'} - assert_keys:
                 return None
-        self.current_player = player  # pylint: disable=attribute-defined-outside-init
+        # pylint: disable-next=attribute-defined-outside-init
+        self.current_player = player
         return player
 
     @Players._substitute  # pylint: disable=no-member
@@ -148,6 +178,7 @@ class Player(Players):  # pylint: disable=inherit-non-class,too-few-public-metho
         if not self._success:
             utils.notification('UpNext', 'Unable to play video')
             from xbmc import Player as _Player, PlayList, PLAYLIST_VIDEO
+
             playlist = PlayList(PLAYLIST_VIDEO)
             playlist.clear()
             _Player().stop()
@@ -159,7 +190,8 @@ class Player(Players):  # pylint: disable=inherit-non-class,too-few-public-metho
         player = self.current_player or self.get_default_player()
         if not player:
             return None
-        episodes = get_next_episodes(self.tmdb_id, self.season, self.episode,  # pylint: disable=not-callable
+        # pylint: disable-next=not-callable
+        episodes = get_next_episodes(self.tmdb_id, self.season, self.episode,
                                      player.get('file')) or []
         for episode in episodes:
             episode.path = 'plugin://service.upnext/play_plugin'

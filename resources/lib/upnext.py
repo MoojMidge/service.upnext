@@ -63,7 +63,8 @@ if utils.supports_python_api(20):
     def _wrap(value):
         if isinstance(value, (list, tuple)):
             return value
-        return (value, )
+        return (value,)
+
 
     def _convert_cast(cast_list):
         cast_role_list = []
@@ -84,6 +85,7 @@ if utils.supports_python_api(20):
                 xbmc.Actor(name=name, role=role, order=order)
             )
         return cast_role_list
+
 
     def _set_info(infolabel):
         info_tag = _set_info.info_tag
@@ -107,6 +109,7 @@ if utils.supports_python_api(20):
                 log(error)
             else:
                 setter(info_tag, pre_process(value))
+
 
     _InfoTagVideo = xbmc.InfoTagVideo
     _set_info.mapping = {
@@ -442,9 +445,9 @@ def send_signal(sender, upnext_info):
             thumb = val.getArt('thumb')
             fanart = val.getArt('fanart')
             tvshow_id = (
-                val.getProperty('tvshowid')
-                or val.getProperty('TvShowDBID')
-                or tvshow_id
+                    val.getProperty('tvshowid')
+                    or val.getProperty('TvShowDBID')
+                    or tvshow_id
             )
             set_id = int(val.getProperty('setid') or set_id)
             set_name = val.getProperty('set')
@@ -464,11 +467,10 @@ def send_signal(sender, upnext_info):
             # Prefer user rating over scraped rating
             'rating': val.getUserRating() or val.getRating(),
             # Fallback for available date information
-            'firstaired': (
-                val.getFirstAiredAsW3C() or val.getPremieredAsW3C()
-            ) if utils.supports_python_api(20) else (
-                val.getFirstAired() or val.getPremiered()
-            ) or str(val.getYear()),
+            'firstaired': ((val.getFirstAiredAsW3C() or val.getPremieredAsW3C())
+                           if utils.supports_python_api(20) else
+                           (val.getFirstAired() or val.getPremiered())
+                           or str(val.getYear())),
             # Runtime used to evaluate endtime in UpNext popup, if available
             'runtime': utils.supports_python_api(18) and val.getDuration() or 0
         }
