@@ -295,6 +295,19 @@ class PlayList(object):
         ''' A stub constructor for the xbmc PlayList class '''
         self.playlist_type = playList
 
+    def add(self, url, listitem=None, index=-1):
+        if not url and listitem:
+            url = listitem.path
+        item = {'file': url}
+        if listitem:
+            # noinspection PyProtectedMember
+            # pylint: disable-next=protected-access
+            item.update(listitem.getVideoInfoTag()._tags)
+        if index == -1:
+            _PLAYLIST[self.playlist_type]['playlist'].append(item)
+        else:
+            _PLAYLIST[self.playlist_type]['playlist'].insert(index, item)
+
     def clear(self):
         _PLAYLIST[self.playlist_type]['playlist'].clear()
 

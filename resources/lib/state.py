@@ -360,9 +360,10 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         from tmdb_helper import Player, TMDB
 
         addon_id, _, addon_args = utils.parse_url(url)
-        if addon_id == constants.ADDON_ID and 'player' in addon_args:
+        if (addon_id in (constants.ADDON_ID, constants.TMDBH_ADDON_ID)
+                and 'player' in addon_args):
             addon_id = addon_args['player']
-        if addon_id == 'plugin.video.themoviedb.helper':
+        if addon_id == constants.TMDBH_ADDON_ID:
             addon_id = None
 
         # TMDBHelper not importable, use plugin url instead
@@ -383,14 +384,13 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
                         tmdb_id=tmdb_id, tmdb_type='tv',
                         player=addon_id, mode='play')
 
-        if SETTINGS.queue_from_tmdb:
-            player.queue()
+        episodes = player.get_next_episodes()
+        if not episodes or len(episodes) < 2:
+            return
+
+        if SETTINGS.queue_from_tmdb and player.queue(episodes):
             utils.event('OnAVStart', internal=True)
         else:
-            episodes = player.get_next_episodes()
-            if not episodes or len(episodes) < 2:
-                return
-
             upnext.send_signal(sender='UpNext.TMDBHelper',
                                upnext_info={
                                    'current_video': dict(

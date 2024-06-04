@@ -10,6 +10,7 @@ try:
 except ImportError:
     from urllib import urlencode
 
+import constants
 import utils
 from settings import SETTINGS
 
@@ -119,10 +120,6 @@ Players = ClassImport(
         'get_item_details': get_item_details,
     },
 )
-make_playlist = ObjectImport(
-    'tmdbhelper_lib.player.putils',
-    'make_playlist'
-)
 
 
 class TMDB(TMDb):  # pylint: disable=inherit-non-class,too-few-public-methods
@@ -197,11 +194,18 @@ class Player(Players):
             episode.path = 'plugin://service.upnext/play_plugin'
         return episodes
 
-    def queue(self):
-        episodes = self.get_next_episodes()
-        if not episodes or len(episodes) < 2:
-            return
-        make_playlist(episodes)  # pylint: disable=not-callable
+    @staticmethod
+    def queue(episodes):
+        from xbmc import PlayList, PLAYLIST_VIDEO
+
+        playlist = PlayList(PLAYLIST_VIDEO)
+        if playlist.getposition() == -1:
+            return False
+
+        for li in episodes[1:]:
+            listitem = li.get_listitem()
+            playlist.add(listitem.getPath(), listitem)
+        return True
 
     @Players._substitute  # pylint: disable=no-member
     def select_player(self, *args, **kwargs):
@@ -214,11 +218,19 @@ def generate_tmdbhelper_play_url(upnext_data, player):
     video_details = upnext_data.get('next_video')
     if video_details:
         offset = 0
-        play_url = 'plugin://service.upnext/play_plugin?{0}'
+        play_url = ''.join((
+            'plugin://',
+            constants.ADDON_ID,
+            '/play_plugin?{0}',
+        ))
     else:
         video_details = upnext_data.get('current_video')
         offset = 1
-        play_url = 'plugin://plugin.video.themoviedb.helper/?{0}'
+        play_url = ''.join((
+            'plugin://',
+            constants.TMDBH_ADDON_ID,
+            '/?{0}',
+        ))
 
     tmdb_id = video_details.get('tmdb_id', '')
     title = video_details.get('showtitle', '')

@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, unicode_literals
 
 ADDON_ID = 'service.upnext'
+TMDBH_ADDON_ID = 'plugin.video.themoviedb.helper'
 
 UNDEFINED = -1
 UNDEFINED_STR = '-1'
