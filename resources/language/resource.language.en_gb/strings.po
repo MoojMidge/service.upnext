@@ -749,3 +749,11 @@ msgstr ""
 msgctxt "#30831"
 msgid "Re-trigger a simulated playback start event on addon start"
 msgstr ""
+
+msgctxt "#30832"
+msgid "Enable full integration"
+msgstr ""
+
+msgctxt "#30833"
+msgid "Allows for fetching episode details and playlist integration"
+msgstr ""

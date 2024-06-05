@@ -357,8 +357,6 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def _get_tmdb_now_playing(current_video, title, season, episode, url):
-        from tmdb_helper import Player, TMDB
-
         addon_id, _, addon_args = utils.parse_url(url)
         if (addon_id in (constants.ADDON_ID, constants.TMDBH_ADDON_ID)
                 and 'player' in addon_args):
@@ -367,7 +365,14 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             addon_id = None
 
         # TMDBHelper not importable, use plugin url instead
-        if not TMDB.is_initialised():
+        if SETTINGS.import_tmdbhelper:
+            from tmdb_helper import Player, TMDB
+
+            no_integration = not TMDB.is_initialised()
+        else:
+            no_integration = True
+
+        if no_integration:
             upnext.send_signal(sender='UpNext.TMDBHelper',
                                upnext_info={'current_video': current_video,
                                             'play_url': None,
@@ -380,9 +385,13 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             return
 
         # pylint: disable-next=no-value-for-parameter,unexpected-keyword-arg
-        player = Player(query=title, season=season, episode=episode,
-                        tmdb_id=tmdb_id, tmdb_type='tv',
-                        player=addon_id, mode='play')
+        player = Player(query=title,
+                        season=season,
+                        episode=episode,
+                        tmdb_id=tmdb_id,
+                        tmdb_type='tv',
+                        player=addon_id,
+                        mode='play')
 
         episodes = player.get_next_episodes()
         if not episodes or len(episodes) < 2:

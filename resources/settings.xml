@@ -538,6 +538,16 @@
                         </dependency>
                     </dependencies>
                 </setting>
+                <setting id="importTMDBHelper" type="boolean" label="30832" help="30833" parent="enableTMDBHelper">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enableTMDBHelper">true</condition>
+                        </dependency>
+                    </dependencies>
+                </setting>
                 <setting id="exactTMDBMatch" type="boolean" label="30711" help="30712" parent="enableTMDBHelper">
                     <level>0</level>
                     <default>true</default>
@@ -545,6 +555,9 @@
                     <dependencies>
                         <dependency type="visible">
                             <condition operator="is" setting="enableTMDBHelper">true</condition>
+                        </dependency>
+                        <dependency type="enable">
+                            <condition operator="is" setting="importTMDBHelper">true</condition>
                         </dependency>
                     </dependencies>
                 </setting>
@@ -555,6 +568,9 @@
                     <dependencies>
                         <dependency type="visible">
                             <condition operator="is" setting="enableTMDBHelper">true</condition>
+                        </dependency>
+                        <dependency type="enable">
+                            <condition operator="is" setting="importTMDBHelper">true</condition>
                         </dependency>
                     </dependencies>
                 </setting>

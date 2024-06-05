@@ -43,6 +43,7 @@ class UpNextSettings(object):
         'enable_queue',
         'enable_resume',
         'exact_tmdb_match',
+        'import_tmdbhelper',
         'mark_watched',
         'next_season',
         'pause_until_next',
@@ -241,9 +242,11 @@ class UpNextSettings(object):
         self.early_queue_reset = self.get_bool('earlyQueueReset')
 
         self.enable_tmdbhelper_fallback = self.get_bool('enableTMDBHelper')
-        self.exact_tmdb_match = (self.enable_tmdbhelper_fallback
+        self.import_tmdbhelper = (self.enable_tmdbhelper_fallback
+                                  and self.get_bool('importTMDBHelper'))
+        self.exact_tmdb_match = (self.import_tmdbhelper
                                  and self.get_bool('exactTMDBMatch'))
-        self.queue_from_tmdb = (self.enable_tmdbhelper_fallback
+        self.queue_from_tmdb = (self.import_tmdbhelper
                                 and self.get_bool('queueFromTMDB'))
 
         self.resume_from_end = self.get_int('resumeFromEnd') / 100
