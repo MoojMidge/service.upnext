@@ -192,8 +192,6 @@ class Player(Players):
                                      self.season,
                                      self.episode,
                                      player.get('file')) or []
-        for episode in episodes:
-            episode.path = 'plugin://service.upnext/play_plugin'
         return episodes
 
     @staticmethod
@@ -205,6 +203,7 @@ class Player(Players):
             return False
 
         for li in episodes[1:]:
+            li.path = 'plugin://service.upnext/play_plugin'
             listitem = li.get_listitem()
             playlist.add(listitem.getPath(), listitem)
         return True
