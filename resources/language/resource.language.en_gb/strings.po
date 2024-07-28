@@ -383,11 +383,15 @@ msgid "{0:d} videos automatically played"
 msgstr ""
 
 msgctxt "#30609"
-msgid "When credits time is known (e.g. Netflix) or detected"
+msgid "When credits time is known (e.g. Netflix) or detected/forced"
 msgstr ""
 
 msgctxt "#30611"
 msgid "Delay before default action is taken"
+msgstr ""
+
+msgctxt "#30612"
+msgid "Force default action after popup is shown"
 msgstr ""
 
 msgctxt "#30613"

@@ -21,7 +21,7 @@ class UpNextSettings(object):
         # Settings state variables
         'api_retry_attempts',
         'auto_play',
-        'auto_play_delay',
+        'default_action_delay',
         'detect_enabled',
         'detect_level',
         'detect_matches',
@@ -43,6 +43,7 @@ class UpNextSettings(object):
         'enable_queue',
         'enable_resume',
         'exact_tmdb_match',
+        'force_default_action',
         'import_tmdbhelper',
         'mark_watched',
         'next_season',
@@ -224,7 +225,7 @@ class UpNextSettings(object):
         self.enable_playlist = self.get_bool('enablePlaylist')
         self.enable_movieset = self.get_bool('enableMovieset')
 
-        self.auto_play_delay = self.get_int('autoPlayCountdown')
+        self.default_action_delay = self.get_int('autoPlayCountdown')
         self.popup_durations = {
             3600: self.get_int('autoPlayTimeXL'),  # > 60 minutes
             2400: self.get_int('autoPlayTimeL'),   # > 40 minutes
@@ -234,6 +235,7 @@ class UpNextSettings(object):
         } if self.get_bool('customAutoPlayTime') else {
             0: self.get_int('autoPlaySeasonTime')
         }
+        self.force_default_action = self.get_bool('forceDefaultAction')
 
         self.detect_enabled = self.get_bool('detectPlayTime')
         self.detect_period = self.get_int('detectPeriod')

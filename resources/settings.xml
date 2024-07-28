@@ -509,6 +509,11 @@
                         <formatlabel>30633</formatlabel>
                     </control>
                 </setting>
+                <setting id="forceDefaultAction" type="boolean" label="30612" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
             </group>
         </category>
         <category id="expert" label="30700" help="">

@@ -80,7 +80,11 @@ class UpNextPopupHandler(object):
             'cancel': False,
             'abort': False,
             'play_now': False,
-            'play_on_cue': SETTINGS.auto_play and self.state.popup_cue,
+            'play_on_cue': (
+                SETTINGS.auto_play
+                and (self.state.popup_cue
+                     or SETTINGS.force_default_action)
+            ),
             'show_upnext': False,
             'shuffle_on': False,
             'shuffle_start': False,
@@ -123,7 +127,8 @@ class UpNextPopupHandler(object):
                 and old_state['show_upnext']
                 and not cancel
                 and not play_now
-                and self.state.popup_cue
+                and (self.state.popup_cue
+                     or SETTINGS.force_default_action)
             ),
             'show_upnext': old_state['show_upnext'],
             'shuffle_on': shuffle_on,
@@ -285,7 +290,7 @@ class UpNextPopupHandler(object):
         # If cue point was provided then UpNext will auto play after a fixed
         # delay time, rather than waiting for the end of the file
         if popup_state['play_on_cue']:
-            popup_duration = SETTINGS.auto_play_delay
+            popup_duration = SETTINGS.default_action_delay
             if popup_duration:
                 popup_start = max(play_time, self.state.get_popup_time())
                 total_time = min(popup_start + popup_duration, total_time)
