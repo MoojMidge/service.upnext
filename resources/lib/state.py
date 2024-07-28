@@ -366,7 +366,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
         # TMDBHelper not importable, use plugin url instead
         if SETTINGS.import_tmdbhelper:
-            from tmdb_helper import Player, TMDB
+            from tmdb_helper import Player, TMDB, get_next_episodes
 
             no_integration = not TMDB.is_initialised()
         else:
@@ -379,12 +379,14 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
                                             'player': addon_id})
             return
 
+        # noinspection PyUnboundLocalVariable
         # pylint: disable-next=no-value-for-parameter
         tmdb_id, current_video = TMDB().get_id_details(title, season, episode)
         if not tmdb_id or not current_video:
             return
 
-        # pylint: disable-next=no-value-for-parameter,unexpected-keyword-arg
+        # noinspection PyUnboundLocalVariable
+        # pylint: disable-next=possibly-used-before-assignment,no-value-for-parameter,unexpected-keyword-arg
         player = Player(query=title,
                         season=season,
                         episode=episode,
@@ -393,7 +395,9 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
                         player=addon_id,
                         mode='play')
 
-        episodes = player.get_next_episodes()
+        # noinspection PyUnboundLocalVariable
+        # pylint: disable-next=not-callable,possibly-used-before-assignment
+        episodes = get_next_episodes(tmdb_id, season, episode)
         if not episodes or len(episodes) < 2:
             return
 

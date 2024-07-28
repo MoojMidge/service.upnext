@@ -188,7 +188,9 @@ class Player(Players):
         if not player:
             return None
         # pylint: disable-next=not-callable
-        episodes = get_next_episodes(self.tmdb_id, self.season, self.episode,
+        episodes = get_next_episodes(self.tmdb_id,
+                                     self.season,
+                                     self.episode,
                                      player.get('file')) or []
         for episode in episodes:
             episode.path = 'plugin://service.upnext/play_plugin'
