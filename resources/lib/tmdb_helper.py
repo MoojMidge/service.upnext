@@ -240,13 +240,15 @@ def generate_tmdbhelper_play_url(upnext_data, player):
 
     query = urlencode({
         'info': 'play',
-        'mode': 'play',
-        'player': player,
+        'query': title,
         'tmdb_type': 'tv',
         'tmdb_id': tmdb_id,
-        'query': title,
         'season': season,
-        'episode': episode
+        'episode': episode,
+        'ignore_default': False,
+        'islocal': False,
+        'player': player,
+        'mode': 'play',
     })
 
     return play_url.format(query)

@@ -387,11 +387,12 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
         # noinspection PyUnboundLocalVariable
         # pylint: disable-next=possibly-used-before-assignment,no-value-for-parameter,unexpected-keyword-arg
-        player = Player(query=title,
+        player = Player(tmdb_type='tv',
+                        tmdb_id=tmdb_id,
                         season=season,
                         episode=episode,
-                        tmdb_id=tmdb_id,
-                        tmdb_type='tv',
+                        ignore_default=False,
+                        islocal=False,
                         player=addon_id,
                         mode='play')
 
