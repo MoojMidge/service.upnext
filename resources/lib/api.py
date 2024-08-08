@@ -407,9 +407,12 @@ def log(msg, level=utils.LOGDEBUG):
 
 
 # pylint: disable=dangerous-default-value
-def art_fallbacks(item=None, art=None, art_map=COMMON_ART_MAP, replace=True):
-    if item:
-        art = item.get('art')
+def art_fallbacks(art, art_map=COMMON_ART_MAP, replace=True):
+    if art and 'art' in art:
+        item = art
+        art = item['art']
+    else:
+        item = None
     if not art:
         return {}
 
@@ -1111,7 +1114,7 @@ def get_upnext_episodes_from_library(limit=25,
 
         # Restore current episode lastplayed for sorting of next-up episode
         upnext_episode['lastplayed'] = episode['lastplayed']
-        art_fallbacks(upnext_episode, art_map=EPISODE_ART_MAP)
+        art_fallbacks(upnext_episode, EPISODE_ART_MAP)
         # Combine tvshow details with episode details
         tvshow_details, _ = get_details_from_library(
             db_type='tvshow', db_id=tvshowid,
