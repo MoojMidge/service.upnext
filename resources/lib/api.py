@@ -111,12 +111,14 @@ COMMON_ART_MAP = {
     'icon': ('poster',),
 }
 EPISODE_ART_MAP = {
-    'poster': ('season.poster', 'tvshow.poster'),
-    'fanart': ('season.fanart', 'tvshow.fanart'),
-    'landscape': ('season.landscape', 'tvshow.landscape'),
-    'clearart': ('season.clearart', 'tvshow.clearart'),
-    'banner': ('season.banner', 'tvshow.banner'),
-    'clearlogo': ('season.clearlogo', 'tvshow.clearlogo'),
+    'thumb': ('thumb', 'still'),
+    'icon': ('thumb',),
+    'poster': ('poster', 'season.poster', 'tvshow.poster'),
+    'fanart': ('thumb', 'season.fanart', 'tvshow.fanart'),
+    'landscape': ('thumb', 'season.landscape', 'tvshow.landscape'),
+    'clearart': ('clearart', 'season.clearart', 'tvshow.clearart'),
+    'banner': ('banner', 'season.banner', 'tvshow.banner'),
+    'clearlogo': ('clearlogo', 'season.clearlogo', 'tvshow.clearlogo'),
 }
 
 RECOMMENDATION_PROPERTIES = {
@@ -1109,7 +1111,7 @@ def get_upnext_episodes_from_library(limit=25,
 
         # Restore current episode lastplayed for sorting of next-up episode
         upnext_episode['lastplayed'] = episode['lastplayed']
-        art_fallbacks(upnext_episode, art_map=EPISODE_ART_MAP, replace=False)
+        art_fallbacks(upnext_episode, art_map=EPISODE_ART_MAP)
         # Combine tvshow details with episode details
         tvshow_details, _ = get_details_from_library(
             db_type='tvshow', db_id=tvshowid,

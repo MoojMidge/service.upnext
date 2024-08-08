@@ -146,9 +146,7 @@ class UpNextPopup(xbmcgui.WindowXMLDialog, object):
             if media_type == 'episode':
                 self.setProperty('year', date_string)
                 if constants.UNWATCHED_EPISODE_THUMB in show_spoilers:
-                    art = api.art_fallbacks(
-                        art=art, art_map=api.EPISODE_ART_MAP, replace=False
-                    )
+                    art = api.art_fallbacks(art, art_map=api.EPISODE_ART_MAP)
                 else:
                     art = constants.NO_SPOILER_ART
 
