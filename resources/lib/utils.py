@@ -615,12 +615,13 @@ def create_item_details(item, source=None, position=None):
     if not item or not source:
         return None
 
-    if 'tvshowid' in item:
+    item_keys = item.keys()
+    if not {'tvshowid', 'season', 'episode'}.isdisjoint(item_keys):
         db_type = 'episode'
-    elif 'setid' in item:
+    elif 'setid' in item_keys:
         db_type = 'movie'
     else:
-        db_type = item.get('type', constants.UNKNOWN)
+        db_type = item.get('mediatype') or item.get('type') or constants.UNKNOWN
 
     if position:
         db_id = get_int(item, 'id')
