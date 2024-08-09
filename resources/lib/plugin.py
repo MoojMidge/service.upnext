@@ -382,8 +382,9 @@ def play_media(addon_handle, addon_id, **kwargs):
 
 
 def play_plugin(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-argument
-    from tmdb_helper import Player
-    Player(**kwargs).play(handle=addon_handle)
+    from tmdb_helper import Players
+
+    Players(**kwargs).play(handle=addon_handle)
 
 
 @utils.Profiler(enabled=SETTINGS.widget_debug, lazy=True)

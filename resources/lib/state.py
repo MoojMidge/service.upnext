@@ -139,10 +139,10 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             # Show Still Watching? popup if next episode is from next season or
             # next item is a movie
             if (next_video and (
-                    next_video['type'] == 'movie'
+                    next_video.get('type') == 'movie'
                     or (not self.shuffle_on
                         and len({constants.SPECIALS,
-                                 next_video['season'],
+                                 next_video.get('season'),
                                  self.current_item['details']['season']}) == 3)
             )):
                 self.played_in_a_row = SETTINGS.played_limit
@@ -312,7 +312,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         # listitem is resolved. Fallback to Player notification data.
         for info, value in play_info['item'].items():
             current_value = current_video.get(info, '')
-            if current_value in (constants.UNDEFINED, constants.UNKNOWN, ''):
+            if current_value in {constants.UNDEFINED, constants.UNKNOWN, ''}:
                 current_video[info] = value
 
         tvshowid = current_video.get('tvshowid', constants.UNDEFINED)
@@ -320,7 +320,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         season = utils.get_int(current_video, 'season')
         episode = utils.get_int(current_video, 'episode')
 
-        if not title or constants.UNDEFINED in (season, episode):
+        if not title or constants.UNDEFINED in {season, episode}:
             return None
 
         for plugin_url in ('mediapath', 'file'):
@@ -366,9 +366,9 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
         # TMDBHelper not importable, use plugin url instead
         if SETTINGS.import_tmdbhelper:
-            from tmdb_helper import Player, TMDB, get_next_episodes
+            from tmdb_helper import Players, TMDb, get_next_episodes
 
-            no_integration = not TMDB.is_initialised()
+            no_integration = not TMDb.is_initialised()
         else:
             no_integration = True
 
@@ -381,20 +381,20 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
         # noinspection PyUnboundLocalVariable
         # pylint: disable-next=no-value-for-parameter
-        tmdb_id, current_video = TMDB().get_id_details(title, season, episode)
+        tmdb_id, current_video = TMDb().get_id_details(title, season, episode)
         if not tmdb_id or not current_video:
             return
 
         # noinspection PyUnboundLocalVariable
         # pylint: disable-next=possibly-used-before-assignment,no-value-for-parameter,unexpected-keyword-arg
-        player = Player(tmdb_type='tv',
-                        tmdb_id=tmdb_id,
-                        season=season,
-                        episode=episode,
-                        ignore_default=False,
-                        islocal=False,
-                        player=addon_id,
-                        mode='play')
+        players = Players(tmdb_type='tv',
+                          tmdb_id=tmdb_id,
+                          season=season,
+                          episode=episode,
+                          ignore_default=False,
+                          islocal=False,
+                          player=addon_id,
+                          mode='play')
 
         # noinspection PyUnboundLocalVariable
         # pylint: disable-next=not-callable,possibly-used-before-assignment
@@ -425,14 +425,15 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
     def get_plugin_type(self, playlist_next=None):
         if self.data:
+            _get = self.data.get
             plugin_type = constants.PLUGIN_DATA_ERROR
-            if self.data.get('play_direct'):
+            if _get('play_direct'):
                 plugin_type += constants.PLUGIN_DIRECT
             elif playlist_next:
                 plugin_type += constants.PLUGIN_PLAYLIST
-            if self.data.get('play_url'):
+            if _get('play_url'):
                 plugin_type += constants.PLUGIN_PLAY_URL
-            elif self.data.get('play_info'):
+            elif _get('play_info'):
                 plugin_type += constants.PLUGIN_PLAY_INFO
             return plugin_type
         return None

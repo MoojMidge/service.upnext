@@ -165,7 +165,9 @@ if utils.supports_python_api(20):
 
 
 def _create_video_listitem(video,
-                           kwargs=None, infolabels=None, properties=None):
+                           kwargs=None,
+                           infolabels=None,
+                           properties=None):
     """Create a xbmcgui.ListItem from provided video details"""
 
     _infolabels = {
@@ -228,8 +230,11 @@ def _create_video_listitem(video,
     return listitem
 
 
-def create_episode_listitem(episode,  # pylint: disable=too-many-locals
-                            kwargs=None, infolabels=None, properties=None):
+# pylint: disable=too-many-locals
+def create_episode_listitem(episode,
+                            kwargs=None,
+                            infolabels=None,
+                            properties=None):
     """Create a xbmcgui.ListItem from provided episode details"""
 
     episode_num = episode.get('episode')
