@@ -145,10 +145,12 @@ class UpNextPopup(xbmcgui.WindowXMLDialog, object):
             art = details.get('art')
             if media_type == 'episode':
                 self.setProperty('year', date_string)
-                if constants.UNWATCHED_EPISODE_THUMB in show_spoilers:
-                    art = api.art_fallbacks(art, api.EPISODE_ART_MAP)
-                else:
-                    art = constants.NO_SPOILER_ART
+                art = api.art_fallbacks(
+                    art,
+                    api.EPISODE_ART_MAP
+                    if constants.UNWATCHED_EPISODE_THUMB in show_spoilers else
+                    api.EPISODE_TVSHOW_ART_MAP,
+                )
 
             elif media_type == 'movie':
                 self.setProperty('year', date.year if date else date_string)

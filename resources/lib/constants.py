@@ -53,14 +53,6 @@ DEFAULT_SPOILERS = [
     UNWATCHED_EPISODE_THUMB,
 ]
 NO_SPOILER_IMAGE = 'OverlaySpoiler.png'
-NO_SPOILER_ART = {
-    'fanart': NO_SPOILER_IMAGE,
-    'landscape': NO_SPOILER_IMAGE,
-    'clearart': NO_SPOILER_IMAGE,
-    'clearlogo': NO_SPOILER_IMAGE,
-    'poster': NO_SPOILER_IMAGE,
-    'thumb': NO_SPOILER_IMAGE,
-}
 
 VALUE_FROM_STR = {
     'false': False,

@@ -120,6 +120,16 @@ EPISODE_ART_MAP = {
     'banner': ('banner', 'season.banner', 'tvshow.banner'),
     'clearlogo': ('clearlogo', 'season.clearlogo', 'tvshow.clearlogo'),
 }
+EPISODE_TVSHOW_ART_MAP = {
+    'thumb': (constants.NO_SPOILER_IMAGE,),
+    'icon': (constants.NO_SPOILER_IMAGE,),
+    'poster': ('season.poster', 'tvshow.poster'),
+    'fanart': ('season.fanart', 'tvshow.fanart'),
+    'landscape': ('season.landscape', 'tvshow.landscape'),
+    'clearart': ('clearart', 'season.clearart', 'tvshow.clearart'),
+    'banner': ('banner', 'season.banner', 'tvshow.banner'),
+    'clearlogo': ('clearlogo', 'season.clearlogo', 'tvshow.clearlogo'),
+}
 
 RECOMMENDATION_PROPERTIES = {
     'movies': frozenset({
