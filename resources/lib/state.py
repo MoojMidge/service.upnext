@@ -405,7 +405,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         if not episodes or len(episodes) < 2:
             return
 
-        if SETTINGS.queue_from_tmdb and player.queue(episodes):
+        if player and SETTINGS.queue_from_tmdb and players.queue(episodes):
             utils.event('OnAVStart', internal=True)
         else:
             upnext.send_signal(sender='UpNext.TMDBHelper',
