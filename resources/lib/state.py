@@ -326,9 +326,17 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         for plugin_url in ('mediapath', 'file'):
             plugin_url = current_video.get(plugin_url, '')
             if plugin_url.startswith('plugin://'):
+                addon_id, _, addon_args = utils.parse_url(plugin_url)
+                if addon_id in {constants.ADDON_ID, constants.TMDBH_ADDON_ID}:
+                    if 'player' in addon_args:
+                        addon_id = addon_args['player']
+                        break
+                    addon_id = None
+                    continue
                 break
         else:
             plugin_url = None
+            addon_id = None
 
         if tvshowid == constants.UNDEFINED or plugin_url:
             # Video plugins can provide a plugin specific tvshowid. Search Kodi
@@ -336,9 +344,11 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             tvshowid = api.get_tvshowid(title)
         # Now playing show not found in Kodi library
         if tvshowid == constants.UNDEFINED:
-            return cls._get_tmdb_now_playing(
-                current_video, title, season, episode, plugin_url
-            ) if SETTINGS.enable_tmdbhelper_fallback else None
+            if SETTINGS.enable_tmdbhelper_fallback:
+                return cls._get_tmdb_now_playing(
+                    current_video, title, season, episode, addon_id
+                )
+            return None
         # Use found tvshowid for library integrated plugins e.g. Emby,
         # Jellyfin, Plex, etc.
         current_video['tvshowid'] = tvshowid
@@ -356,14 +366,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         return current_video
 
     @staticmethod
-    def _get_tmdb_now_playing(current_video, title, season, episode, url):
-        addon_id, _, addon_args = utils.parse_url(url)
-        if (addon_id in (constants.ADDON_ID, constants.TMDBH_ADDON_ID)
-                and 'player' in addon_args):
-            addon_id = addon_args['player']
-        if addon_id == constants.TMDBH_ADDON_ID:
-            addon_id = None
-
+    def _get_tmdb_now_playing(current_video, title, season, episode, addon_id):
         # TMDBHelper not importable, use plugin url instead
         if SETTINGS.import_tmdbhelper:
             from tmdb_helper import Players, TMDb, get_next_episodes
