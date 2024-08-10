@@ -122,6 +122,13 @@ msgctxt "#30052"
 msgid "Forced off"
 msgstr ""
 
+msgctxt "#30053"
+msgid "Play or focused popup button action"
+msgstr ""
+
+msgctxt "#30054"
+msgid "Stop or focused popup button action"
+msgstr ""
 
 ### Widgets and Plugin listings
 msgctxt "#30100"

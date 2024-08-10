@@ -280,6 +280,8 @@
                         <options>
                             <option label="30041">0</option>
                             <option label="30040">1</option>
+                            <option label="30054">2</option>
+                            <option label="30053">3</option>
                         </options>
                     </constraints>
                     <control type="spinner" format="string"/>
@@ -289,7 +291,10 @@
                     <default>true</default>
                     <dependencies>
                         <dependency type="enable">
-                            <condition operator="is" setting="autoPlayMode">1</condition>
+                            <or>
+                                <condition operator="is" setting="autoPlayMode">1</condition>
+                                <condition operator="is" setting="autoPlayMode">3</condition>
+                            </or>
                         </dependency>
                     </dependencies>
                     <control type="toggle"/>

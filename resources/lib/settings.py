@@ -209,7 +209,8 @@ class UpNextSettings(object):
             self.get_int('pluginSecondaryLabelToken3')
         )
 
-        self.auto_play = self.get_int('autoPlayMode') == 1
+        auto_play = self.get_int('autoPlayMode')
+        self.auto_play = auto_play if auto_play in {1, 3} else False
         self.played_limit = (
             self.get_int('playedInARow')
             if self.auto_play and self.get_bool('enableStillWatching')

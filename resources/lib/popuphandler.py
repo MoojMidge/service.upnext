@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import api
+import constants
 import dialog
 import utils
 from settings import SETTINGS
@@ -74,7 +75,7 @@ class UpNextPopupHandler(object):
 
         return self._popup_state(abort=False, show_upnext=show_upnext)
 
-    def _popup_state(self, old_state=None, **kwargs):
+    def _popup_state(self, old_state=None, check_focus=False, **kwargs):
         old_state = old_state or {
             'auto_play': SETTINGS.auto_play,
             'cancel': False,
@@ -101,6 +102,9 @@ class UpNextPopupHandler(object):
             remaining = kwargs.get('remaining')
             if remaining is not None:
                 popup.update_progress(remaining)
+
+            if check_focus and SETTINGS.auto_play == constants.AUTO_PLAY_FOCUS:
+                popup.update_popup_focus_state()
 
             cancel = popup.is_cancel()
             play_now = popup.is_playnow()
@@ -348,7 +352,9 @@ class UpNextPopupHandler(object):
         else:
             popup_abort = True
 
-        return self._popup_state(old_state=popup_state, abort=popup_abort)
+        return self._popup_state(old_state=popup_state,
+                                 check_focus=True,
+                                 abort=popup_abort)
 
     def cancel(self):
         self.stop()

@@ -5,11 +5,12 @@ from __future__ import absolute_import, division, unicode_literals
 
 import datetime
 
+import xbmcgui
+
 import api
 import constants
 import statichelper
 import utils
-import xbmcgui
 
 
 class UpNextPopup(xbmcgui.WindowXMLDialog, object):
@@ -24,6 +25,7 @@ class UpNextPopup(xbmcgui.WindowXMLDialog, object):
         'cancel',
         'stop',
         'playnow',
+        'focused_control',
         'countdown_total_time',
         'current_progress_percent',
         'progress_control',
@@ -44,6 +46,7 @@ class UpNextPopup(xbmcgui.WindowXMLDialog, object):
         self.cancel = False
         self.stop = False
         self.playnow = False
+        self.focused_control = constants.UNDEFINED
         self.countdown_total_time = None
         self.current_progress_percent = 100
         self.progress_control = None
@@ -82,25 +85,39 @@ class UpNextPopup(xbmcgui.WindowXMLDialog, object):
             self.set_cancel(True)
             self.close()
 
-    def onClick(self, controlId):  # pylint: disable=invalid-name
+    def onClick(self, controlId, close=None):  # pylint: disable=invalid-name
+        if close is None:
+            close = True
+
         # Play now - Watch now / Still Watching
         if controlId == constants.PLAY_CTRL_ID:
             self.set_playnow(True)
-            self.close()
         # Cancel - Close / Stop
         elif controlId == constants.CLOSE_CTRL_ID:
             self.set_cancel(True)
             if self.stop_enable:
                 self.set_stop(True)
-            self.close()
         # Shuffle play
         elif controlId == constants.SHUFFLE_CTRL_ID:
             if self.is_shuffle_on():
                 self.set_shuffle(False)
+                close = False
             else:
                 self.set_shuffle(True)
                 self.set_cancel(True)
-                self.close()
+
+        if close:
+            self.close()
+
+    def onFocus(self, controlId):  # pylint: disable=invalid-name
+        if self.focused_control == constants.UNDEFINED:
+            self.focused_control = None
+        else:
+            self.focused_control = controlId
+
+    def update_popup_focus_state(self):
+        if self.focused_control and self.focused_control != constants.UNDEFINED:
+            self.onClick(self.focused_control, close=False)
 
     def setProperty(self, key, value):  # pylint: disable=invalid-name
         # setProperty accepts bytes/str/unicode in Kodi18+ but truncates bytes
