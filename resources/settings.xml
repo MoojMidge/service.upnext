@@ -560,7 +560,7 @@
                 </setting>
                 <setting id="exactTMDBMatch" type="boolean" label="30711" help="30712" parent="enableTMDBHelper">
                     <level>0</level>
-                    <default>true</default>
+                    <default>false</default>
                     <control type="toggle"/>
                     <dependencies>
                         <dependency type="visible">
