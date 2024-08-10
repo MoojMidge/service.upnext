@@ -211,7 +211,7 @@ class Players(_Players):
     @_Players._substitute  # pylint: disable=no-member
     def select_player(self, *args, **kwargs):
         if SETTINGS.exact_tmdb_match:
-            return None
+            return self.get_default_player()
         return super(Players, self).select_player(*args, **kwargs)
 
 
