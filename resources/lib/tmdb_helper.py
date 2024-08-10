@@ -215,30 +215,32 @@ class Players(_Players):
         return super(Players, self).select_player(*args, **kwargs)
 
 
-def generate_tmdbhelper_play_url(upnext_data, player):
+def generate_player_data(upnext_data, player=None, play_url=False):
     video_details = upnext_data.get('next_video')
     if video_details:
         offset = 0
-        play_url = ''.join((
-            'plugin://',
-            constants.ADDON_ID,
-            '/play_plugin?{0}',
-        ))
+        if play_url:
+            play_url = ''.join((
+                'plugin://',
+                constants.ADDON_ID,
+                '/play_plugin?{0}',
+            ))
     else:
         video_details = upnext_data.get('current_video')
         offset = 1
-        play_url = ''.join((
-            'plugin://',
-            constants.TMDBH_ADDON_ID,
-            '/?{0}',
-        ))
+        if play_url:
+            play_url = ''.join((
+                'plugin://',
+                constants.TMDBH_ADDON_ID,
+                '/?{0}',
+            ))
 
     tmdb_id = video_details.get('tmdb_id', '')
     title = video_details.get('showtitle', '')
     season = utils.get_int(video_details, 'season')
     episode = utils.get_int(video_details, 'episode') + offset
 
-    query = urlencode({
+    data = {
         'info': 'play',
         'query': title,
         'tmdb_type': 'tv',
@@ -249,6 +251,8 @@ def generate_tmdbhelper_play_url(upnext_data, player):
         'islocal': False,
         'player': player,
         'mode': 'play',
-    })
+    }
 
-    return play_url.format(query)
+    if play_url:
+        return play_url.format(urlencode(data))
+    return data

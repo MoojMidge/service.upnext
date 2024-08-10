@@ -413,6 +413,7 @@ def create_listitem(item, kwargs=None, infolabels=None, properties=None):
     return None
 
 
+# pylint: disable=too-many-locals
 def send_signal(sender, upnext_info):
     """Helper function for video plugins to send data to UpNext"""
 
@@ -510,14 +511,18 @@ def send_signal(sender, upnext_info):
         upnext_data[key] = video_info
 
     if 'player' in upnext_info:
-        from tmdb_helper import generate_tmdbhelper_play_url
+        from tmdb_helper import generate_player_data
 
-        upnext_data['play_url'] = generate_tmdbhelper_play_url(
-            upnext_data, upnext_info['player']
-        )
+        player = upnext_info['player']
+        if player:
+            upnext_data['play_url'] = generate_player_data(
+                upnext_data, player, play_url=True,
+            )
+        else:
+            upnext_data['play_data'] = generate_player_data(upnext_data)
         upnext_data['play_direct'] = True
-    upnext_data = _copy_video_details(upnext_data)
 
+    upnext_data = _copy_video_details(upnext_data)
     return utils.event(sender=sender,
                        message='upnext_data',
                        data=upnext_data,

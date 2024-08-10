@@ -173,7 +173,19 @@ class UpNextPopupHandler(object):
 
         # Fallback plugin playback method, or if plugin provides play_info
         elif source.startswith('plugin'):
-            api.play_plugin_item(self.state.data, self.state.encoding, resume)
+            plugin_data = self.state.data
+
+            play_data = plugin_data.get('play_data')
+            if play_data:
+                if not play_data['player']:
+                    self.player.pause()
+
+                from tmdb_helper import Players
+
+                Players(**play_data).play()
+                return keep_playing
+
+            api.play_plugin_item(plugin_data, self.state.encoding, resume)
 
         # Fallback library playback method, not normally used
         else:
