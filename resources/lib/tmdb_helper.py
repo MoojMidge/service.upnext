@@ -183,15 +183,15 @@ class Players(_Players):
             self.current_player['make_playlist'] = 'false'
         return path
 
-    def get_next_episodes(self):
-        player = self.current_player or self.get_default_player()
-        if not player:
-            return None
+    @_Players._substitute  # pylint: disable=no-member
+    def get_next_episodes(self, player=None):
         # pylint: disable-next=not-callable
         episodes = get_next_episodes(self.tmdb_id,
                                      self.season,
                                      self.episode,
-                                     player.get('file')) or []
+                                     player)
+        # pylint: disable-next=attribute-defined-outside-init
+        self._next_episodes = episodes
         return episodes
 
     @staticmethod

@@ -369,7 +369,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
     def _get_tmdb_now_playing(current_video, title, season, episode, addon_id):
         # TMDBHelper not importable, use plugin url instead
         if SETTINGS.import_tmdbhelper:
-            from tmdb_helper import Players, TMDb, get_next_episodes
+            from tmdb_helper import Players, TMDb
 
             no_integration = not TMDb.is_initialised()
         else:
@@ -399,9 +399,9 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
                           player=addon_id,
                           mode='play')
 
-        # noinspection PyUnboundLocalVariable
-        # pylint: disable-next=not-callable,possibly-used-before-assignment
-        episodes = get_next_episodes(tmdb_id, season, episode)
+        player = players.current_player or players.get_default_player()
+        player = (player and player.get('file')) or addon_id
+        episodes = players.get_next_episodes(player)
         if not episodes or len(episodes) < 2:
             return
 
@@ -423,7 +423,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
                                        showtitle=title,
                                    ),
                                    'play_url': None,
-                                   'player': addon_id,
+                                   'player': player,
                                })
 
     def get_plugin_type(self, playlist_next=None):
