@@ -154,14 +154,16 @@ class UpNextPopup(xbmcgui.WindowXMLDialog, object):
             ) if utils.supports_python_api(18) else constants.DEFAULT_SPOILERS
 
             date, date_string = utils.localize_date(
-                str(details.get('firstaired', ''))
+                details.get('firstaired')
+                or details.get('premiered')
+                or ''
             )
             self.setProperty('firstaired', date_string)
             self.setProperty('premiered', date_string)
 
             art = details.get('art')
             if media_type == 'episode':
-                self.setProperty('year', date_string)
+                self.setProperty('year', date_string or details.get('year', ''))
                 art = api.art_fallbacks(
                     art,
                     api.EPISODE_ART_MAP
@@ -170,7 +172,9 @@ class UpNextPopup(xbmcgui.WindowXMLDialog, object):
                 )
 
             elif media_type == 'movie':
-                self.setProperty('year', date.year if date else date_string)
+                self.setProperty('year',
+                                 date.year if date else
+                                 date_string or details.get('year', ''))
                 art = api.art_fallbacks(art)
 
             self.setProperty('fanart', art.get('fanart', ''))
