@@ -224,13 +224,27 @@ class UpNextDetector(object):
         self.queue = None
         self.workers = None
 
+        self._lock = utils.create_lock()
+
+        # Set minimum capture interval to decrease capture rate
+        self.capture_interval = 1
+        # Number of consecutive frame matches required for a positive detection
+        # Set to 5s of captured frames as default
+        self.match_number = int(
+            SETTINGS.detect_matches / self.capture_interval
+        )
+        # Number of consecutive frame mismatches required to reset match count
+        # Set to 3 frames as default to account for bad frame capture
+        self.mismatch_number = SETTINGS.detect_mismatches
         self.match_counts = {
             'hits': 0,
             'misses': 0,
             'detected': False
         }
-        self._lock = utils.create_lock()
+
         self.hashes = None
+        self.past_hashes = None
+        self.hash_index = None
 
         self._running = utils.create_event()
         self._sigstop = utils.create_event()
@@ -601,9 +615,6 @@ class UpNextDetector(object):
             self.match_counts['detected'] = False
 
     def _init_hashes(self):
-        # Set minimum capture interval to decrease capture rate
-        self.capture_interval = 1
-
         self.hash_index = {
             # Hash indexes are tuples containing the following data:
             # (time_to_end, time_from_start, group_idx)
@@ -657,14 +668,6 @@ class UpNextDetector(object):
         if SETTINGS.detector_save_path and self.hashes.is_valid():
             self.past_hashes.load(self.hashes.group_name)
 
-        # Number of consecutive frame matches required for a positive detection
-        # Set to 5s of captured frames as default
-        self.match_number = int(
-            SETTINGS.detect_matches / self.capture_interval
-        )
-        # Number of consecutive frame mismatches required to reset match count
-        # Set to 3 frames to account for bad frame capture
-        self.mismatch_number = SETTINGS.detect_mismatches
         self._hash_match_reset()
 
     def _queue_clear(self, queue=None):
