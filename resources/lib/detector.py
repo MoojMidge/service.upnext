@@ -230,7 +230,7 @@ class UpNextDetector(object):
             'detected': False
         }
         self._lock = utils.create_lock()
-        self._init_hashes()
+        self.hashes = None
 
         self._running = utils.create_event()
         self._sigstop = utils.create_event()
@@ -424,6 +424,8 @@ class UpNextDetector(object):
            capturing the video frame buffer at a specific size/resolution"""
 
         width, height, aspect_ratio = cls.get_video_resolution()
+        if not aspect_ratio or not width or not height:
+            return None, None
 
         # Capturing render buffer at higher resolution captures more detail
         # depending on Kodi scaling function used, but slows down processing.
@@ -874,7 +876,7 @@ class UpNextDetector(object):
 
     def credits_detected(self):
         # Ignore invalidated hash data
-        if not self.hashes.is_valid():
+        if not self.hashes or not self.hashes.is_valid():
             return False
 
         return self.match_counts['detected']
@@ -892,7 +894,10 @@ class UpNextDetector(object):
         width = int(width.replace(',', ''))
         height = xbmc.getInfoLabel('Player.Process(VideoHeight)')
         height = int(height.replace(',', ''))
-        aspect_ratio = width / height
+        if width and height:
+            aspect_ratio = width / height
+        else:
+            aspect_ratio = None
 
         resolution = width, height, aspect_ratio
         _cache[0] = resolution
@@ -906,11 +911,19 @@ class UpNextDetector(object):
     def start(self, restart=False):
         """Method to run actual detection test loop in a separate thread"""
 
+        resolution = self._get_video_capture_resolution(
+            max_size=SETTINGS.detector_data_limit
+        )
+        if None in resolution:
+            self.log('No video playing')
+            return
+
         if restart or self._running.is_set():
             self.stop()
 
         # Reset detector data if episode has changed
-        if not self.hashes.is_valid(item=self.state.current_item):
+        if (not self.hashes
+                or self.hashes.is_valid(item=self.state.current_item)):
             self._init_hashes()
 
         # If a previously detected timestamp exists then use it
@@ -929,9 +942,7 @@ class UpNextDetector(object):
             queue = self._queue_create()
             queue.put_nowait([
                 xbmc.RenderCapture(),
-                self._get_video_capture_resolution(
-                    max_size=SETTINGS.detector_data_limit
-                )
+                resolution,
             ])
             self.workers = [utils.run_threaded(self._queue_push,
                                                kwargs={'queue': queue})]
@@ -970,7 +981,8 @@ class UpNextDetector(object):
             self.queue = None
             if terminate:
                 # Invalidate collected hashes if not needed for later use
-                self.hashes.invalidate()
+                if self.hashes:
+                    self.hashes.invalidate()
                 # Delete reference to instances if not needed for later use
                 del self.player
                 self.player = None
@@ -980,7 +992,7 @@ class UpNextDetector(object):
     def store_data(self):
         # Only store data for videos that are grouped by season (i.e. same show
         # title, same season number)
-        if not self.hashes.is_valid(for_saving=True):
+        if not self.hashes or not self.hashes.is_valid(for_saving=True):
             return
 
         self.past_hashes.hash_size = self.hashes.hash_size
