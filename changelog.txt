@@ -1,4 +1,27 @@
 ## Releases
+### v2.0.29+dev.0 (2024-08-27)
+- Improve TMDbHelper integration and playback #33
+  - Workaround for TMDb Helper integration failing when video not added to internal video playlist
+  - Add setting to only use minimal TMDbHelper integration
+  - Don't iterate through episodes retrieved from TMDbH unnecessarily
+  - Update parameters used to call TMDbHelper
+  - Improve detection of episode media from metadata
+  - Double check if a video plugin is being used prior to enabling TMDbHelper integration
+  - Use current TMDbHelper player when getting next episodes
+  - Only queue next episodes from TMDbHelper if a player is selected
+  - Fallback to default player in TMDbHelper when no player has been selected
+  - Attempt to intercept TMDbHelper playback if a player has not been selected
+  - Make exact TMDbHelper match off by default
+  - Add fallbacks for missing firstaired metadata from TMDbHelper #37
+  - Don't play next episode from TMDbHelper if it is unaired #38
+- Add setting to force default action after popup is shown
+- Enable additional episode art fallbacks
+  - Fallbacks for skins that use landscape/fanart art types in popup
+  - Allow display season and tvshow artwork if thumbnails for unwatched episodes are disabled in Kodi
+- Update default action setting to follow currently highlighted popup button
+- Only send Trakt NEXTUPWATCHEDSIGNAL notification for content with valid dbid
+- Fix detector trying to run when no video stream is playing
+
 ### v2.0.28+dev.0 (2024-05-23)
 - Prevent unnecessary retries in api methods and when testing
 - Update date display in popups
