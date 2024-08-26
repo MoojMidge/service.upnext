@@ -402,7 +402,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         player = players.current_player or players.get_default_player()
         player = (player and player.get('file')) or addon_id
         episodes = players.get_next_episodes(player)
-        if not episodes or len(episodes) < 2:
+        if not episodes:
             return
 
         if player and SETTINGS.queue_from_tmdb and players.queue(episodes):

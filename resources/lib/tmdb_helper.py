@@ -190,6 +190,11 @@ class Players(_Players):
                                      self.season,
                                      self.episode,
                                      player)
+        if episodes and len(episodes) > 1:
+            if episodes[1].is_unaired(check_hide_settings=False):
+                episodes = None
+        else:
+            episodes = None
         # pylint: disable-next=attribute-defined-outside-init
         self._next_episodes = episodes
         return episodes
