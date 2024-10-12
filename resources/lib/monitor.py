@@ -508,17 +508,23 @@ class UpNextMonitor(xbmc.Monitor, object):
                 self.popuphandler = None
                 self.log('Cleanup popuphandler')
 
-    def _widget_reload(self, init=False):
-        if self._idle[0] != constants.IDLE_STATE['idle']:
-            return 0
-        now = int(time())
-        if init:
-            if xbmc.getCondVisibility('System.ScreenSaverActive'):
-                self._idle[0] = constants.IDLE_STATE['sleeping']
-            self._idle[1] = now
-        delta = now - self._idle[1]
-        if delta <= SETTINGS.widget_refresh_period - 10:
-            return delta
+    def _widget_reload(self, init=False, force=False):
+        if force:
+            now = int(time())
+        else:
+            if self._idle[0] != constants.IDLE_STATE['idle']:
+                utils.set_property(constants.WIDGET_RELOAD_PROPERTY_NAME, '')
+                return 0
+            now = int(time())
+            if init:
+                if xbmc.getCondVisibility('System.ScreenSaverActive'):
+                    self._idle[0] = constants.IDLE_STATE['sleeping']
+                self._idle[1] = now
+            delta = now - self._idle[1]
+            if delta <= SETTINGS.widget_refresh_period - 10:
+                utils.set_property(constants.WIDGET_RELOAD_PROPERTY_NAME, '')
+                return delta
+
         self.log('Widget reload')
         self._idle[1] = now
         utils.set_property(constants.WIDGET_RELOAD_PROPERTY_NAME, str(now))
@@ -631,7 +637,7 @@ class UpNextMonitor(xbmc.Monitor, object):
             self.log('UpNext disabled', utils.LOGINFO)
             self.stop()
         elif self._started:
-            self._widget_reload()
+            self._widget_reload(force=True)
         else:
             self.log('UpNext enabled', utils.LOGINFO)
             self.start()

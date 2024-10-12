@@ -387,6 +387,10 @@ def play_plugin(addon_handle, addon_id, **kwargs):  # pylint: disable=unused-arg
     Players(**kwargs).play(handle=addon_handle)
 
 
+_reload = {
+    'last': 0,
+}
+
 @utils.Profiler(enabled=SETTINGS.widget_debug, lazy=True)
 def run(argv):
     addon_handle = int(argv[1])
@@ -400,6 +404,13 @@ def run(argv):
     content_items = content.get('items')
     content_handler = content.get('handler')
     addon_args['__path__'] = addon_path
+
+    reload_time = utils.get_property(constants.WIDGET_RELOAD_PROPERTY_NAME)
+    if reload_time:
+        reload_time = int(reload_time)
+        if _reload['last'] != reload_time:
+            _reload['last'] = reload_time
+            SETTINGS.update()
 
     if content_type == 'action' and content_handler:
         return content_handler(addon_handle, addon_id, **addon_args)
