@@ -127,6 +127,9 @@ def generate_similar_movies_list(addon_handle, addon_id, **kwargs):  # pylint: d
         title = movie['title']
         label = utils.localize(constants.MORE_LIKE_THIS_STR_ID).format(title)
         xbmcplugin.setPluginCategory(addon_handle, label)
+    else:
+        title = ''
+        label = ''
 
     listing = []
     for movie in movies:
@@ -203,6 +206,9 @@ def generate_similar_tvshows_list(addon_handle, addon_id, **kwargs):  # pylint: 
         title = tvshow['title']
         label = utils.localize(constants.MORE_LIKE_THIS_STR_ID).format(title)
         xbmcplugin.setPluginCategory(addon_handle, label)
+    else:
+        title = ''
+        label = ''
 
     listing = []
     for tvshow in tvshows:
@@ -320,6 +326,9 @@ def generate_similar_media_list(addon_handle, addon_id, **kwargs):  # pylint: di
         title = original['title']
         label = utils.localize(constants.MORE_LIKE_THIS_STR_ID).format(title)
         xbmcplugin.setPluginCategory(addon_handle, label)
+    else:
+        title = ''
+        label = ''
 
     videos = utils.merge_iterable(*similar_list, sort='__similarity__')
 
