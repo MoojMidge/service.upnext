@@ -669,50 +669,54 @@ def merge_iterable(*iterables, **kwargs):
     if filter_by:
         include = kwargs.get('include')
         exclude = kwargs.get('exclude')
-        filter_by = {
-            'key': filter_by,
-            'in': include,
-            'out': exclude,
-        } if include or exclude else None
+    else:
+        include = None
+        exclude = None
 
     merged = chain.from_iterable(iterables)
 
     if sort or unique or filter_by:
         descending = kwargs.get('ascending', True)
         subset = set()
-        threshold = {'num': 0}
 
-        def key(item,  # pylint: disable=dangerous-default-value
+        threshold = {'num': 0}
+        value = kwargs.get('threshold')
+        if value is not None:
+            threshold['value'] = value
+
+        def key(item,  # pylint: disable=dangerous-default-value, too-many-arguments
                 sort=sort,
                 unique=unique,
                 filter_by=filter_by,
+                include=include,
+                exclude=exclude,
                 subset=subset,
                 threshold=threshold):
-            if unique in item:
-                unique = item[unique]
-            if sort in item:
+            if sort and sort in item:
                 sort = item[sort]
-            if 'value' not in threshold:
-                threshold['value'] = kwargs.get('threshold') or type(sort)()
+            if 'value' in threshold:
+                cut_off = threshold['value']
+            else:
+                cut_off = threshold['value'] = type(sort)()
 
-
-            if unique is not None:
+            if unique and unique in item:
+                unique = item[unique]
                 if unique in subset:
-                    return threshold['value']
+                    return cut_off
                 subset.add(unique)
 
-            if filter_by:
-                filter_value = item.get(filter_by['key'])
-                if filter_value is not None:
-                    if filter_by['out'] and filter_value in filter_by['out']:
-                        return threshold['value']
-                    if filter_by['in'] and filter_value not in filter_by['in']:
-                        return threshold['value']
+            if filter_by and filter_by in item:
+                filter_by = item[filter_by]
+                if exclude and filter_by in exclude:
+                    return cut_off
+                if include and filter_by not in include:
+                    return cut_off
 
-            if sort is None or sort > threshold['value']:
+            if sort is None or sort > cut_off:
                 threshold['num'] += 1
                 return sort
-            return threshold['value']
+
+            return cut_off
 
         merged = sorted(merged, key=key, reverse=descending)
         if not threshold['num']:
