@@ -665,26 +665,50 @@ def merge_iterable(*iterables, **kwargs):
     sort = kwargs.get('sort')
     unique = kwargs.get('unique')
 
+    filter_by = kwargs.get('filter_by')
+    if filter_by:
+        include = kwargs.get('include')
+        exclude = kwargs.get('exclude')
+        filter_by = {
+            'key': filter_by,
+            'in': include,
+            'out': exclude,
+        } if include or exclude else None
+
     merged = chain.from_iterable(iterables)
 
-    if sort or unique:
+    if sort or unique or filter_by:
         descending = kwargs.get('ascending', True)
         subset = set()
         threshold = {'num': 0}
 
         def key(item,  # pylint: disable=dangerous-default-value
-                sort=sort, unique=unique,
-                subset=subset, threshold=threshold):
+                sort=sort,
+                unique=unique,
+                filter_by=filter_by,
+                subset=subset,
+                threshold=threshold):
             if unique in item:
                 unique = item[unique]
             if sort in item:
                 sort = item[sort]
             if 'value' not in threshold:
                 threshold['value'] = kwargs.get('threshold') or type(sort)()
+
+
             if unique is not None:
                 if unique in subset:
                     return threshold['value']
                 subset.add(unique)
+
+            if filter_by:
+                filter_value = item.get(filter_by['key'])
+                if filter_value is not None:
+                    if filter_by['out'] and filter_value in filter_by['out']:
+                        return threshold['value']
+                    if filter_by['in'] and filter_value not in filter_by['in']:
+                        return threshold['value']
+
             if sort is None or sort > threshold['value']:
                 threshold['num'] += 1
                 return sort
