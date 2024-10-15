@@ -80,7 +80,8 @@ def _border_mask(size, border_colour, fill_colour, *box):
     return element
 
 
-def _fade_mask(size, level_start, level_stop, steps, power, box,  # pylint: disable=too-many-arguments, too-many-locals
+# pylint: disable=too-many-arguments, too-many-locals, too-many-positional-arguments
+def _fade_mask(size, level_start, level_stop, steps, power, box,
                _format=_FORMAT, _int=int, _max=max,
                _paste=Image.Image.paste):
     dimensions = len(box)

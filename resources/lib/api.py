@@ -1239,8 +1239,8 @@ def get_upnext_movies_from_library(limit=25,
 
     return upnext_movies
 
-
-def get_videos_from_library(db_type,  # pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments, too-many-positional-arguments
+def get_videos_from_library(db_type,
                             limit=25,
                             sort=None,
                             properties=None,
@@ -1463,7 +1463,7 @@ class InfoTagComparator(object):
         return 0
 
     @staticmethod
-    # pylint: disable-next=too-many-arguments, dangerous-default-value
+    # pylint: disable-next=too-many-arguments, dangerous-default-value, too-many-positional-arguments
     def tokenise(values,
                  split=_token_split,
                  min_length=constants.TOKEN_LENGTH,
@@ -1494,7 +1494,7 @@ class InfoTagComparator(object):
         return processed_tokens - ignore_set
 
 
-# pylint: disable=too-many-arguments, too-many-locals, too-many-statements, too-many-branches
+# pylint: disable=too-many-arguments, too-many-locals, too-many-statements, too-many-branches, too-many-positional-arguments
 def get_similar_from_library(db_type,
                              limit=25,
                              original=None,

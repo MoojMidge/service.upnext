@@ -684,7 +684,8 @@ def merge_iterable(*iterables, **kwargs):
         if value is not None:
             threshold['value'] = value
 
-        def key(item,  # pylint: disable=dangerous-default-value, too-many-arguments
+        # pylint: disable=dangerous-default-value, too-many-arguments, too-many-positional-arguments
+        def key(item,
                 sort=sort,
                 unique=unique,
                 filter_by=filter_by,
