@@ -1,4 +1,9 @@
 ## Releases
+### v2.0.30+dev.0 (2024-10-24)
+- Ensure settings are reloaded for plugin invocations when settings change
+- Improve UpNext tvshow/episode widget
+- Always send Trakt NEXTUPWATCHEDSIGNAL to workaround scrobbling issues #39
+
 ### v2.0.29+dev.0 (2024-08-27)
 - Improve TMDbHelper integration and playback #33
   - Workaround for TMDb Helper integration failing when video not added to internal video playlist
