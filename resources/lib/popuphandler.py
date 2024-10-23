@@ -240,13 +240,7 @@ class UpNextPopupHandler(object):
         self.state.shuffle_on = popup_state['shuffle_on']
 
         # Signal to Trakt that current item has been watched
-        current_item = self.state.current_item
-        if current_item:
-            current_id = current_item.get('id')
-            if current_id and current_id != constants.UNDEFINED:
-                utils.event(message='NEXTUPWATCHEDSIGNAL',
-                            data=api.get_item_id(current_item),
-                            encoding='base64')
+        utils.event(message='NEXTUPWATCHEDSIGNAL')
 
         play_next = False
         # Stop playing if Stop button was clicked on popup, or if Still
