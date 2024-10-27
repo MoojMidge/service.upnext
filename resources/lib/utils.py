@@ -497,7 +497,7 @@ def get_year(date_string):
     try:
         date_object = dateutil_parse(date_string)
         return date_object.year
-    except ValueError:
+    except (OverflowError, TypeError, ValueError):
         return date_string
 
 
@@ -506,7 +506,7 @@ def iso_datetime(date_string, separator=str(' ')):
 
     try:
         date_object = dateutil_parse(date_string).replace(microsecond=0)
-    except ValueError:
+    except (OverflowError, TypeError, ValueError):
         return date_string
 
     return date_object.isoformat(separator)
@@ -519,7 +519,7 @@ def localize_date(date_string):
 
     try:
         date_object = dateutil_parse(date_string)
-    except ValueError:
+    except (OverflowError, TypeError, ValueError):
         return None, date_string
 
     return date_object, date_object.strftime(date_format)

@@ -240,8 +240,7 @@ def create_episode_listitem(episode,
 
     episode_num = episode.get('episode')
     episode_title = episode.get('title', '')
-    first_aired = episode.get('firstaired') or episode.get('premiered') or ''
-    year = episode.get('year', 0)
+    date_info = episode.get('firstaired') or episode.get('premiered')
     season = episode.get('season')
     show_title = episode.get('showtitle', '')
 
@@ -251,13 +250,18 @@ def create_episode_listitem(episode,
     num_unwatched = max(0, num_episodes - num_watched)
     progress = round(100 * num_watched / num_episodes) if num_episodes else 0
 
-    if first_aired:
-        first_aired_obj, first_aired_short = utils.localize_date(first_aired)
-        if first_aired_obj:
-            year = first_aired_obj.year
-            first_aired = str(first_aired_obj)
+    if date_info:
+        date, short_date = utils.localize_date(str(date_info))
+        if date:
+            long_date = str(date)
+            year = date.year
+        else:
+            long_date = short_date
+            year = episode.get('year') or short_date
     else:
-        first_aired_short = first_aired
+        short_date = ''
+        long_date = ''
+        year = episode.get('year') or ''
 
     season_episode = (
         '' if episode_num is None
@@ -269,7 +273,7 @@ def create_episode_listitem(episode,
         show_title,
         season_episode,
         episode_title,
-        first_aired_short
+        short_date,
     )
 
     _kwargs = {
@@ -292,10 +296,10 @@ def create_episode_listitem(episode,
         'tvshowtitle': show_title,
         'season': constants.UNDEFINED if season is None else season,
         'episode': constants.UNDEFINED if episode_num is None else episode_num,
-        'aired': first_aired,
-        'premiered': first_aired,
+        'aired': long_date,
+        'premiered': long_date,
         'year': year,
-        'mediatype': 'episode'
+        'mediatype': 'episode',
     }
     if infolabels:
         _infolabels.update(infolabels)
