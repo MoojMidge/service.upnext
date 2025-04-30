@@ -279,7 +279,17 @@ FILTER_THIS_SEASON = {
     'operator': 'is',
     'value': constants.UNDEFINED_STR
 }
+FILTER_NEXT_SEASON = {
+    'field': 'season',
+    'operator': 'greaterthan',
+    'value': constants.UNDEFINED_STR
+}
 
+FILTER_FIRST_EPISODE = {
+    'field': 'episode',
+    'operator': 'lessthan',
+    'value': '2'
+}
 FILTER_THIS_EPISODE = {
     'field': 'episode',
     'operator': 'is',
@@ -334,6 +344,26 @@ FILTER_UNWATCHED_UPNEXT_EPISODE = {
         FILTER_UNWATCHED,
         FILTER_THIS_SEASON,
         FILTER_NEXT_EPISODE
+    ]
+}
+
+FILTER_UPNEXT_SEASON_EPISODE = {
+    'or': [
+        FILTER_UPNEXT_EPISODE,
+        {'and': [
+            FILTER_NEXT_SEASON,
+            FILTER_FIRST_EPISODE
+        ]}
+    ]
+}
+FILTER_UNWATCHED_UPNEXT_SEASON_EPISODE = {
+    'or': [
+        FILTER_UNWATCHED_UPNEXT_EPISODE,
+        {'and': [
+            FILTER_UNWATCHED,
+            FILTER_NEXT_SEASON,
+            FILTER_FIRST_EPISODE
+        ]}
     ]
 }
 
@@ -817,11 +847,19 @@ def get_next_episode_from_library(episode=constants.UNDEFINED,
         sort = SORT_RANDOM
     elif next_season:
         sort = SORT_DATE
-        FILTER_NEXT_EPISODE['value'] = str(episode['episode'])
-        aired = utils.iso_datetime(episode['firstaired'])
-        FILTER_AIRED['value'] = aired.split()[0]
-        FILTER_NEXT_AIRED['value'] = aired
-        filters.append(FILTER_UPNEXT_AIRED)
+        aired = episode['firstaired']
+        if aired:
+            aired = utils.iso_datetime(aired)
+            FILTER_AIRED['value'] = aired.split()[0]
+            FILTER_NEXT_AIRED['value'] = aired
+            FILTER_NEXT_EPISODE['value'] = str(episode['episode'])
+            filters.append(FILTER_UPNEXT_AIRED)
+        else:
+            season = str(episode['season'])
+            FILTER_NEXT_SEASON['value'] = season
+            FILTER_THIS_SEASON['value'] = season
+            FILTER_NEXT_EPISODE['value'] = str(episode['episode'])
+            filters.append(FILTER_UPNEXT_SEASON_EPISODE)
     else:
         sort = SORT_EPISODE
         FILTER_THIS_SEASON['value'] = str(episode['season'])
