@@ -992,30 +992,29 @@ def get_tvshowid(title):
     return tvshowid
 
 
-def get_episodeid(tvshowid, season, episode):
-    """Function to search Kodi library for episodeid by tvshowid, season, and
-       episode"""
+def get_episode_info(tvshowid, season, episode):
+    """Function to search Kodi library for episode info by tvshowid, season, and
+       episode number"""
 
     FILTER_THIS_SEASON['value'] = str(season)
     FILTER_THIS_EPISODE['value'] = str(episode)
 
     result, _ = get_videos_from_library(db_type='episodes',
                                         limit=1,
-                                        properties=[],
                                         filters=FILTER_EPISODE,
                                         params={'tvshowid': tvshowid})
 
     if not result:
-        log('episodeid for tvshowid {0} S{1}E{2} not found in library'.format(
+        log('Info for tvshowid {0} S{1}E{2} not found in library'.format(
             tvshowid, season, episode
         ), utils.LOGWARNING)
-        return constants.UNDEFINED
+        return None
 
     episodeid = utils.get_int(result, 'episodeid')
-    log('Found episodeid {0} for tvshowid {1} S{2}E{3}'.format(
+    log('Found info (episodeid {0}) for tvshowid {1} S{2}E{3}'.format(
         episodeid, tvshowid, season, episode
     ))
-    return episodeid
+    return result
 
 
 def get_details_from_library(db_type=None,

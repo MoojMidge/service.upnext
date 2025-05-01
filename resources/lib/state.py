@@ -365,11 +365,13 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         episodeid = (utils.get_int(current_video, 'episodeid', None)
                      or utils.get_int(current_video, 'id'))
         if episodeid == constants.UNDEFINED:
-            episodeid = api.get_episodeid(tvshowid, season, episode)
-        # Now playing episode not found in library
-        if episodeid == constants.UNDEFINED:
-            return None
-        current_video['episodeid'] = episodeid
+            details = api.get_episode_info(tvshowid, season, episode)
+            # Now playing episode not found in library
+            if not details:
+                return None
+            current_video = dict(current_video, **details)
+        else:
+            current_video['episodeid'] = episodeid
 
         return current_video
 
