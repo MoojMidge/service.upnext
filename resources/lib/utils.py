@@ -599,16 +599,20 @@ def calc_wait_time(end_time=None, start_time=0, rate=None):
     return max(0, (end_time - start_time) // rate)
 
 
-def create_item_details(item, source=None, position=None):
+def create_item_details(item, source=None, position=None, reset=False):
     """Create item_details dict used by state, api and plugin modules"""
 
-    if item == 'empty':
+    if reset:
         return {
             'details': {},
             'source': None,
             'type': None,
             'id': constants.UNDEFINED,
-            'group_name': constants.UNKNOWN,
+            'group_name': (
+                item.get('group_name') or constants.UNKNOWN
+                if item else
+                constants.UNKNOWN
+            ),
             'group_idx': constants.UNDEFINED,
         }
 

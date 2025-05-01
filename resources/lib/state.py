@@ -43,7 +43,7 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         self.data = None
         self.encoding = 'base64'
         # Current video details
-        self.current_item = utils.create_item_details('empty')
+        self.current_item = utils.create_item_details(item=None, reset=True)
         self.filename = None
         self.total_time = 0
         # Popup state variables
@@ -74,7 +74,10 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         if self.next_item:
             self.current_item = self.next_item
         else:
-            self.current_item = utils.create_item_details('empty')
+            self.current_item = utils.create_item_details(
+                item=self.current_item,
+                reset=True,
+            )
         self.next_item = None
 
     def get_tracked_file(self):
