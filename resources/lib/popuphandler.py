@@ -301,6 +301,11 @@ class UpNextPopupHandler(object):
         if error or not self._show_popup():
             return self._popup_state(old_state=popup_state, abort=True)
 
+        # Use 1s offset from total_time to try and avoid race condition with
+        # internal Kodi playlist handling
+        if SETTINGS.enable_queue:
+            total_time -= 1
+
         # If cue point was provided then UpNext will auto play after a fixed
         # delay time, rather than waiting for the end of the file
         if popup_state['play_on_cue']:

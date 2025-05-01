@@ -195,6 +195,12 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
     def set_popup_time(self, total_time):
         popup_time = 0
 
+        # Use 1s offset from total_time to try and avoid race condition with
+        # internal Kodi playlist handling
+        self.total_time = total_time
+        if SETTINGS.enable_queue:
+            total_time -= 1
+
         # Alway use plugin data, when available
         if self.get_plugin_type():
             # Some plugins send the time from video end
@@ -233,7 +239,6 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             self.popup_cue = SETTINGS.sim_cue == constants.SETTING_ON
 
         self.popup_time = popup_time
-        self.total_time = total_time
         self._set_detect_time()
 
         self.log('Popup: due at {0}s of {1}s (cue: {2})'.format(
