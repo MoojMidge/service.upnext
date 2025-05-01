@@ -318,9 +318,9 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
 
         # Previously resolved listitems may lose infotags that are set when the
         # listitem is resolved. Fallback to Player notification data.
+        values_to_replace = {constants.UNDEFINED, constants.UNKNOWN, ''}
         for info, value in play_info['item'].items():
-            current_value = current_video.get(info, '')
-            if current_value in {constants.UNDEFINED, constants.UNKNOWN, ''}:
+            if current_video.get(info, '') in values_to_replace:
                 current_video[info] = value
 
         tvshowid = current_video.get('tvshowid', constants.UNDEFINED)

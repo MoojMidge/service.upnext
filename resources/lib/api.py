@@ -1276,6 +1276,7 @@ def get_upnext_movies_from_library(limit=25,
 
     return upnext_movies
 
+
 # pylint: disable=too-many-arguments, too-many-positional-arguments
 def get_videos_from_library(db_type,
                             limit=25,
