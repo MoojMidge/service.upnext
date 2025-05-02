@@ -146,8 +146,10 @@ RECOMMENDATION_PROPERTIES = {
 }
 
 PLAYER_PLAYLIST = {
-    'video': xbmc.PLAYLIST_VIDEO,  # 1
+    'none': -1,
     'audio': xbmc.PLAYLIST_MUSIC,  # 0
+    'video': xbmc.PLAYLIST_VIDEO,  # 1
+    'picture': 2,
 }
 
 JSON_MAP = {
@@ -727,7 +729,7 @@ def get_playerid(retry=3):
         return None
 
     for player in result:
-        if player.get('type', 'video') in PLAYER_PLAYLIST:
+        if player.get('type') in PLAYER_PLAYLIST:
             playerid = utils.get_int(player, 'playerid')
             break
     else:
@@ -751,7 +753,7 @@ def get_playlistid():
                            params={'playerid': get_playerid(),
                                    'properties': ['playlistid']})
     playlistid = utils.get_int(result.get('result', {}), 'playlistid',
-                               PLAYER_PLAYLIST['video'])
+                               PLAYER_PLAYLIST['none'])
 
     log('Selected playlistid: {0}'.format(playlistid))
     _CACHE['playlistid'] = playlistid
