@@ -42,6 +42,7 @@ class UpNextSettings(object):
         'enable_tmdbhelper_fallback',
         'enable_queue',
         'enable_resume',
+        'event_delay',
         'exact_tmdb_match',
         'force_default_action',
         'import_tmdbhelper',
@@ -255,6 +256,7 @@ class UpNextSettings(object):
         self.resume_from_end = self.get_int('resumeFromEnd') / 100
 
         self.start_delay = self.get_int('startDelay')
+        self.event_delay = self.get_int('eventDelay')
         self.api_retry_attempts = self.get_int('apiRetryAttempts')
         self.disabled = self.get_bool('disableNextUp')
 

@@ -161,7 +161,7 @@ class UpNextMonitor(xbmc.Monitor, object):
 
     def _event_handler_av_start(self, **kwargs):
         # Delay event handler execution to allow events to queue up
-        self.waitForAbort(1)
+        self.waitForAbort(SETTINGS.event_delay)
         # Clear queue to stop processing additional queued events
         self._queue_length = 0
 
@@ -184,7 +184,7 @@ class UpNextMonitor(xbmc.Monitor, object):
 
     def _event_handler_player_general(self, **_kwargs):
         # Delay event handler execution to allow events to queue up
-        self.waitForAbort(1)
+        self.waitForAbort(SETTINGS.event_delay)
         # Only process this event if it is the last in the queue
         if self._queue_length != 1:
             return
@@ -212,7 +212,7 @@ class UpNextMonitor(xbmc.Monitor, object):
 
     def _event_handler_player_stop(self, **_kwargs):
         # Delay event handler execution to allow events to queue up
-        self.waitForAbort(1)
+        self.waitForAbort(SETTINGS.event_delay)
         # Only process this event if it is the last in the queue
         if self._queue_length != 1:
             return
@@ -240,7 +240,7 @@ class UpNextMonitor(xbmc.Monitor, object):
         self._idle[0] = constants.IDLE_STATE['idle']
 
         # Delay event handler execution to allow events to queue up
-        self.waitForAbort(1)
+        self.waitForAbort(SETTINGS.event_delay)
         # Only process this event if it is the last in the queue
         if self._queue_length != 1:
             return
@@ -285,7 +285,7 @@ class UpNextMonitor(xbmc.Monitor, object):
 
     def _event_handler_upnext_signal(self, **kwargs):
         # Delay event handler execution to allow events to queue up
-        self.waitForAbort(1)
+        self.waitForAbort(SETTINGS.event_delay)
         # Clear queue to stop processing additional queued events
         self._queue_length = 0
 

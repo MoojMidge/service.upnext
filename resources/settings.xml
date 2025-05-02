@@ -624,6 +624,19 @@
                         <formatlabel>14045</formatlabel>
                     </control>
                 </setting>
+                <setting id="eventDelay" type="integer" label="30718" help="">
+                    <level>0</level>
+                    <default>1</default>
+                    <constraints>
+                        <minimum>1</minimum>
+                        <step>1</step>
+                        <maximum>10</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                        <formatlabel>14045</formatlabel>
+                    </control>
+                </setting>
                 <setting id="apiRetryAttempts" type="integer" label="30706" help="">
                     <level>0</level>
                     <default>3</default>

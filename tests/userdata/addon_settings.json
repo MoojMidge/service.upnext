@@ -37,6 +37,7 @@
 		"enableResume": "false",
 		"enableStillWatching": "true",
 		"enableTMDBHelper": "true",
+		"eventDelay": 1,
 		"importTMDBHelper": "true",
         "exactTMDBMatch": "true",
 		"includeWatched": "false",
