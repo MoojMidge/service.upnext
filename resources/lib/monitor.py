@@ -139,7 +139,7 @@ class UpNextMonitor(xbmc.Monitor, object):
         )
         if now_playing_item and now_playing_item['details']:
             self.state.start_tracking(play_info['file'])
-            self.state.reset_queue()
+            self.state.reset_queue(on_start=True)
 
             # Store popup time and check if cue point was provided
             self.state.set_popup_time(play_info['duration'])
@@ -208,7 +208,7 @@ class UpNextMonitor(xbmc.Monitor, object):
     def _event_handler_player_start(self, **_kwargs):
         # Workaround for service.trakt failing to track watched time if current
         # playlist position changes after its onAVStarted callback executes
-        self.state.reset_queue()
+        self.state.reset_queue(on_start=True)
 
     def _event_handler_player_stop(self, **_kwargs):
         # Delay event handler execution to allow events to queue up

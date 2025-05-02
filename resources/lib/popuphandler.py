@@ -275,8 +275,10 @@ class UpNextPopupHandler(object):
             # Request playback of next file based on source and type
             keep_playing = self._play_next_video(next_item, popup_state, queued)
             # Update played in a row count if auto_play otherwise reset
-            self.state.played_in_a_row = (1 if popup_state['play_now']
-                                          else self.state.played_in_a_row + 1)
+            if popup_state['play_now']:
+                self.state.played_in_a_row = 1
+            elif not queued:
+                self.state.played_in_a_row += 1
 
         return next_item, play_next, keep_playing, restart
 

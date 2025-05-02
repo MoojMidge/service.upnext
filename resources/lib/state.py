@@ -100,8 +100,13 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
         self.filename = None
         self.log('Tracking reset')
 
-    def reset_queue(self):
+    def reset_queue(self, on_start=False):
         if self.queued:
+            if on_start:
+                playcount = self.played_in_a_row
+                self.played_in_a_row = playcount + 1
+                self.log('Increment group playcount for queued item: {0} to {1}'
+                         .format(playcount, self.played_in_a_row))
             self.queued = api.reset_queue()
 
     def get_next(self):
@@ -270,10 +275,10 @@ class UpNextState(object):  # pylint: disable=too-many-public-methods
             new_group = new_item['group_name']
             current_group = self.current_item['group_name']
             if new_group != current_group:
+                self.played_in_a_row = 1
                 self.log('Reset playcount: group change - {0} to {1}'.format(
                     current_group, new_group
                 ))
-                self.played_in_a_row = 1
 
             self.current_item = new_item
         return self.current_item
