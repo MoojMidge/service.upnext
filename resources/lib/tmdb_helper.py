@@ -5,6 +5,8 @@ from __future__ import absolute_import, division, unicode_literals
 
 import sys
 from importlib import import_module
+
+
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -102,16 +104,51 @@ _TMDb = ClassImport(
     'TMDb',
     obj_attrs={'api_key': 'b5004196f5004839a7b0a89e623d3bd2'},
 )
-get_next_episodes = ObjectImport(
-    'tmdbhelper_lib.player.details',
-    'get_next_episodes',
-    mod_attrs={'TMDb': _TMDb},
-)
+
+try:
+    _PlayerNextEpisodes = ClassImport(
+        'tmdbhelper_lib.player.details',
+        'PlayerNextEpisodes',
+        mod_attrs={
+            'TMDb': _TMDb,
+        },
+    )
+    if not _PlayerNextEpisodes:
+        raise ImportError
+
+
+    def get_next_episodes(tmdb_id, season, episode, player=None):
+        # pylint: disable-next=not-callable
+        items = _PlayerNextEpisodes(tmdb_id, season, episode, player).items
+        if items and len(items) > 1:
+            if items[1].format_unaired_label():
+                return None
+            return items
+        return None
+
+except ImportError:
+    _get_next_episodes = ObjectImport(
+        'tmdbhelper_lib.player.details',
+        'get_next_episodes',
+        mod_attrs={'TMDb': _TMDb},
+    )
+
+
+    def get_next_episodes(tmdb_id, season, episode, player=None):
+        # pylint: disable-next=not-callable
+        items = _get_next_episodes(tmdb_id, season, episode, player)
+        if items and len(items) > 1:
+            if items[1].is_unaired():
+                return None
+            return items
+        return None
+
 get_item_details = ObjectImport(
     'tmdbhelper_lib.player.details',
     'get_item_details',
     mod_attrs={'TMDb': _TMDb},
 )
+
 _Players = ClassImport(
     'tmdbhelper_lib.player.players',
     'Players',
@@ -123,20 +160,20 @@ _Players = ClassImport(
 
 
 class TMDb(_TMDb):  # pylint: disable=inherit-non-class,too-few-public-methods
-    def get_id_details(self, title, season, episode):
-        tmdb_id = self.get_tmdb_id(
-            tmdb_type='tv', query=title, season=season, episode=episode
-        )
-        if not tmdb_id:
-            return None, None
-        details = self.get_details(
-            tmdb_type='tv', tmdb_id=tmdb_id, season=season, episode=episode
-        )
-        return tmdb_id, details
+    def __init__(self, *args, **kwargs):
+        super(TMDb, self).__init__(*args, **kwargs)
+        try:
+            self.tmdb_database.tmdb_api = self
+        except AttributeError:
+            self.tmdb_database = None
+
+    def get_tmdb_id(self, *args, **kwargs):
+        if self.tmdb_database:
+            return self.tmdb_database.get_tmdb_id(*args, **kwargs)
+        return super(TMDb, self).get_tmdb_id(*args, **kwargs)
 
 
-# pylint: disable=inherit-non-class,too-few-public-methods
-class Players(_Players):
+class Players(_Players):  # pylint: disable=inherit-non-class,too-few-public-methods
     @_Players._substitute  # pylint: disable=no-member
     def __init__(self, **kwargs):
         if 'tmdb_id' not in kwargs:
@@ -186,32 +223,12 @@ class Players(_Players):
     @_Players._substitute  # pylint: disable=no-member
     def get_next_episodes(self, player=None):
         # pylint: disable-next=not-callable
-        episodes = get_next_episodes(self.tmdb_id,
-                                     self.season,
-                                     self.episode,
-                                     player)
-        if episodes and len(episodes) > 1:
-            if episodes[1].is_unaired():
-                episodes = None
-        else:
-            episodes = None
+        next_episodes = get_next_episodes(
+            self.tmdb_id, self.season, self.episode, player
+        )
         # pylint: disable-next=attribute-defined-outside-init
-        self._next_episodes = episodes
-        return episodes
-
-    @staticmethod
-    def queue(episodes):
-        from xbmc import PlayList, PLAYLIST_VIDEO
-
-        playlist = PlayList(PLAYLIST_VIDEO)
-        if playlist.getposition() == -1:
-            return False
-
-        for li in episodes[1:]:
-            li.path = 'plugin://service.upnext/play_plugin'
-            listitem = li.get_listitem()
-            playlist.add(listitem.getPath(), listitem)
-        return True
+        self._next_episodes = next_episodes
+        return next_episodes
 
     @_Players._substitute  # pylint: disable=no-member
     def select_player(self, *args, **kwargs):
@@ -261,3 +278,17 @@ def generate_player_data(upnext_data, player=None, play_url=False):
     if play_url:
         return play_url.format(urlencode(data))
     return data
+
+
+def queue_episodes(episodes):
+    from xbmc import PlayList, PLAYLIST_VIDEO
+
+    playlist = PlayList(PLAYLIST_VIDEO)
+    if playlist.getposition() == -1:
+        return False
+
+    for li in episodes[1:]:
+        li.path = 'plugin://service.upnext/play_plugin'
+        listitem = li.get_listitem()
+        playlist.add(listitem.getPath(), listitem)
+    return True
